@@ -6,6 +6,8 @@ The Pedestal Docs repository follows identical guidelines to the source projects
 
 ## Submissions
 
-We appreciate any and all submissions, but please remember Pedestal is very much a work in progress; we may make changes that invalidate or make obselete certain submissions. In particular, **the [app](github.com/pedestal/pedestal/app) is undergoing a major simplifying refactor**. This work should be done Summer of 2013 - please be considerate of this before pouring _too_ much time into that section.
+We appreciate any and all submissions, but please remember Pedestal is very much a work in progress; we may make changes that invalidate or make obselete certain submissions.
+
+In particular, **the [app](github.com/pedestal/pedestal/app) subproject is undergoing a major simplifying refactor**. This work should be done Summer of 2013 - please be considerate of this before pouring _too_ much time into that section.
 
 **If you're planning on making a sizable contribution**: please consider opening an issue or WIP pull request for others to contribute and provide feedback.
