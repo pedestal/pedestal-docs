@@ -62,7 +62,7 @@ life of the request's processing makes use of closure scopes and the
 call stack to retain values calculated before request processing to be
 used after a response has been generated.
 
-![Ring Middleware Composition](/documentation/images/service/middlewares.png)
+![Ring Middleware Composition](/images/service/middlewares.png)
 
 To summarize the qualities of ring request processing:
 
@@ -85,8 +85,10 @@ To summarize the qualities of ring request processing:
 Interceptors aim to explicitly solve the issue of request processing
 being coupled tightly to one thread. It does this with two mechanisms:
 
-1. Interceptors operate on a `context` which explicitly retains all
-    data associated with processing one request.
+1. Interceptors operate on a
+    [context](/documentation/service-context-reference/) which
+    explicitly retains all data associated with processing one
+    request.
 
 2. Interceptors allow the processing of one context to be paused in
     one thread, and resumed in another thread.
@@ -201,7 +203,7 @@ services.
 
 ## Compared with Ring Middleware
 
-![Interceptor Composition](/documentation/images/service/interceptors.png)
+![Interceptor Composition](/images/service/interceptors.png)
 
 Consider the nature of Pedestal Service's Interceptors as compared
 with Ring's Middlewares.

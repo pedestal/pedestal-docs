@@ -53,18 +53,22 @@ the `pedestal.service` layer.
 
 ## What about API Documentation?
 
-For now, you will find the API documentation in the Pedestal
-repository.  To build it, clone the repo, and run `lein marg`
-in the `service` and `app` directories:
+To generate literate-programming-style documentation for the `app` and
+`service` libraries, add the [lein plugin for
+marginalia](https://github.com/fogus/lein-marginalia) to your lein user
+profile. After installing the pedestal libraries you can then `cd` into the
+`app` or `service` directories and run `lein marg`.
 
 ```bash
+cat ~/.lein/profiles.clj
+# {:user {:plugins [[lein-marginalia "0.7.1"]]}}
+
 git clone https://github.com/pedestal/pedestal.git
 cd pedestal
 lein sub install
-cd app && lein marg
-cd ../service && lein marg
+( cd app && lein marg )
+( cd service && lein marg )
 ```
 
 This will create the documentation for `pedestal.app` and
-`pedestal.service`, in their respective `docs/` directory.
-
+`pedestal.service` in their respective `docs` directory.
