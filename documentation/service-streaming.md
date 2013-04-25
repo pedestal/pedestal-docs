@@ -1,3 +1,7 @@
+---
+title: Streaming Data
+---
+
 <!--
  Copyright 2013 Relevance, Inc.
 
@@ -10,9 +14,6 @@
 
  You must not remove this notice, or any other, from this software.
 -->
----
-title: Streaming Data
----
 
 # Streaming Responses
 
