@@ -376,157 +376,223 @@ emit).
 
 
 ### Transform
+The first dataflow function responsible for handling messages is the `transform`.  Transforms have three components.  The first component is the transform's name.  It identifies which messages it handles.  For example, a transform with the name `:temperature` will handle messages with a topic of `:temperature`.  The second component is the transform's output path to its data model.  This is the location that stores the transform value.  For example, an output path of `[:a :b]` can be visualized as follows: `{:a {:b 'data-value}}`.  The transform would have the value 'data-value.  The third component is the transform function.  The transform function must take two parameters.  The first parameter is the old data value.  From above, it would be 'data-value.  The second parameter is the actual message itself.  When the transform is ran, it will update the old data model with the new value generated from the transform function.
 
-A `transform` function receives input messages from the outside
-world and applies a transformation to the data model. Each message
-topic is mapped to a specific transform function. There is also a model
-(state) associated with each of these functions. When called, is will be
-passed the old value of its model and a message and it will return the new
-model value.
-
-This function can be thought of as a reducer over a stream of messages
-with the same topic.
-
-Transform functions are not related to the app tree deltas
-`transform-enable` or `transform-disable`. Anyone can send a message
-to any transform function at any time.
-
-As a simple example, suppose that we have incoming messages which
-report the temperature outside every minute. The topic for these
-messages could be something like `:temperature` and the type could be
-`:add-temperature`.
+There are three forms for declaring a transform.  The first is a vector form:
 
 ```clojure
-{msg/topic :temperature msg/type :add-temperature :t 32}
+[:transform-key [output-path] 'transform-fn]
 ```
 
-The data model could be a vector of numbers. The transform function
-would look like this:
+The second form is a map form:
 
 ```clojure
-(defn add-temperature-transform [old-model message]
-  (condp = (msg/type message)
-    msg/init (:value message)
-    :add-temperature (conj old-model (:t message))
-    old-model))
+{:key transform-key :out [output-path] :fn 'transform-fn}
 ```
 
-As shown above, models should always handle the `::init` message type. This
-message sets the initial value of the data model when the application
-starts.
-
-In the map which describes a dataflow, a transform is configured by
-indicating the topic that the model consumes, the transform function
-and providing an initial value to be sent to the transform.
+The third form is another map form:
 
 ```clojure
-{:transform {:temperature {:init [] :fn add-temperature-transform}}}
+{msg/topic transform-key msg/type [output-path] :fn 'transform-fn}
 ```
 
-
-### Effect
-
-An `effect` function is used to generate messages which will be sent
-out of the application model to have an effect on the outside world. This
-function takes the input message and a data model associated with a
-transform or combine as input and returns a sequence of messages.
-
-The returned messages will be placed on the output queue when a
-transaction completes.
-
-Effect functions have three arguments: the input message, the old
-data model value and the new data model value.
+Here is an example.  A message is defined as follows:
 
 ```clojure
-(defn control-thermostat-effect [message old-model new-model]
-  [{msg/topic :control 
-    msg/type :change-target-temp
-    :t (:target-temp new-model)}])
+{msg/topic :temperature msg/type :new-temperature :t 32}
 ```
 
-An effect function is configured in the dataflow description by
-mapping a transform or combine to an effect function.
+The transform function that will handle this in the dataflow is:
 
 ```clojure
-{:effect {:some-transform-or-combine control-thermostat-effect}}
+{:transform [{:key :temperature :out [:temp] :fn (fn [old-temp msg] (:t msg))}]}
 ```
 
-
-### Combine
-
-A `combine` function takes one or more or the outputs of transform
-functions (data models) and/or combine functions as input and produces
-a new value based on its inputs. When an input changes during a dataflow,
-the combine function will be called in order to update its value.
-
-A combine function has two arities: four and two. When a combine
-function has a single input, the four argument version is used.  When a
-combine function has multiple inputs, the two argument version is
-used. The four argument version takes the old combine state, the name
-of the input and the old and new input values and returns a new
-value. Having this version makes it much easier to implement the
-common case of a single input combine.
+OR
 
 ```clojure
-(defn half [state input-name old-value new-value]
-  (/ new-value 2)))
+{:transform [[:temperature [:temp] (fn [old-temp msg] (:t msg))]]}
 ```
 
-The example above is a simple combine which takes a data model representing a
-number and produces a number that is half of its input.
-
-The two argument version takes the old combine state and a map of input
-names to input values. Each input value is a map with `:old` and
-`:new` keys containing the old and new state of each input.
+OR
 
 ```clojure
-(defn sum [state inputs]
-  (let [ns (keep :new (vals inputs))]
-    (apply + ns)))
+{:transform [{msg/type :temperature msg/topic [:temp] :fn (fn [old-temp msg] (:t msg))}]}
 ```
 
-The example above takes multiple inputs where the values are numbers
-and calculates their sum.
+When the transform processes the message, the new value stored at :temp will be 32.
 
-A combine function is configured in the dataflow description by
-giving it a unique name and indicating the function to call and the
-inputs to that function.
+A more complex transform function can handle more than one type of message
 
 ```clojure
-{:combine 
-  {:sum-combine 
-    {:fn sum :input #{:number-of-apples :number-of-oranges}}}}
+{:transform [{:key :temperature :out [:temp]
+              :fn (fn [old-temp msg]
+                       (condp (msg/type msg)
+                         msg/init (:t msg)
+                         :add-temperature (+ old-temp (:t msg))))}]}
 ```
 
+```clojure
+{msg/topic :temperature msg/type msg/init :t 32}
+{msg/topic :temperature msg/type :add-temperature :t 4}
+```
+
+When the init message was receive, the data stored at `:temp` would be `32`.  When the add temperature message happens, it will add the old value to the new value, which in this case, would make `:temp` equal to `36`.
+ 
+### Derive
+
+A derive function is designed to take one or more data models in as inputs, and to produce a new value based on its inputs.  The source of the data models are either transforms, or other derive functions.  Whenever the inputs change, the derive function is run.  There are two general forms for a derive function:
+
+The vector based one:
+
+```clojure
+[[[:input1] [:input2]] [:output-path] 'derive-fn]
+```
+
+or a map based on:
+
+```
+{:in [[:input1] [:input2]] :out [:output-path] :fn 'derive-fn}
+```
+
+The first parameter in the vector form, and the :in, in the map based form, is the list of inputs.  These are paths to the data models.  For example, say you had two transform functions which output their values to `[:temperature]` and `[:humidity]`.  The inputs to the derive function would be `[[:temperature] [:humidity]]`.
+
+The second parameter in the vector, and the :out, in the map based form is the output path of the data model location where the output value should be placed.  This could be `[:humidex]`.
+
+The third parameter in the vector, and the :fn, in the map based form is the derive function. The derive function is the function that will convert the inputs into the new value at the output path.  The derive function takes two parameters.  The first is the old derive output value.  The second parameter is a map containing the following keys: :removed, :added, :updated, :input-paths, :old-model, :new-model, and :message.  This is a tracking map, and will be discussed in further detail later.  For now, there are two functions that you would call on this tracking map.  The first function is when there is only one input to the derive function.  For example, if you were converting from celsius to fahrenheit.  The derive function for this would be:
+
+```clojure
+(fn [_ inputs] (* (/ 9 5) (+ (io.pedestal.app.dataflow/single-val inputs) 32)))
+```
+
+`(io.pedestal.app.dataflow/single-val inputs)` represents the celsius input value.  In this case, the old data value is elided because it is not needed.  Only the inputs parameter was used.
+
+
+The second function that is used with the second parameter tracking map to the derive function is when there are multiple inputs.  In this case, it is best to use `io.pedestal.app.dataflow/input-map` which will return a map with the input path and its value.  For example, let us say you have a distance derive function, and its inputs are `[:velocity]` and `[:time]`.  The function to calculate distance would be:
+
+```clojure
+(fn [_ inputs]
+  (let [{v [:velocity] t [:time]} (io.pedestal.app.dataflow/input-map inputs)]
+    (* v t))
+```
+
+In this example, the result of `(io.pedestal.app.dataflow/input-map inputs)` is `{[:velocity] 'velocity-value [:time] 'time}` and this is destructured into the separate velocity and time values.  These values are then multipled together to give the distance.
+
+A more complete example that takes the dataflow into account:
+
+```clojure
+{:transform [[:velocity [:car1 :velocity] (fn [ov msg]
+                                            (condp (msg/type msg)
+                                                msg/init (:v msg)
+                                                :accelerate (+ (:v msg) ov)))]
+             [:time [:elapsed-time] (fn [_ msg]
+                                            (condp (msg/type msg)
+                                                msg/init (:t msg)))]]
+ :derive [[[:car1 :velocity] [:elapsed-time]] [:car1 :distance]
+          (fn [old-distance inputs]
+            (let [{v [:car1 :velocity] t [:elapsed-time]} (io.pedestal.app.dataflow/input-map inputs)]
+              (if old-distance
+                (+ old-distance (* v t))
+                (* v t))))]}
+```
+
+The first transform function is outputing its values to `[:car1 :velocity]`  which represents the velocity of car1.  It has a function which will set the initial velocity, and also allow the velocity to be accelerated.  The second transform function is looking for messages with a topic of `:time` and it outputs the value to `[:elpased-time]`.  The derive function outputs the new distance value at `[:car1 :distance]`, which represents the current distance travelled by car1.  When either the velocity, or the elapsed time change, the distance will change.  The function will add the old distance to the new distance calculated from the velocity and time, if the old distance exists, otherwise, it just uses the velocity and time to set the distance.
 
 ### Continue
 
-A `continue` function can be used for recursion or message
-composition. Each transform consumes a single message stream and
-produces a data model. Every time a new message is processed, a new
-transaction is run. Within that transaction, time stops. The state of
-every data model is frozen so that the functions processing the
-current message see a consistent view of the world. Some combine
-functions will produce a single value from multiple data models. There
-are times when we may want to generate a new message when several data
-models are in a specific state. The combine function is used to
-'combine' multiple values into a single value; the continue function
-can then use this value to produce new input messages.
+A `continue` function can be used for recursion, or message
+composition. Like the derive functions, they have inputs and produce output.
+The difference is that continue functions produce messages, and do not directly
+alter data models.
 
-The generated messages will be used as input to transform functions
-within the same transaction.
+To understand how continue functions work, you need to understand how the
+dataflow processes messages. The dataflow is designed to process a single message at a time
+from the input queue.  Once a message is popped from the queue, it is processed by the
+dataflow.  This message then enters a kind of transaction.  The outside world will not
+be aware of what has happened while the message is processed by the dataflow.  The dataflow
+will simply produce one consistent data model with a new one.
 
-The continue function takes three arguments, the input name and the old
-and new input value. It returns a sequence of messages which will be
-processed within the same transaction.
+The basic flow for the message through the dataflow is as follows:  First,
+the transform functions process the message.  Next, the derive functions are ran.  Lastly,
+the continue functions are ran.  
+
+To be more specific.  The transforms functions that match the message's given topic are ran.
+The transforms then alter their data models.  Then, the derive functions are given an opportunity
+to run.  Since derive functions have inputs, a derive function will only run if its inputs have
+been changed.  This would only occur if one of the derive function's inputs was one of the transform's
+outputs.  If the derive function's input has been changed, it will produce output, which
+will alter the data models.  What is important to note is that a derive function can have
+another derive function's output as its input. The derive functions will continue to run
+until all their inputs have stopped changing.
+
+Once the transform and derive functions have all ran, it is time for the continue functions to
+run.  A continue function, like a derive function, has inputs.  If those inputs were changed,
+the continue function may produce output.  Unlike a derive function, which outputs to the
+data model, a continue function produces a message, or a group of messages.  These messages
+are just like those placed on the input queue.  The difference is that these messages will be placed
+in a special queue within the dataflow transaction.  Once all the continue functions have run,
+their messages are placed on the special transaction queue.
+
+What happens next is that these continue messages are then processed, one by one, and sent through
+the dataflow.  These messages are processed exactly the same as regular input messages from
+the input queue.  They will be first processed by transforms, then by derives, and finally by the
+continue functions.  It is possible for the continue messages to produce more messages.  These
+messages are placed at the end of the special transaction queue.  Once the continue message has
+been processed, the next continue messsage from the special transaction queue is processed.  This
+process will continue until there are no more messages left in the continue message queue.
+
+To take it from the top.  When the input queue is not empty, the next available message will be
+popped from the queue.  This message is then processed by the dataflow within a single transaction.
+Let us call this message, m0.  m0 will first be processed by the transforms.  This will cause
+the data models to be updated.  When this happens, the derive functions are then ran.  The
+derive functions can also alter the data models.  Next, the continue functions are ran, assuming their
+inputs from the data models were changed.  If the continue functions are ran, they may produce
+new messages.  These are special messages that are not placed on the input queue, but rather are
+placed in a special in-transaction continue message queue.  Let us say that m0 caused the creation
+of 2 continue messages, c1 and c2.  These messages are placed on the continue message queue.
+
+Once all the continue messages have been run, m0 is no longer processed.  What happens next is
+that the continue message queue is checked.  If it's not empty, the next continue message is
+popped, in this case, c1.  This message is then ran through the dataflow, just like m0 was.
+Let us say that when ran, c1 caused a new continue message to be produced, called c3.  This
+message is placed on the continue message queue.  The queue now contains c2 and c3.  When
+c1 has completed, the next message from the continue message queue is popped, which is c2.
+
+c2 is ran through the dataflow, and it does not produce any new continue messages.  This means
+that the next continue message is popped from the continue message queue, which is c3.  c3 is ran
+through the dataflow, and it doesn't produce any new continue messages.  This means that the
+general dataflow process has completed.  The original m0 message caused 3 messages to be produced
+and consumed.  The data models will now be in a new state.  To the outside world, it would
+not know that the dataflow produced those extract messages.  It only knows that a single
+message was consumed, m0.
+
+
+A continue dataflow function is created two ways.  Either in vector form:
 
 ```clojure
-(defn calc-continue [input-name old-value new-value]
-  (when-not (or (:good-enough? new-value)
-                (= (:new-guess new-value) :NaN)))
+[[[:input-path1]] 'continue-fn]
+```
+
+or in map form
+
+```clojure
+{:in [[:input-path1] :fn `continue-fn]}
+```
+
+The continue function is designed to take a single argument, a tracking
+map.  It is designed to output a message, or messages.  These messages are
+then processed in sequence within the same transaction.
+
+```clojure
+(defn calc-continue [inputs]
+  (let [im (io.pedestal.app.dataflow/input-map inputs)
+        good-enough? (im [:good-enough?])
+        new-guess (im [:new-guess])]
+   (when-not (or good-enough?
+                 (= new-guess :NaN))))
     [{msg/topic :guess 
       msg/type :new-guess
-      :guess (:new-guess new-value)}])
+      :guess new-guess}])
 ```
 
 This example continue function is taken from the square-root sample
@@ -546,64 +612,78 @@ mapping a combine name to the continue function.
 {:continue {:new-guess-combine calc-continue}}
 ```
 
-
 ### Emit (Treeify)
 
-The last function to process data within a dataflow is the `emit` or
+The next function to process data within a dataflow is the `emit` or
 `treeify` function. This function takes the output from one or more
 combine functions and/or transform functions (data models) as input
 and returns a sequence of application tree deltas.
 
-The first argument to the emit function is a map of inputs. The
-keys in the map are the keyword names of the inputs. The values are
-maps with `:new` and `:old` keys containing the new and old values of
-each input.
-
-The single argument version of this function is called when an emit
-function must generate all deltas to build the part of the application
-tree that it is responsible for. The two argument version is called
-when any of the function's inputs have changed.
-
-For the two argument version, the second argument is a set of
-keywords. Each keyword is the name of an input that has changed.
-
-The default emit implementation looks like this:
+There are two ways to create an emit function in the dataflow.  The first
+is in vector form:
 
 ```clojure
-(defn default-emit-fn
-  ([inputs]
-     (concat [[:node-exit []]]
-             (mapcat (fn [[k v]]
-                       [[:node-create [k] :map]
-                        [:value [k] (:new v)]])
-                     inputs)))
-  ([inputs changed-inputs]
-     (mapv (fn [changed-input]
-             [:value [changed-input] (:new (get inputs changed-input))])
-           changed-inputs)))
+[[[:input-path1] [:input-path2]] 'emit-fn]
 ```
 
-Calling this function with the following arguments:
+The other is in map form:
 
 ```clojure
-(default-emit-fn {:some-view {:old nil :new 42}})
+{:in [[:input-path1] [:input-path2]] :fn 'emit-fn}
 ```
 
-will produce the application tree deltas shown below.
+The emit function takes a single argument, a tracking map.
+
+The default emitter function looks like:
 
 ```clojure
-[[:node-create [:some-view] :map]
- [:value [:some-view] 42]]
+(fn [inputs]
+      (vec (concat (let [added (dataflow/added-inputs inputs)]
+                     (mapcat (fn [[k v]]
+                               (let [k (prefixed k prefix)]
+                                 [[:node-create k :map]
+                                  [:value k v]]))
+                             added))
+                   (let [updates (dataflow/updated-inputs inputs)]
+                     (mapv (fn [[k v]] [:value (prefixed k prefix) v]) updates))
+                   (let [removed (dataflow/removed-inputs inputs)]
+                     (mapcat (fn [[k v]]
+                               (let [k (prefixed k prefix)]
+                                 (if v
+                                   [[:value k v]]
+                                   [[:value k v] [:node-destroy k]])))
+                             removed)))))
 ```
 
-An emit function is configured in the dataflow description by mapping
-a name to the function and its inputs.
+Basically what's happening is that `(dataflow/added-inputs inputs)` is extracting the data models
+that were added by either transform, or derive functions.  This causes two application
+deltas to be created, :node-create and :value.  The :node-create is designed to create
+new nodes, and the :value will set the node's value.  `(dataflow/added-inputs inputs)` is
+finding out which data models have changed in the inputs to the emitter.  It will output
+new :value application deltas.  `(dataflow/removed-inputs inputs)` is finding out which
+data models are no longer in the data models.  The emiter will update the value of the node,
+and then signal that the node holding it should be destroyed if the path was removed.
+
+The emit functions will only run after all the transform, derive and continue functions have
+been processed, and any continue messages have also been processed by these functions.  Only then,
+do the emit functions create their application deltas.
+
+### Effect
+
+The last dataflow function to run is `effect`.  Effect functions are used to generate messages
+that will be sent to the outside world,  such as the server.  These messages are placed
+on the output queue.  The effect functions take inputs just like derive and continue functions.
+
+There are two ways of creating an effect dataflow.  The first is in vector form:
 
 ```clojure
-{:emit 
-  {:some-emitter 
-    {:fn an-emit-function :input #{:some-combine :some-transform}}}}
+[[[:input-path1] [:input-path2]] 'effect-fn]
 ```
+
+That other is in map form:
+
+```clojure
+{:in [[:input-path1] [:input-path2]] :fn 'effect-fn}
 
 
 ## Dataflow description
