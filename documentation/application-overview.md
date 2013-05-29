@@ -567,10 +567,11 @@ when any of the function's inputs have changed.
 For the two argument version, the second argument is a set of
 keywords. Each keyword is the name of an input that has changed.
 
-The default emit implementation looks like this:
+The default emit implementation is available in the `io.pedestal.app` 
+namespace and looks like this:
 
 ```clojure
-(defn default-emit-fn
+(defn default-emitter-fn
   ([inputs]
      (concat [[:node-exit []]]
              (mapcat (fn [[k v]]
@@ -586,7 +587,7 @@ The default emit implementation looks like this:
 Calling this function with the following arguments:
 
 ```clojure
-(default-emit-fn {:some-view {:old nil :new 42}})
+(default-emitter-fn {:some-view {:old nil :new 42}})
 ```
 
 will produce the application tree deltas shown below.
