@@ -380,7 +380,7 @@ emit).
 A `transform` function receives input messages from the outside
 world and applies a transformation to the data model. Each message
 topic is mapped to a specific transform function. There is also a model
-(state) associated with each of these functions. When called, is will be
+(state) associated with each of these functions. When called, it will be
 passed the old value of its model and a message and it will return the new
 model value.
 
