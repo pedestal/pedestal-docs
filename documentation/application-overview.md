@@ -454,7 +454,7 @@ mapping a transform or combine to an effect function.
 
 ### Combine
 
-A `combine` function takes one or more or the outputs of transform
+A `combine` function takes one or more of the outputs of transform
 functions (data models) and/or combine functions as input and produces
 a new value based on its inputs. When an input changes during a dataflow,
 the combine function will be called in order to update its value.
