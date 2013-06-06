@@ -40,7 +40,7 @@ This code can be made rewritten so that it releases the Web server
 thread, as shown below:
 
 ```clj
-    (interceptors/defbefore takes-time [{:request req :as context}]
+    (interceptors/defbefore takes-time [{req :request :as context}]
       ;; give back the web server thread after doing work in body
       (io.pedestal.service.impl.interceptor/with-pause
         [paused-context context]
