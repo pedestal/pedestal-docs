@@ -150,18 +150,13 @@ We'll start the server from a repl, which is how we will normally run in develop
 $ lein repl
 
 nREPL server started on port 52471
-REPL-y 0.1.6
-Clojure 1.5.0
-    Exit: Control+D or (exit) or (quit)
-Commands: (user/help)
+REPL-y 0.2.0
+Clojure 1.5.1
     Docs: (doc function-name-here)
           (find-doc "part-of-name-here")
   Source: (source function-name-here)
-          (user/sourcery function-name-here)
  Javadoc: (javadoc java-object-or-class-here)
-Examples from clojuredocs.org: [clojuredocs or cdoc]
-          (user/clojuredocs name-here)
-          (user/clojuredocs "ns-here" "name-here")
+    Exit: Control+D or (exit) or (quit)
 ```
 
 To make life easier in the repl, pedestal generated a "dev.clj" file with some convenience functions. We'll use one to start the server:
