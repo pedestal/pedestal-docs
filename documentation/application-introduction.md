@@ -110,7 +110,7 @@ The example below shows the same application written with Pedestal.
 (defn render-fn [deltas input-queue]
   (doseq [d deltas] (apply render d)))
 
-(def count-app {:models {:count {:init 0 :fn count-model}}})
+(def count-app {:transform {:count {:init 0 :fn count-model}}})
 
 (defn receive-input [input-queue]
   (p/put-message input-queue {msg/topic :count msg/type :inc})
@@ -189,7 +189,7 @@ The example below shows the same application using the push renderer.
   (dom/append! (dom/by-id "content")
                (str "<h1>" new-value " Hello Worlds</h1>")))
 
-(def count-app {:models {:count {:init 0 :fn count-model}}})
+(def count-app {:transform {:count {:init 0 :fn count-model}}})
 
 (defn receive-input [input-queue]
   (p/put-message input-queue {msg/topic :count msg/type :inc})
@@ -252,7 +252,7 @@ generate and update HTML.
   [[:node-create [:*] render-page]
    [:value       [:*] render-value]])
 
-(def count-app {:models {:count {:init 0 :fn count-model}}})
+(def count-app {:transform {:count {:init 0 :fn count-model}}})
 
 (defn receive-input [input-queue]
   (p/put-message input-queue {msg/topic :count msg/type :inc})
