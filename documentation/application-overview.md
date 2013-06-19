@@ -412,8 +412,8 @@ would look like this:
 ```
 
 As shown above, models should always handle the `::init` message type. This
-message sets the initial value of the data model when the application
-starts.
+message sets the initial value of the data model with the `:value` key when
+the application starts.
 
 In the map which describes a dataflow, a transform is configured by
 indicating the topic that the model consumes, the transform function
@@ -772,7 +772,7 @@ both the deltas and the input-queue. This allows the renderer to
 arrange for inputs to be sent back to the application.
 
 The application is started by calling the `begin` function. This will
-send `::init` messages to each model, passing in the their initial
+send `::init` messages to each model, passing in their initial
 values.
 
 Finally, this function returns a map containing the app and
