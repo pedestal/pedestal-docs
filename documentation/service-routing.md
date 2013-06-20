@@ -88,7 +88,7 @@ Host: example.com
 would be routed to the _hello-world_ interceptor.
 
 A request to a different host (either DNS name or IP
-address) or using HTTP would not be routed, unless the application's
+address) or using HTTPS would not be routed, unless the application's
 specification were loosened, like so:
 
 ```clj
