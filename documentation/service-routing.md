@@ -251,7 +251,7 @@ prepending ':' to the segment's name:
 
 ```clj
 (defn hello-who [req]
-  (let [who (get-in req [:params :who])]
+  (let [who (get-in req [:path-params :who])]
     (ring.util.response/response (str "Hello " who))))
 
 (defroutes route-table [[["/hello/:who" {:get hello-who}]]])
