@@ -45,7 +45,7 @@ resulting SSE interceptor processes a request by:
 and
 
 - passing the current interceptor context to the _stream-ready-fn_ function that was
-  passed as an argument to _start-event-stream_ (previosly
+  passed as an argument to _start-event-stream_ (previously
 called _sse-setup_, which is still supported for backward compatibility).
 
 The _stream-ready-fn_ is responsible for using the context or storing it for
