@@ -131,7 +131,7 @@ with the context and the caught exception. If this interceptor
 rethrows the exception, it will be caught again and provided to the
 next most immediately preceding interceptor. If the interceptor
 returns a context, processing will continue by calling the leave
-functions of preceeding interceptors, as if the last interceptor in
+functions of preceding interceptors, as if the last interceptor in
 the path had been reached.
 
 During execution, an interceptor may revert to the pause state (most
@@ -185,7 +185,7 @@ dispatch requests to.
 
 ## Compatibility with Ring
 
-The Pedestal service infrastucture is designed to be Ring-compatible
+The Pedestal service infrastructure is designed to be Ring-compatible
 to the greatest extent possible. Specifically HTTP requests and
 responses are represented as Ring-style maps, but held in a wrapping
 Pedestal service context map.
