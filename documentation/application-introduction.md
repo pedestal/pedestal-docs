@@ -230,6 +230,7 @@ generate and update HTML.
             [io.pedestal.app.messages :as msg]
             [io.pedestal.app.render :as render]
             [io.pedestal.app.render.push :as push]
+            [io.pedestal.app.render.push.templates :as templates]
             [domina :as dom])
   (:require-macros [hello-world.html-templates :as html-templates]))
 
