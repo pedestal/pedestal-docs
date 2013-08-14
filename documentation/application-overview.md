@@ -28,7 +28,7 @@ Pedestal becomes more mature. This document, in addition to the
 pedestal-app tutorial should be enough to get stated.
 
 
-### Why Pedestal
+### Why Pedestal?
 
 Pedestal-app has two main influences: Clojure and distributed systems.
 
