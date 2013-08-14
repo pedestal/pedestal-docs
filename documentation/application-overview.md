@@ -18,8 +18,7 @@ title: Application Overview
 * Why use queues and isolate the black box?
 * Why dataflow?
 * Why are there five dataflow functions?
-* Why do dataflow functions take on generic argument?
-* Why focus on single page applications?
+* Why do dataflow functions take one generic argument?
 
 # Application Overview
 
