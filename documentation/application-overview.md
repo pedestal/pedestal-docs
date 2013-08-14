@@ -92,10 +92,32 @@ render on the screen are conveyed on the output queue.
 All service and rendering code will be provided with some way to send
 messages to or put messages on the input queue.
 
+
+### Why use queues?
+
 Queues separate application concerns from the complexity of I/O in the
 browser. From the applications perspective, all input comes in as a
 stream of messages and all output is placed on a queue and quickly
 forgotten.
+
+- benefit to application code
+
+The black box above contains all of the code which determines what
+this application actually does. This code controls what happens and
+when it should happen. Queues are used to isolate this code from
+everything else. The code inside the black box doesn't know anything
+about the DOM or even that it is running in a browser. This means that
+this code can be run when the DOM is not available, for example, in a
+Web Worker. It can also be run on the server and tested from Clojure.
+
+Testing this component is easy. We can send it fabricated data and
+examine the output data. There are not dependencies on any web
+technology.
+
+Using queues for input and output also allows us to be flexible in
+what we do with the messages on the queues. We can see when queues are
+backing up and respond accordingly. We can filter data on the queue,
+drop data and compact data on the queue.
 
 
 ### Data Model
