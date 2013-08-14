@@ -124,7 +124,7 @@ tree is the application's **data model**. Imagine that we are creating
 a hotel reservation system. A portion of the data model may look
 something like this
 
-![Data Model](/documentation/images/app/hotel-model.png)
+![Data Model Tree](/documentation/images/app/hotel-model.png)
 
 All data for a hotel is stored under the root node. We can represent
 the path to this node as `[:hotel]`. All data for rooms is stored
@@ -135,7 +135,7 @@ This data model lives inside an application. The only way for the
 data model to change is for a message to be sent to the
 application on the input queue.
 
-![Data Model](/documentation/images/app/abstract-app-data-model.png)
+![App with Data Model](/documentation/images/app/abstract-app-data-model.png)
 
 What is a message?
 
@@ -166,7 +166,7 @@ append the name "Alice" to a collection located at the path `[:hotel
 calls `conj` to add "Alice" to a list or it could add "Alice" as another
 node in the tree.
 
-![App Message](/documentation/images/app/app-message.png)
+![App with Message](/documentation/images/app/app-message.png)
 
 
 ### Processing input with transform functions
@@ -179,7 +179,7 @@ functions are called `transform` functions because they are used to
 transform the data model. The message `type` and `topic` are used to
 route messages to transform functions.
 
-![App With Transform](/documentation/images/app/app-with-transform.png)
+![App with Transform](/documentation/images/app/app-with-transform.png)
 
 A transform function takes two arguments, the old value at the topic
 path and the message. It returns the new value at that path.
@@ -242,7 +242,7 @@ called when a part of the data model which they care about
 changes. Emit functions are passed a value and return a sequence of
 messages like the one shown above.
 
-![App With Emit](/documentation/images/app/app-with-emit.png)
+![App with Emit](/documentation/images/app/app-with-emit.png)
 
 In the diagram above, the emit function is interested in any change
 which happens to the `[:hotel :rooms]` node of the tree. When we
@@ -274,7 +274,7 @@ hotel). Each time a room is updated, we will need to ensure that a
 staff member who is on duty is assigned to that room. We will also
 need to do this when the status of a staff member changes.
 
-![Derive 1](/documentation/images/app/hotel-model-derive1.png)
+![Data Model Derive 1](/documentation/images/app/hotel-model-derive1.png)
 
 In the data model above, the blue area of the model might be updated
 when receiving messages from the check-in system and the orange part
@@ -289,7 +289,7 @@ staff member. The function will return the new assignments value which
 is a map where the keys are staff members and the values are a
 collection of room numbers.
 
-![Derive 2](/documentation/images/app/hotel-model-derive2.png)
+![Data Model Derive 2](/documentation/images/app/hotel-model-derive2.png)
 
 In Pedestal, such a function would be called a `derive` function. It
 derives one value in the data model from other values. There is one
@@ -332,7 +332,7 @@ The diagram above makes it look like processing a dataflow can be a
 chaotic event with lots of functions attempting to update the same
 data. It is, in fact, quite orderly.
 
-![App Pipeline](/documentation/images/app/app-pipeline.png)
+![Dataflow and Time](/documentation/images/app/app-pipeline.png)
 
 First, a transform function is run. Next, each derive function is run
 exactly once. The order in which the derive functions run is
