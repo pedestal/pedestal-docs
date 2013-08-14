@@ -99,8 +99,6 @@ browser. From the applications perspective, all input comes in as a
 stream of messages and all output is placed on a queue and quickly
 forgotten.
 
-- benefit to application code
-
 The black box above contains all of the code which determines what
 this application actually does. This code controls what happens and
 when it should happen. Queues are used to isolate this code from
