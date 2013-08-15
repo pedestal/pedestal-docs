@@ -15,15 +15,10 @@ title: Application Overview
  You must not remove this notice, or any other, from this software.
 -->
 
-* Why use queues and isolate the black box?
-* Why dataflow?
-* Why are there five dataflow functions?
-* Why do dataflow functions take one generic argument?
-
 # Application Overview
 
 This document is a high-level description of the key ideas behind
-Pedestal-app. Detailed documentation of each feature will be provided as
+pedestal-app. Detailed documentation of each feature will be provided as
 Pedestal becomes more mature. This document, in addition to the
 pedestal-app tutorial should be enough to get stated.
 
@@ -121,15 +116,14 @@ drop data and compact data on the queue.
 
 In a Pedestal application, application state is stored in a tree. This
 tree is the application's **data model**. Imagine that we are creating
-a hotel reservation system. A portion of the data model may look
+a hotel information system. A portion of the data model may look
 something like this
 
 ![Data Model Tree](/documentation/images/app/hotel-model.png)
 
 All data for a hotel is stored under the root node. We can represent
-the path to this node as `[:hotel]`. All data for rooms is stored
-under `[:hotel :rooms]` and all data for room 3 is stored under
-`[:hotel :rooms 3]`.
+the path to this node as `[]`. All data for rooms is stored under
+`[:rooms]` and all data for room 3 is stored under `[:rooms 3]`.
 
 This data model lives inside an application. The only way for the
 data model to change is for a message to be sent to the
@@ -155,16 +149,11 @@ namespace as `msg` and use the `topic` and `type` vars as a shorthand
 
 ```clojure
 (require '[io.pedestal.app.messages :as msg])
-{msg/topic [:hotel :rooms 3 :guests] msg/type :append :name "Alice"}
+{msg/type :add-name msg/topic [:rooms 1 :guests] :name "Alice"}
 ```
 
-In the context of a hotel reservation system, this message could mean
-that we are adding "Alice" as a guest who will be staying in room 3. A
-more abstract way of thinking about this is that we would like to
-append the name "Alice" to a collection located at the path `[:hotel
-:rooms 3 :guests]`. `:append` could possibly map to a function which
-calls `conj` to add "Alice" to a list or it could add "Alice" as another
-node in the tree.
+In the context of a hotel information system, this message could mean
+that we are adding "Alice" as a guest who will be staying in room 1.
 
 ![App with Message](/documentation/images/app/app-message.png)
 
@@ -185,13 +174,13 @@ A transform function takes two arguments, the old value at the topic
 path and the message. It returns the new value at that path.
 
 ```clojure
-(defn append-name [old-value message]
-  (conj old-value (:name message))
+(defn add-name [old-value message]
+  ((fnil conj []) old-value (:name message)))
 ```
 
 This transform function could be used to process the message shown
 above. It could also be used to process any message which adds a name
-to a collection.
+to a vector.
 
 Messages are routed to transform functions. When we describe a
 Pedestal application, we provide a *routing table* which controls how
@@ -199,7 +188,7 @@ this is done. The table that routes a message to this function might
 look like this:
 
 ```clojure
-[[:append [:hotel :rooms :* :guests] append-name]]
+[[:add-name [:rooms :* :guests] add-name]]
 ```
 
 The routing table is a vector of vectors. The first matching vector
@@ -213,53 +202,159 @@ against.
 The type my be a wildcard `:*` and the path may contain wildcards as
 the example above does. The function in the first vector with a
 matching type and topic will be used. For the message above this
-function will be passed the old value at `[:hotel :rooms 3
-:guests]`. The update performed on the data model is essentially this
+function will be passed the old value at `[:rooms 1 :guests]`. The
+update performed on the data model is essentially this
 
 ```clojure
-(update-in data-model [:hotel :rooms 3 :guests] append-name message)
+(update-in data-model [:rooms 1 :guests] add-name message)
 ```
+
+### Why route transform functions?
+
+What value does the routing table provide? Messages contain all the
+information that we need to find a function and update the data
+model.
+
+The main benefit of the routing table is that it lets you restrict
+what operations may be performed on what parts of the data
+model. Without this table, any operation could be performed anywhere
+and this may not make sense. It also allows you to clearly define
+which functions may be used to update the data model.
+
+
+### Aside
+
+This may not be a good enough reason to continue using the transform
+routing table. A more powerful approach to updating the data model
+would involve removing this table and then changing the message format
+to map to Clojure's reference update semantics.
+
+```clojure
+'(update-in [:rooms 1 :guests] add-name "Alice")
+;; kind of like
+(send app update-in [:rooms 1 :guests] add-name "Alice")
+```
+
+This would allow for arbitrary functions to be used to update the data
+model.
+
 
 ### Reporting changes to the data model with emit functions
 
 When the data model changes, something outside of the application's
-behavior will want to know about it. For example, the renderer will
-need to update the UI to show that Alice is now in room 3.
+behavior will want to know about it. One of those things is the
+renderer. We have not really discussed what a renderer is, but for now
+we can think of it as something which is pulling messages off of the
+output queue (which we will now call the **rendering** queue) and drawing
+things on a screen based on these messages.
 
-Emit functions are used to generate output messages which will be used
-by the renderer to update the user interface. An example of one of
-these messages is shown below.
+By default, an emitter is configured to render changes. When the
+following message is placed on the input queue
 
 ```clojure
-[:value [:hotel :rooms 3 :guests] ["Claire"] ["Claire" "Alice"]]
+{msg/type :add-name msg/topic [:rooms 1 :guests] :name "Alice"}
 ```
 
-This message means that the value at the path `[:hotel :rooms 3
-:guests]` has been changed from `["Claire"]` to `["Claire" "Alice"]`.
+The following messages are placed on the rendering queue
 
-These messages are produced by `emit` functions. Emit functions are
-called when a part of the data model which they care about
-changes. Emit functions are passed a value and return a sequence of
-messages like the one shown above.
+```clojure
+[:node-create [] :map]
+[:node-create [:rooms] :map]
+[:value [:rooms] nil {1 {:guests ["Alice"]}}]
+```
+
+These three messages describe the changes which have been made to the
+data model. The root node `[]` was created. Under this the node
+`[:rooms]` was created and the value for rooms was changed from `nil`
+to `{1 {:guests ["Alice"]}}`.
+
+As rendering code consumes these messages, it will modify the user
+interface in some way. When it receives the message 
+
+```clj
+[:node-create [:rooms] :map]
+```
+
+it may create a box in which to display room information. When it
+receives the message
+
+```clj
+[:value [:rooms] nil {1 {:guests ["Alice"]}}]
+```
+
+it can display which guests are in which room.
+
+There is an assumption being made here about what constitutes an
+atomic value from the renderers perspective. When the value at `[:rooms]`
+changes, the entire map will be sent in the update. For example,
+sending this message on the input queue
+
+```clj
+{msg/type :add-name msg/topic [:rooms 2 :guests] :name "Bob"}
+```
+
+will result in this message on the rendering queue
+
+```clj
+[:value [:rooms] {1 {:guests ["Alice"]}} {1 {:guests ["Alice"]}, 2 {:guests ["Bob"]}}]
+```
+
+This is fine if the rendering code is happy with getting updates at
+this resolution. Once there are a lot of rooms, the renderer may want
+to only update the rooms which have actually changed. With these
+updates, the rendering code would have to figure out what has
+changed. In general, we don't want rendering code to have to think to
+much. It's job is to just look pretty.
+
+We can configure an emitter to emit changes at the resolution that we
+would like. In the description of our application we could add the
+following
+
+```clj
+[[#{[:rooms :*]} (app/default-emitter)]]
+```
+
+In most cases where we need to define an emitter we only need to
+change the resolution at which change is reported. To do this we can
+use the default emitter in `io.pedestal.app` and provide a path which
+describes which branch of the tree to emit changes for an how far down
+to go to find atomic values.
+
+With this change, the first message
+
+```clj
+{msg/type :add-name msg/topic [:rooms 1 :guests] :name "Alice"}
+```
+
+will cause this to be emitted
+
+```clj
+[:node-create [] :map]
+[:node-create [:rooms] :map]
+[:node-create [:rooms 1] :map]
+[:value [:rooms 1] nil {:guests ["Alice"]}] 
+```
+
+and the second message
+
+```clj
+{msg/type :add-name msg/topic [:rooms 2 :guests] :name "Bob"}
+```
+
+will cause this to be emitted
+
+```clj
+[:node-create [:rooms 2] :map]
+[:value [:rooms 2] nil {:guests ["Bob"]}]
+```
+
+As mentioned above, you will almost always use the default emitter but
+you can write your own custom emitter function if you need to. 
 
 ![App with Emit](/documentation/images/app/app-with-emit.png)
 
 In the diagram above, the emit function is interested in any change
-which happens to the `[:hotel :rooms]` node of the tree. When we
-describe our application, we can indicate this interest in a vector
-like the one shown below.
-
-```clojure
-[[#{[:hotel :rooms]} rooms-emitter]]
-```
-
-This means that there is a function named `rooms-emitter`, which should
-be called whenever the node at `[:hotel :rooms]` changes. The emitter
-is passed the part of the tree that it cares about and returns a
-vector of changes like the one shown above.
-
-The messages returned from an emit function are placed on the
-**rendering** queue where they can be consumed by a renderer.
+which modifies the children of the `[:rooms]` node.
 
 
 ### Derived data
@@ -355,4 +450,8 @@ queue allowing the current transaction to complete.
 
 ## Rendering
 
+...
+
 ## Services
+
+...
