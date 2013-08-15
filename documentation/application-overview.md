@@ -271,14 +271,14 @@ to `{1 {:guests ["Alice"]}}`.
 As rendering code consumes these messages, it will modify the user
 interface in some way. When it receives the message 
 
-```clj
+```clojure
 [:node-create [:rooms] :map]
 ```
 
 it may create a box in which to display room information. When it
 receives the message
 
-```clj
+```clojure
 [:value [:rooms] nil {1 {:guests ["Alice"]}}]
 ```
 
@@ -289,14 +289,15 @@ atomic value from the renderers perspective. When the value at `[:rooms]`
 changes, the entire map will be sent in the update. For example,
 sending this message on the input queue
 
-```clj
+```clojure
 {msg/type :add-name msg/topic [:rooms 2 :guests] :name "Bob"}
 ```
 
 will result in this message on the rendering queue
 
-```clj
-[:value [:rooms] {1 {:guests ["Alice"]}} {1 {:guests ["Alice"]}, 2 {:guests ["Bob"]}}]
+```clojure
+[:value [:rooms] {1 {:guests ["Alice"]}} 
+                 {1 {:guests ["Alice"]}, 2 {:guests ["Bob"]}}]
 ```
 
 This is fine if the rendering code is happy with getting updates at
@@ -310,7 +311,7 @@ We can configure an emitter to emit changes at the resolution that we
 would like. In the description of our application we could add the
 following
 
-```clj
+```clojure
 [[#{[:rooms :*]} (app/default-emitter)]]
 ```
 
@@ -322,13 +323,13 @@ to go to find atomic values.
 
 With this change, the first message
 
-```clj
+```clojure
 {msg/type :add-name msg/topic [:rooms 1 :guests] :name "Alice"}
 ```
 
 will cause this to be emitted
 
-```clj
+```clojure
 [:node-create [] :map]
 [:node-create [:rooms] :map]
 [:node-create [:rooms 1] :map]
@@ -337,13 +338,13 @@ will cause this to be emitted
 
 and the second message
 
-```clj
+```clojure
 {msg/type :add-name msg/topic [:rooms 2 :guests] :name "Bob"}
 ```
 
 will cause this to be emitted
 
-```clj
+```clojure
 [:node-create [:rooms 2] :map]
 [:value [:rooms 2] nil {:guests ["Bob"]}]
 ```
@@ -356,13 +357,32 @@ you can write your own custom emitter function if you need to.
 In the diagram above, the emit function is interested in any change
 which modifies the children of the `[:rooms]` node.
 
+Emitters not only control the resolution of change that is reported
+but also which changes are reported. By default, this configuration is
+used
+
+```clojure
+[[#{[:*]} (app/default-emitter)]]
+```
+
+which will emit changes to the children of the root node of the
+tree. By changing this to
+
+```clojure
+[[#{[:rooms :*]} (app/default-emitter)]]
+```
+
+we will only emit changes to the children of the `[:rooms]` node. This
+allows us to have parts of the data model which are a valuable part of
+the application's state but are not rendered.
+
 
 ### Derived data
 
 So far we have seen one way to change the data model, the transform
 function. This allows us to change the data model based on input from
 the outside world. Most applications will have some values which
-depend on other values. For example, in the hotel reservation system
+depend on other values. For example, in the hotel information system
 we may want to ensure that a member of the hotel staff is assigned to
 each occupied room to ensure the comfort of the guests (this is a nice
 hotel). Each time a room is updated, we will need to ensure that a
@@ -372,23 +392,61 @@ need to do this when the status of a staff member changes.
 ![Data Model Derive 1](/documentation/images/app/hotel-model-derive1.png)
 
 In the data model above, the blue area of the model might be updated
-when receiving messages from the check-in system and the orange part
-might be updated when receiving messages from the system where staff
-sign in for work. Both of these parts of the model are updated by
-transform functions.
+when receiving messages from the check-in system. Messages like this:
 
-Imagine that we have a function named `assign-staff` which takes as
-input the on-duty staff and the rooms and ensures that rooms are
-evenly distributed among the staff and that each room is assigned a
-staff member. The function will return the new assignments value which
-is a map where the keys are staff members and the values are a
-collection of room numbers.
 
-![Data Model Derive 2](/documentation/images/app/hotel-model-derive2.png)
+```clojure
+{msg/type :add-name msg/topic [:rooms 1 :guests] :name "Alice"}
+```
+
+The orange part might be updated when receiving messages from the
+system where staff sign in for work. Messages like this:
+
+```clojure
+{msg/type :sign-in msg/topic [:staff :on-duty] :name "Ann"}
+```
+
+Both of these parts of the model are updated by transform
+functions. The `sign-in` transform function is shown below.
+
+```clojure
+(defn sign-in [old-value message]
+  (assoc old-value (:name message) {:checkin (js/Date.)}))
+```
+
+The transform routing table would now look like this:
+
+```clojure
+[[:add-name [:rooms :* :guests] add-name]
+ [:sign-in [:staff :on-duty] sign-in]]
+```
+
+We can now create a function which takes rooms and on-duty staff and
+returns a new map of staff assignments.
+
+```clojure    
+(defn assign-rooms [_ {:keys [rooms staff]}]
+  (let [s (sort (keys staff))
+        r (sort (keys rooms))]
+    (reduce (fn [a [k v]]
+              (update-in a [k] (fnil conj #{}) v))
+            {}
+            (map #(vector %1 %2) (cycle s) r))))
+```
 
 In Pedestal, such a function would be called a `derive` function. It
 derives one value in the data model from other values. There is one
-output value and there can be multiple input values.
+output value and there can be multiple input values. 
+
+![Data Model Derive 2](/documentation/images/app/hotel-model-derive2.png)
+ 
+Derive functions update a location in the data model. A derive
+function takes two arguments: the old value at the location which is
+being updated and its inputs. In the example above the old value is
+ignored and the inputs are passed as a map which contains `rooms` and
+`staff` keys. The return value is a map where the keys are staff
+members and the values are a set of room numbers that this staff
+member is to look after.
 
 ![App with Derive](/documentation/images/app/app-with-derive.png)
 
@@ -397,31 +455,70 @@ functions. Each derive function is described by a set of inputs, an
 output path and a function.
 
 ```clojure
-#{[#{[:hotel :rooms] [:hotel :staff :on-duty]}
-   [:hotel :staff :assignments]
-   assign-staff]}
+#{[#{[:rooms] [:staff :on-duty]} 
+   [:staff :assignments]
+   assign-rooms]}
+```
+
+This will pass a map for the inputs but it is not the map we want. The
+passed map will contain a complete report of what has changed. To get
+a map with only the inputs we can use this instead.
+
+```clojure
+#{[#{[:rooms] [:staff :on-duty]}
+   [:staff :assignments]
+   assign-rooms
+   :map]}
+```
+
+This will give us a map of inputs but the keys will be `[:rooms]` and
+`[:staff :on-duty]`. That is not ideal. We can use a map to specify
+inputs which allows us to define the keys that will be used.
+
+```clojure
+#{[{[:rooms] :rooms [:staff :on-duty] :staff}
+   [:staff :assignments]
+   assign-rooms
+   :map]}
 ```
 
 
 ### Dataflow
 
 We have now been introduced to three types of functions: transform,
-emit and derive. Each is a pure function. transform and derive
+emit and derive. Each is a pure function. `transform` and `derive`
 functions produce values which change the state of part of the data
-model. derive and emit functions are called when parts of the data
+model. `derive` and `emit` functions are called when parts of the data
 model, which are inputs to these functions, are changed. All of the
 dependencies between functions and the data model are described in a
 data structure. The application which we have been imagining is
 described in the following Clojure map.
 
 ```clojure
-{:transform [[:append [:hotel :rooms :* :guests] append-name]
-             [:clock-in [:hotel :staff :on-duty] clock-in]]
- :derive #{[#{[:hotel :rooms] [:hotel :staff :on-duty]}
-            [:hotel :staff :assignments]
-            assign-staff]}
- :emit [[#{[:hotel :rooms]} rooms-emitter]]}
+  {:version 2
+   
+   :transform [[:add-name [:rooms :* :guests] add-name]
+               [:sign-in [:staff :on-duty] sign-in]]
+   
+   :derive #{[{[:rooms] :rooms [:staff :on-duty] :staff}
+              [:staff :assignments]
+              assign-rooms
+              :map]}
+   
+   :emit [[#{[:rooms :*]
+             [:staff :assignments :*]} (app/default-emitter)]]}
 ```
+
+The `:version` key is used to indicate the version of the dataflow
+description which is being used. Even though there is one dataflow
+engine, the format for describing connections between things may
+change. The old format `:version 1` can still be used and it will
+transformed to work with the new engine.
+
+We have already seen the `:transform` routing table and the `:derive`
+configuration shown above.
+
+For the `:emit` configuration...
 
 The diagram above makes it look like processing a dataflow can be a
 chaotic event with lots of functions attempting to update the same
