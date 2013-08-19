@@ -19,11 +19,52 @@ title: Application Overview
 
 This document is a high-level description of the key ideas behind
 pedestal-app. Detailed documentation of each feature will be provided as
-Pedestal becomes more mature. This document, in addition to the
-pedestal-app tutorial should be enough to get stated.
+pedestal-app becomes more mature. This document, in addition to the
+pedestal-app tutorial should be enough to get started.
 
 
-### Why Pedestal?
+### Why Pedestal for applications?
+
+Pedestal-app provides a clean architecture for creating large,
+interactive, single-page applications in the browser.
+
+Creating large single-page applications is hard for several reasons
+
+* lots of interdependent state
+* views must be kept in sync with state
+* the DOM is always trying to kill you
+* events and callbacks can easily lead to a hairball
+* testing is difficult
+
+For large applications, this is difficult to deal with even when a
+user interface only has to respond to inputs from a single user. The
+problem is compounded when we add interactivity. An application can
+now receive inputs from multiple sources. Change becomes the constant
+state of things and efficiently keeping everything in sync is
+difficult.
+
+The fundamental problem is this: when something changes, what else
+needs to change?
+
+Existing client-side frameworks may help with one small part of this
+problem and in some cases can be used along side Pedestal. Most
+approaches to managing state involve object oriented techniques which
+lead to unnecessarily confusing abstractions and webs of
+interconnected mutable objects. Existing frameworks are also heavily
+entangled with the details of the web, details such as URLs, HTTP and
+JavaScript.
+
+Pedestal-app's approach to handling this complexity is not tied to the
+web. It is a general approach for creating client applications which
+could work just as well on the desktop as on the web. Pedestal-app can
+be used equally well when rendering to the DOM or controlling a
+complex visualization or driving JavaScript widgets. 
+
+Pedestal applications are built from immutable data, functions and
+queues.
+
+
+### Influences
 
 Pedestal-app has two main influences: Clojure and distributed systems.
 
@@ -89,21 +130,23 @@ messages to or put messages on the input queue.
 
 ### Why use queues?
 
-Queues separate application concerns from the complexity of I/O in the
-browser. From the applications perspective, all input comes in as a
+Queues separate application concerns. They eliminate the direct
+connection between callback functions which are triggered by events
+and all of the code which deals with state transitions. Queues
+separate application concerns from the complexity of I/O in the
+browser. From the application's perspective, all input comes in as a
 stream of messages and all output is placed on a queue and quickly
 forgotten.
 
 The black box above contains all of the code which determines what
-this application actually does. This code controls what happens and
-when it should happen. Queues are used to isolate this code from
-everything else. The code inside the black box doesn't know anything
-about the DOM or even that it is running in a browser. This means that
-this code can be run when the DOM is not available, for example, in a
-Web Worker. It can also be run on the server and tested from Clojure.
+this application actually does. The code inside the black box doesn't
+know anything about the DOM or even that it is running in a
+browser. This means that this code can be run when the DOM is not
+available, for example, in a Web Worker. It can also be run on the
+server and tested from Clojure.
 
-Testing this component is easy. We can send it fabricated data and
-examine the output data. There are not dependencies on any web
+Testing this is now easy. We can send it fabricated data and
+examine the output data. There are no dependencies on any web
 technology.
 
 Using queues for input and output also allows us to be flexible in
@@ -220,23 +263,6 @@ what operations may be performed on what parts of the data
 model. Without this table, any operation could be performed anywhere
 and this may not make sense. It also allows you to clearly define
 which functions may be used to update the data model.
-
-
-### Aside
-
-This may not be a good enough reason to continue using the transform
-routing table. A more powerful approach to updating the data model
-would involve removing this table and then changing the message format
-to map to Clojure's reference update semantics.
-
-```clojure
-'(update-in [:rooms 1 :guests] add-name "Alice")
-;; kind of like
-(send app update-in [:rooms 1 :guests] add-name "Alice")
-```
-
-This would allow for arbitrary functions to be used to update the data
-model.
 
 
 ### Reporting changes to the data model with emit functions
@@ -378,6 +404,8 @@ the application's state but are not rendered.
 
 
 ### Derived data
+
+(derive enforces ordering of operations)
 
 So far we have seen one way to change the data model, the transform
 function. This allows us to change the data model based on input from
@@ -544,6 +572,15 @@ Continue functions are used to support recursion. Messages produced by
 a continue function are fed back into the dataflow. Messages can
 either be fed in within the same transaction or placed on the input
 queue allowing the current transaction to complete.
+
+
+### Why Dataflow?
+
+### Why are there five dataflow functions?
+
+### Why do dataflow functions take one generic argument?
+
+It is like the Datomic transaction report
 
 ## Rendering
 
