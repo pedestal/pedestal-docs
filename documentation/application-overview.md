@@ -590,6 +590,7 @@ structure. The application which we have been imagining is described
 in the following Clojure map.
 
 ```clojure
+(require '[io.pedestal.app :as app])
 (def hotel-app
   {:version 2
    
@@ -618,7 +619,6 @@ The `io.pedestal.app` namespace contains a `build` function which
 takes the above map as an argument and returns an application.
 
 ```clojure
-(require '[io.pedestal.app :as app])
 (def app (app/build hotel-app))
 ```
 
@@ -692,7 +692,7 @@ input queue.
   ;; send message to a back-end service
   ;; arrange for callback to transform response and place it on the
   ;; input queue
- )]
+ )
 ```
 
 This function can be configured to consume the effects queue with

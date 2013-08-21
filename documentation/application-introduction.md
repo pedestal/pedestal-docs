@@ -142,8 +142,8 @@ Because state transitions are handled by the application engine, most
 of our application logic can be written as pure functions.
 
 The state is no longer a global thing which can be updated from
-anywhere. All updates to the data model happen in one place. In this
-small application, they take place within the `inc-t` function.
+anywhere. All updates to the information model happen in one place. In
+this small application, they take place within the `inc-t` function.
 
 In the Pedestal version, the rendering function is passed a
 description of the exact change which was made. Rendering code no
