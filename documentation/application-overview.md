@@ -374,7 +374,7 @@ following
 In most cases where we need to define an emitter we only need to
 change the resolution at which change is reported. To do this we can
 use the default emitter in `io.pedestal.app` and provide a path which
-describes which branch of the tree to emit instructions for an how far
+describes which branch of the tree to emit instructions for and how far
 down to go to find atomic values.
 
 With this change, the first message
