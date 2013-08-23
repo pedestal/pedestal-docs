@@ -17,19 +17,27 @@ title: Application Rationale
 
 # Application Rationale
 
-The Pedestal application library is designed to help developers create
-large applications which run in the browser.
+The Pedestal application library (pedestal-app) is designed to help
+developers create interactive web applications.
 
 Pedestal reduces application complexity by giving developers tools to
 model, report and react to change.
 
+
 ## The problem
 
-All applications need to do the same three things:
+Interactive applications constantly receive inputs from multiple
+sources. This property forces them to be long-running, single-page
+applications which must have state.
+
+There are three high-level tasks that this kind of application must
+perform:
 
 * Receive and process input
 * Manage state
 * Update the UI when state changes
+
+There are hard problems associated with each of these tasks.
 
 All I/O in the browser is asynchronous. If we receive input from users
 or services then we must create callback functions to process these
@@ -40,17 +48,17 @@ referred to as **Callback Hell**.
 Inputs supply new information to our application which must be stored
 in some way. While applying changes to state, which are triggered by
 asynchronous inputs, we must ensure that we are always seeing a
-**consistent view of state**. Additionally, if we model the UI as part
-of the application's state, then there may be many parts of that model
-which need to change based on the input. Where does the code which
-knows about these **data dependencies** live? If it is the
+**consistent view of state**. Additionally, there may be many parts of
+that model which need to change based on the input. Where does the
+code which knows about these **data dependencies** live? If it is the
 responsibility of the code processing the input message then this code
 becomes brittle and must be changed every time we add a new feature to
-the UI.
+the application.
 
 The purpose of a user interface is to be a visual representation of
-the data model. When the model changes, the UI will need to change. In
-order to do this efficiently, we need to know **what has changed**.
+the information model. When the model changes, the UI will need to
+change. In order to do this efficiently, we need to know **what has
+changed**.
 
 These are the problems that Pedestal addresses.
 
@@ -78,14 +86,14 @@ transaction.
 
 Within a transaction, each change is defined by a pure function. Each
 function can focus on making one change. Changes to dependencies in
-the data model are handled by **dataflow**. This allows changes to
+the information model are handled by **dataflow**. This allows changes to
 automatically propagate when new inputs are received. New features are
 added by creating new dataflow functions rather than updating existing
 ones.
 
-For each transaction, the changes which have been made to the data
-model are reported to rendering code as a list of instructions. The
-instructions describe the exact changes which need to be made to the
-UI. Each application may have different requirements on how fine the
-resolution of **change reporting** is. The application developer has
-complete control over the granularity of change reporting.
+For each transaction, the changes which have been made to the
+information model are translated into instructions which are sent to
+the renderer. The instructions describe the exact changes which need
+to be made to the UI. This technique of **communicating change**
+decouples rendering from state and allows rendering code to make
+efficient changes to the view. 
