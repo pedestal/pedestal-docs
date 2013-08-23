@@ -17,9 +17,6 @@ title: Application Introduction
 
 # Application Introduction
 
-This document explains how to make a very simple Pedestal
-application.
-
 Most applications need to do the same basic things:
 
 * Receive and process input
@@ -54,10 +51,10 @@ Writing this kind of application in ClojureScript is straightforward.
 Here we have all of the basic parts that we need. There is an atom for
 storing state and Clojure's update semantics for performing state
 transitions. We can easily watch the atom for changes and call a
-rendering function passing in the old and new state.
+rendering function, passing in the old and new state.
 
-If you have ever built a ClojureScript application, this is the way
-you start.
+If you have ever built a ClojureScript application, you may have
+started in this way.
 
 As the application above gets more complex, many problems will
 arise. How many atoms should we have? What is the structure of the
