@@ -717,7 +717,7 @@ Anything which consumes messages from the effect queue and places new
 messages on the input queue is considered to be a service.
 
 Pedestal provides a function to help with consuming the effects
-queue. This function is named `consume-output` and is located in the
+queue. This function is named `consume-effects` and is located in the
 `io.pedestal.app` namespace. It takes an app and services function as
 arguments.
 
