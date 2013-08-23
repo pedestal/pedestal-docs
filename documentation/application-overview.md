@@ -81,6 +81,10 @@ essential part of how our applications work.
 Focusing on apps allows us to step away from the implementation
 details of the web and create higher level abstractions.
 
+We are also interested in creating interactive applications, this kind
+of application can only be a single-page app. Inputs come from many
+different sources are not aligned with page loads.
+
 
 ### An application
 
@@ -97,7 +101,9 @@ application as a transform message on the input queue. Messages which
 transform the UI are consumed by a renderer which will modify the view
 and add event handlers which convert events to transform messages.
 
-In the diagram above, the view could be the DOM.
+In the diagram above, the view could be the DOM, a JavaScript
+visualization or anything which can draw on a screen and collect
+inputs.
 
 
 ### Why use queues?
@@ -491,8 +497,6 @@ returns a new map of staff assignments.
 In Pedestal, such a function would be called a `derive` function. It
 derives one value in the information model from other values. There is one
 output value and there can be multiple input values. 
-
-![Information Model Derive 2](/documentation/images/app/hotel-model-derive2.png)
  
 Derive functions update a location in the information model. A derive
 function takes two arguments: the old value at the location which is
@@ -513,6 +517,8 @@ output path and a function.
  [:staff :assignments]
  assign-rooms]
 ```
+
+![Information Model Derive 2](/documentation/images/app/hotel-model-derive2.png)
 
 This will pass a map for the inputs but it is not the map we want. The
 passed map will contain a complete report of what has changed. To get
@@ -569,12 +575,42 @@ For examples of using effect functions, see the section of the
 app-tutorial on [simulating effects](https://github.com/pedestal/app-tutorial/wiki/Simulating-Effects).
 
 
+### Why are there five functions? Did we miss one?
+
+We didn't miss one. If anything we have some redundancy here.
+
+One goal of Pedestal is to allow developers to use pure functions as
+much as possible when writing an application. Each of these functions
+does one thing. At a minimum, we need to do three things:
+
+* process input
+* derive values
+* generate output
+
+We have provided two ways to derive values and generate output:
+
+New values can be derived with
+
+* derive
+* continue
+
+Output can be generated with
+
+* emit
+* effect
+
+As with Clojure reference types, we supply the functions which
+generate new values from old values and we let the reference type take
+care of the hard work of coordination.
+
+
 ### Possible changes to this model
 
-It is likely that a future version of Pedestal will move emitters and
+It is likely that a future version of Pedestal will move emit and
 effect functions out of the core. We may also remove derive and use
 continue for recursion and dataflow. The output of the core would be
-the change report which is currently used internally to trigger flow.
+the change report which is currently used internally to trigger
+flow. This will make the core of Pedestal more generally useful.
 
 
 ### Dataflow
@@ -587,7 +623,7 @@ functions are called when parts of the information model, which are
 inputs to these functions, are changed. All of the dependencies
 between functions and the information model are described in a data
 structure. The application which we have been imagining is described
-in the following Clojure map.
+in the map below.
 
 ```clojure
 (require '[io.pedestal.app :as app])
@@ -612,7 +648,8 @@ engine, the format for describing connections between things may
 change.
 
 The content of the `:derive` and `:emit` sections have been described
-above. For more information about configuring an application, see the
+above. For a more complete example of an application description, see
+the
 [app-tutorial](https://github.com/pedestal/app-tutorial/blob/master/tutorial-client/app/src/tutorial_client/behavior.clj).
 
 The `io.pedestal.app` namespace contains a `build` function which
@@ -673,7 +710,7 @@ section of the tutorial.
 Any useful application will need to communicate with back-end
 services. As mentioned above, `effect` functions can produce messages
 which are sent to back-end services. Any messages which are received
-from back-end services can be turned into transform functions and
+from back-end services can be turned into transform messages and
 placed on the input queue.
 
 Anything which consumes messages from the effect queue and places new
@@ -688,7 +725,7 @@ A services function is a function which receives a message and the
 input queue.
 
 ```clojure
-(defn example-services [message input-queue
+(defn example-services [message input-queue]
   ;; send message to a back-end service
   ;; arrange for callback to transform response and place it on the
   ;; input queue
