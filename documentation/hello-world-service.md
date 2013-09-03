@@ -105,8 +105,8 @@ work. Edit src/helloworld/service.clj until it looks like this:
 
 The `home-page` function defines the simplest HTTP response to the
 browser. In `routes`, we map the URL `/` so it will invoke
-`home-page`. Finally, the function `service` describes how to hook
-this up to a server. Notice that this just returns a map. `service`
+`home-page`. Finally, the var `service` describes how to hook
+this up to a server. Notice that this is just a map. `service`
 doesn't actually start the server up; it defines how the service will
 look when it gets started later.
 
