@@ -17,921 +17,727 @@ title: Application Overview
 
 # Application Overview
 
-This document describes all of the key ideas behind Pedestal
-applications.
+This document is a high-level description of the key ideas behind
+pedestal-app. Detailed documentation of each feature will be provided as
+pedestal-app becomes more mature. This document, in addition to the
+pedestal-app [tutorial](https://github.com/pedestal/app-tutorial/wiki) 
+should be enough to get started.
 
 
-## The big picture
+### Why Pedestal for applications?
 
-The main idea behind Pedestal applications is that there are three
-distinct models and three processes which create them. The three
-models are the **data model**, the **application model** and **document object
-model**. The three processes are **transforms** which generate data models,
-**dataflow** which maps from data models to the application model and
-**rendering** which maps from the application model to the DOM.
+Pedestal-app provides a clean architecture for creating large,
+interactive, single-page applications in the browser.
 
-![Three models](/documentation/images/client/overview/three_models.png)
+Creating large single-page applications is hard for several reasons
 
-The three models are described below. The processes which create them
-will be described later this document.
+* lots of interdependent state
+* views must be kept in sync with state
+* the DOM is bad place to keep application state
+* events and callbacks can easily lead to a hairball
+* testing is essential and yet difficult
 
+For large applications, these things are difficult to deal with even
+when a user interface only has to respond to inputs from a single
+user. The problem is compounded when we add interactivity. An
+application can now receive inputs from multiple sources. Change
+becomes constant and efficiently keeping everything in sync is
+difficult. Even more important, we must do this in a way that we
+understand both now and in the future.
 
-### Data model
+Existing client-side frameworks may help with one small part of this
+problem and in some cases can be used along side Pedestal. Most
+approaches to managing state involve object oriented techniques which
+lead to unnecessarily confusing abstractions and webs of
+interconnected mutable objects.
 
-The data model is concerned with the organization of facts and is very
-general. A data model could be used as the basis for many applications
-and the data can take any shape. Data models should be normalized and
-should support simple data transformations and queries. In many ways
-the data model is like a database.
+Pedestal's approach is to control this complexity by going after the
+root of the problem: change. Because data is immutable, we can
+actually know about change. Pedestal allows us to track fine-grained
+changes to our application's information model while allowing
+transactions over the whole model. Pedestal uses simpler tools to
+solve problems which prevents the introduction of incidental
+complexity. Tools such as data, functions and queues.
 
-
-### Application model
-
-The application model contains all of the information that a specific
-application needs. An application model is structured as a tree and should
-not be normalized. If the exact same information should appear in the
-two different parts of an application then that information should be
-repeated in the model.
-
-An application model can be thought of as the user interface of the
-application with all rendering and formatting information
-removed. What remains is the information, structure and descriptions
-of transformations which can be applied to the data model.
-
-
-### Document object model
-
-We all know the DOM. In Pedestal the DOM is used only for what it was
-meant to be used for: rendering. The DOM is not used to store
-application state. A correctly designed Pedestal application should
-never have to look in the DOM to figure out what needs to be
-changed. There should be a clear mapping from changes in the
-application model to changes in the DOM.
-
-Events fired in the DOM **never** directly change the DOM. All events
-are translated into messages which describe transformations to the
-data model. Change flows out from the data model to the application
-model to the DOM.
-
-This does not mean that Pedestal is tied to the DOM. The DOM is one
-rendering model that is commonly used for web applications. The
-process of rendering could just as easily render with Flash,
-JavaScript visualization libraries like D3 or other JavaScript
-component libraries.
+Pedestal also thinks about an application as a system of
+interconnected components rather than a single monolithic
+application. Separating parts and concerns is critical in keeping
+complexity under control. In Pedestal you will see things like queues
+and messages used as if we were creating a distributed system. This
+kind of design allows us to build applications which are flexible,
+testable and extendable.
 
 
-## How the pieces fit
+### Sites vs Apps
 
-An application is isolated from the outside world through the use of
-queues. All input to an application goes on the **input queue** and
-all output is either read from the **output queue** or from the **app
-model queue**. The input and output queues convey messages and the app
-model queue conveys application model deltas.
+Pedestal-app is focused on creating single-page applications. The web
+was designed for documents. Over the past 20 years we have come up
+with some ingenious ways to build applications on a platform designed
+for documents. Doing this leads to a lot of incidental complexity that
+many of us have gotten so used to we don't even see it as
+complexity. We are perfectly happy writing HTML and making HTTP an
+essential part of how our applications work.
 
-Pedestal applications are divided into two main parts: **application**
-and **view**. The application receives messages (transformations)
-which cause change to the data models. The application model is a
-projection of the data models. This projection takes the form of a
-stream of deltas which represent change in the application model. This
-stream of deltas is consumed by the view which draws some
-representation of the application model on a screen for a human to
-interact with. Part of the application model describes the way that
-human interactions can cause transformations of the data model.
+Focusing on apps allows us to step away from the implementation
+details of the web and create higher level abstractions.
 
-![Big picture](/documentation/images/client/overview/big_picture.png)
-
-The diagram above shows how all of the parts fit together. Each part
-will be described briefly in this document. Other documents will
-describe each part in more detail.
+We are also interested in creating interactive applications, this kind
+of application can only be a single-page app. Inputs come from many
+different sources are not aligned with page loads.
 
 
-## Messages
+### An application
 
-The messages which are sent to and from an application on the input
-and output queues are encoded as Clojure maps. Each message has a
-`topic` and a `type`. A `topic` identifies a group of related messages
-and a `type` identifies the exact purpose of the message. A message
-may contain any other data.
+At a high level, the core of a Pedestal application can be thought of
+as a black box with an input and output queue. The input queue conveys
+messages which transform state (transform messages) to the application
+and the output queue conveys messages which transform the view or can
+effect the outside world.
 
-The `topic` and `type` keys are namespaced to
-`io.pedestal.app.messages`. It is common to require this namespace as `msg`
-and use the `topic` and `type` vars as a shorthand.
+![An Application](/documentation/images/app/high-level-app.png)
 
-```clojure
-{msg/topic :model-name msg/type :set-name :name "Alice"}
-```
+All input from a view or from back-end services is sent to the
+application as a transform message on the input queue. Messages which
+transform the UI are consumed by a renderer which will modify the view
+and add event handlers which convert events to transform messages.
 
-Messages like the one shown above are sent to the application, on the
-input queue, to transform internal data models. Messages like this may
-also come out of the application, on the output queue, and be sent to
-external services.
+In the diagram above, the view could be the DOM, a JavaScript
+visualization or anything which can draw on a screen and collect
+inputs.
 
 
-## Application model
+### Why use queues?
 
-The application model has a well defined structure which is a logical
-tree. We can think of this tree as a report which is based on the
-underlying data models and derived data and is updated when that data
-changes.
+Queues separate application concerns. In Pedestal, they eliminate the
+direct connection between callback functions which are triggered by
+events and all of the logic which deals with state transitions. In
+general, queues separate application concerns from the complexity of
+I/O in the browser. From the application's perspective, all input
+comes in as a stream of messages and all output is placed on a queue
+and quickly forgotten.
 
-![Application model tree](/documentation/images/client/overview/tree.png)
+The black box above contains all of the logic which determines what
+this application actually does. The logic inside the black box doesn't
+know anything about the DOM or even that it is running in a
+browser. This means that it can be run when the DOM is not available,
+for example, in a Web Worker. It can also be run on the server and
+tested from Clojure.
 
-All information required to build a UI should exist as a value
-associated with a node in this tree.
+Testing this logic is now easy. We can send it fabricated data and
+examine the output data. There are no dependencies on any web
+technology.
 
-
-### Tree structure
-
-The structure of this tree is simple. Each node in the tree can have
-any number of children. Each node can have a value, attributes and
-transformations. Tree structure can be expressed literally as shown below.
-
-```clojure
-{:a {:value 10
-     :attrs {:disabled false}
-     :transforms {:change-volume [{msg/topic :volume :value :11}]}
-     :children {:b {...}
-                :c {...}}
-```
-
-Transformations are vectors of messages which can be sent to the
-application to transform a data model.
+Using queues for input and output also allows us to be flexible in
+what we do with the messages on the queues. We can see when queues are
+backing up and respond accordingly. Messages on a queue can be
+filtered, dropped or merged.
 
 
-### Deltas
+### Information Model
 
-This tree is not transmitted to the view as a tree but instead as a
-sequence of deltas which describe changes to the tree. These deltas
-describe changes to the tree's structure as well as changes to the
-values, attributes and transformations attached to each node.
+In a Pedestal application, application state is stored in a tree. This
+tree is the application's **information model**. Imagine that we are
+creating a hotel information system. A portion of the information
+model may look something like this
 
-Tuples are used to describe these changes. For example:
+![Data Model Tree](/documentation/images/app/hotel-model.png)
 
-```clojure
-[:value [:a :b] {:name "Alice"}]
-```
+All data for a hotel is stored under the root node. We can represent
+the path to this node as `[]`. All data for rooms is stored under
+`[:rooms]` and all data for room 3 is stored under `[:rooms 3]`.
 
-The first item in each tuple is the operation that will be performed
-on the tree. There are six operations.
+Changes to this information model are managed by the application. The
+value of the model is immutable, so change takes the form of state
+transitions which are implemented as pure functions.
 
-```clojure
-:node-create       ;; create a new node
-:node-destroy      ;; destroy a node
-:value             ;; update the value of a node
-:transform-enable  ;; attach a transform to a node
-:transform-disable ;; remove a transform from a node
-:attr              ;; update a node attribute
-```
+![App with Information Model](/documentation/images/app/app-with-info-model.png)
+ 
+The functions which perform these state transitions are run each time
+a new transform message is delivered on the input queue.
 
-The second item in each tuple is the path to a node in the tree. To
-add a node, one would send:
+
+### Transform Messages
+
+Messages are data, specifically Clojure maps.
+
+A transform message is any message which describes a change that the
+receiver should make. Transform messages will usually have a target,
+an operation to perform and some arguments.
+
+All messages placed on the input queue are transform messages which
+have a specific format. 
+
+Each input message has a `topic` and a `type`. The `topic` is a vector
+which represents a path into the information model where the message
+will be applied. This is the target. The `type` is a keyword which is
+usually mapped to a specific function which will apply the message to
+the information model. This is the operation. An input message can
+have any other data. These are the arguments.
+
+The `topic` and `type` keys are namespaced keywords which live in the
+`io.pedestal.app.messages` namespace. It is common to require this
+namespace as `msg` and use the `topic` and `type` vars as a shorthand.
 
 ```clojure
-[:node-create [:a :b] :map]
+(require '[io.pedestal.app.messages :as msg])
+{msg/topic [:rooms 1 :guests] msg/type :add-name :name "Alice"}
 ```
 
-This will add a new node named `:b` to the tree. This node is a child
-of `:a`.
+In the context of a hotel information system, this message could mean
+that we are adding "Alice" as a guest who will be staying in room 1.
 
-Anything after the path is an argument which is specific to the type
-of operation. In the example above, we tell the tree to store the
-children of this new node in a map.
 
-Types of arguments are shown below.
+### Processing input with transform functions
+
+Transform messages enter an application on the input queue and then
+something happens which causes the information model to change. What
+happens is that messages are taken off the queue, one at a time, and
+routed to a function which will apply this message to the information
+model. These functions are called `transform` functions because they
+are used to transform the model. The message `type` and `topic` are
+used to route messages to transform functions.
+
+![App with Transform](/documentation/images/app/app-with-transform.png)
+
+A transform function takes two arguments, the old value at the target
+path and the message. It returns the new value for the target
+path. The transform function `add-name` is shown below.
 
 ```clojure
-:node-create       ;; one of :map or :vector
-:node-destroy      ;; none
-:value             ;; the new value, or the old and new value
-:transform-enable  ;; transform name and a vector of messages
-:transform-disable ;; transform name, or transform name and vector of messages
-:attr              ;; attribute name and value
+(defn add-name [old-value message]
+  ((fnil conj []) old-value (:name message)))
 ```
 
-Imagine a simple application which can be represented as a tree with
-two children. This structure can be described with the following data.
+This transform function could be used to process the message shown
+above. It could also be used to process any message which adds a name
+to a vector.
+
+Messages are routed to transform functions. When we describe a
+Pedestal application, we provide a *routing table* which controls how
+this is done. The table that routes a message to this function might
+look like this:
 
 ```clojure
-[[:node-create [:a]    :map]
- [:node-create [:a :b] :map]
- [:node-create [:a :c] :map]]
+[[:add-name [:rooms :* :guests] add-name]]
 ```
 
-Changes to the tree can also be written in a more compact form which
-will be expanded. The example below will expand into the deltas shown
-above.
+The routing table is a vector of vectors. The first matching vector
+will be used. Each vector contains an operation, target and function
+to match against.
 
 ```clojure
-[{:a {:b {} :c {}}}]
+[op target function]
 ```
 
-Now suppose that we would like to set the value of the node at `[:a :b]`
-to 42.
+The op my be a wildcard `:*` and the target may contain wildcards as
+the example above does. The function in the first vector with a
+matching op and target will be used. For the message above this
+function will be passed the old value at `[:rooms 1 :guests]`. The
+update performed on the information model is essentially this
 
 ```clojure
-[[:value [:a :b] 42]]
+(update-in data-model [:rooms 1 :guests] add-name message)
 ```
 
-It is easy to understand the creation of structure and how to add values
-to nodes. Transforms are a little bit harder.
+To read a bit more about transform functions, see the [tutorial page
+that introduces transforms](https://github.com/pedestal/app-tutorial/wiki/Making-a-Counter#transform-functions).
+
+
+### Why route transform functions?
+
+What value does the routing table provide? Messages contain all the
+information that we need to find a function and update the information
+model.
+
+The main benefit of the routing table is that it lets you restrict
+what operations may be performed on what parts of the information
+model. Without this table, any operation could be performed anywhere
+and this may not make sense. It also allows you to clearly define
+which functions may be used to update the information model.
+
+Pedestal is young and this feature may be removed. We are considering
+changing the transform message format to
+
+```clj
+[target op & args]
+```
+
+to better match how this is applied to the data model.
+
+```clj
+(apply update-in data-model [target op arg1 arg2])
+```
+
+This change would also allow us to eliminate the use of the transform
+routing table.
+
+
+### Delta Detection
+
+Transform functions make changes to the information model. The very
+next thing we need to know is what has changed. pedestal-app provides
+a mechanism for reporting fine-grained change to the information
+model. This allows us to have the benefits of transactions on the
+whole information model without forcing functions that care about
+change to diff the entire data model each time it is updated.
+
+In pedestal-app, we declare dependencies between parts of the data
+model and functions which should be called only when those parts
+change. Detecting deltas makes this efficient.
+
+![App with State Deltas](/documentation/images/app/app-with-state-deltas.png)
+ 
+In the remaining diagrams, blue arrows will represent state deltas
+which are used to report change.
+
+
+### Generating rendering instructions with emit functions
+
+When the information model changes, something outside of the
+application's behavior will also need to change. One of those things
+is the view. We have not really discussed what a renderer is, but
+for now we can think of it as something which is pulling messages off
+of the output queue (which we will now call the **rendering** queue)
+and modifying the view based on these messages.
+
+These messages are also transform messages, with an operation, target
+and arguments, but have a different format from the transform messages
+described above which are used for input.
+
+By default, an emitter is configured which will generate rendering
+instructions when anything in the information model changes. When the
+following message is placed on the input queue
 
 ```clojure
-[:transform-enable [:a :b] 
- :change-name [{msg/topic :names (msg/param :name) {}}]]
+{msg/topic [:rooms 1 :guests] msg/type :add-name :name "Alice"}
 ```
 
-A `transform-enable` delta is simply reporting that when viewing this
-node in the tree (node `[:a :b]`), it makes sense to send the provided
-vector of messages to the app model. It does not mean:
-
-* you have to send these messages
-* you cannot send other messages
-* that a dataflow transform is being enabled or allowed
-* that anything has actually happened
-
-As with any of the other deltas, a `transform-enable` delta could be
-ignored by the renderer. `transform-enable` messages are useful when
-using automatic renderers, like the included data renderer, or when
-using a push renderer where you would like the renderer to be told
-when to wire up events in the UI.
-
-The transform described above will be attached to the node at path
-`[:a :b]`. The transform name is `:change-name` and the messages that
-should be sent to apply this transform are `[{msg/topic :names (msg/param :name) {}}]`.
-
-Transform messages are represented as a vector of maps. The transform
-above might be hooked up to a simple form with a single text
-field. When the form is submitted, the following messages will be sent
-to the application:
+the following messages are placed on the rendering queue
 
 ```clojure
-[{msg/topic :names msg/type :change-name :name "Alice"}]
+[:node-create [] :map]
+[:node-create [:rooms] :map]
+[:value [:rooms] nil {1 {:guests ["Alice"]}}]
 ```
 
-Notice that the transform name `:change-name` has been added to the
-message as the message type. In the `:transform-enable` instruction,
-the `:name` key is marked as a parameter which should be supplied
-before this message is sent.
+These three messages encode changes which should be made to the
+view. The root node `[]` should be created. Under this, the node
+`[:rooms]` should be created and the value for rooms should be changed
+from `nil` to `{1 {:guests ["Alice"]}}`.
 
-
-### Focus
-
-As an application grows, so will its application model tree. The
-entire tree represents all of the information that an application
-could care about. However, applications do not care about all of this
-information at the same time. Pedestal provides a way to focus ones
-perception on a single or multiple parts of this tree. Only updates to
-these parts of the tree will be perceived by the renderer.
-
-This solves a common problem faced by ClojureScript developers. The
-problem of how many atoms to have in order to see the correct
-granularity of change. In Pedestal, the answer is that you need only
-one atom and the application model. The ability to focus perception on
-any part of the tree allows for fine-grained perception of change.
-
-For an example of focus, consider the tree shown above which has five
-nodes. What if we only wanted to see the changes to node `:c` and its
-children? To do this, we could send the `subscribe` message shown
-below.
+As a renderer consumes these messages, it will modify the view to
+reflect them visibly. When it receives the message
 
 ```clojure
-{msg/topic msg/app-model msg/type :subscribe :paths [[:a :c]]}
+[:node-create [:rooms] :map]
 ```
 
-Notice that the topic for this message is `::app-model`. This message
-will cause the stream of application tree deltas to change so that it
-only emits changes where the path begins with `[:a :c]`.
-
-There are several message types which allow us to control focus:
-
-* subscribe
-* unsubscribe
-* add-named-paths
-* remove-named-paths
-* set-focus
-
-The last three message types above allow us to give names to parts of
-an application tree and then switch between them with `set-focus`
-messages.
+it may create a box in which to display room information. When it
+receives the message
 
 ```clojure
-{msg/topic msg/app-model 
- msg/type :add-named-paths 
- :paths [[:a :c]] 
- :name :right-branch}
-
-{msg/topic msg/app-model 
- msg/type :add-named-paths 
- :paths [[:a :b]] 
- :name :left-branch}
-
-{msg/topic msg/app-model msg/type :set-focus :name :left-branch}
+[:value [:rooms] nil {1 {:guests ["Alice"]}}]
 ```
 
+it can display which guests are in which room.
 
-## Dataflow
-
-In the sections above, we have seen how an application communicates
-with the outside world by receiving and sending messages. When a
-message is received by an application, it will become the input
-to a dataflow which results in application model deltas being produced.
-
-The application developer defines a dataflow by writing pure functions
-for each step in the dataflow and then describing these functions and
-their inputs in a map. The description map is passed to a `build`
-function to create an instance of the dataflow engine.
-
-This separation of pure functions from the description of their inputs
-and the construction of a dataflow engine allows us to distinguish
-between the functions themselves and the execution strategy. This
-provides many benefits:
-
-* multiple execution strategies for the same set of functions
-* amazing debugging tools
-* easy to test
-* easy to reuse
-* forces better design
-
-The dataflow engine contains a state atom which holds all of the state
-for the application. State transitions are managed by the engine and
-not explicitly performed in application code. Developers write pure
-functions which determine how states progress from one value to the
-next.
-
-In the next section, we look at the functions which are used to create
-dataflows, control the progression of state and emit application tree
-deltas.
-
-
-## Dataflow building blocks
-
-Dataflows are composed from pure functions. There are five kinds of
-functions, each with different semantics, which can be used to create
-any application dataflow.
-
-There is one function which receives input (transform), one function
-which is used to build arbitrary dataflows (combine) and three
-functions which generate some kind of output (effect, continue,
-emit).
-
-
-### Transform
-
-A `transform` function receives input messages from the outside
-world and applies a transformation to the data model. Each message
-topic is mapped to a specific transform function. There is also a model
-(state) associated with each of these functions. When called, it will be
-passed the old value of its model and a message and it will return the new
-model value.
-
-This function can be thought of as a reducer over a stream of messages
-with the same topic.
-
-Transform functions are not related to the app tree deltas
-`transform-enable` or `transform-disable`. Anyone can send a message
-to any transform function at any time.
-
-As a simple example, suppose that we have incoming messages which
-report the temperature outside every minute. The topic for these
-messages could be something like `:temperature` and the type could be
-`:add-temperature`.
+There is an assumption being made here about what constitutes an
+atomic value from the renderer's perspective. When the value at `[:rooms]`
+changes, the entire map will be sent in the update. For example,
+sending this message on the input queue
 
 ```clojure
-{msg/topic :temperature msg/type :add-temperature :t 32}
+{msg/topic [:rooms 2 :guests] msg/type :add-name :name "Bob"}
 ```
 
-The data model could be a vector of numbers. The transform function
-would look like this:
+will result in this message on the rendering queue
 
 ```clojure
-(defn add-temperature-transform [old-model message]
-  (condp = (msg/type message)
-    msg/init (:value message)
-    :add-temperature (conj old-model (:t message))
-    old-model))
+[:value [:rooms] {1 {:guests ["Alice"]}} 
+                 {1 {:guests ["Alice"]}, 2 {:guests ["Bob"]}}]
 ```
 
-As shown above, models should always handle the `::init` message type. This
-message sets the initial value of the data model with the `:value` key when
-the application starts.
+This is fine if the rendering logic is happy with getting updates at
+this resolution. Once there are a lot of rooms, the renderer may want
+to only update the rooms which have actually changed. With these
+updates, the rendering logic would have to figure out what has
+changed.
 
-In the map which describes a dataflow, a transform is configured by
-indicating the topic that the model consumes, the transform function
-and providing an initial value to be sent to the transform.
+We can configure an emitter to emit instructions at the resolution that we
+would like. In the description of our application we could add the
+following
 
 ```clojure
-{:transform {:temperature {:init [] :fn add-temperature-transform}}}
+[#{[:rooms :*]} (app/default-emitter)]
 ```
 
+In most cases where we need to define an emitter we only need to
+change the resolution at which change is reported. To do this we can
+use the default emitter in `io.pedestal.app` and provide a path which
+describes which branch of the tree to emit instructions for and how far
+down to go to find atomic values.
 
-### Effect
-
-An `effect` function is used to generate messages which will be sent
-out of the application model to have an effect on the outside world. This
-function takes the input message and a data model associated with a
-transform or combine as input and returns a sequence of messages.
-
-The returned messages will be placed on the output queue when a
-transaction completes.
-
-Effect functions have three arguments: the input message, the old
-data model value and the new data model value.
+With this change, the first message
 
 ```clojure
-(defn control-thermostat-effect [message old-model new-model]
-  [{msg/topic :control 
-    msg/type :change-target-temp
-    :t (:target-temp new-model)}])
+{msg/topic [:rooms 1 :guests] msg/type :add-name :name "Alice"}
 ```
 
-An effect function is configured in the dataflow description by
-mapping a transform or combine to an effect function.
+will cause this to be emitted
 
 ```clojure
-{:effect {:some-transform-or-combine control-thermostat-effect}}
+[:node-create [] :map]
+[:node-create [:rooms] :map]
+[:node-create [:rooms 1] :map]
+[:value [:rooms 1] nil {:guests ["Alice"]}] 
 ```
 
-
-### Combine
-
-A `combine` function takes one or more of the outputs of transform
-functions (data models) and/or combine functions as input and produces
-a new value based on its inputs. When an input changes during a dataflow,
-the combine function will be called in order to update its value.
-
-A combine function has two arities: four and two. When a combine
-function has a single input, the four argument version is used.  When a
-combine function has multiple inputs, the two argument version is
-used. The four argument version takes the old combine state, the name
-of the input and the old and new input values and returns a new
-value. Having this version makes it much easier to implement the
-common case of a single input combine.
+and the second message
 
 ```clojure
-(defn half [state input-name old-value new-value]
-  (/ new-value 2)))
+{msg/topic [:rooms 2 :guests] msg/type :add-name :name "Bob"}
 ```
 
-The example above is a simple combine which takes a data model representing a
-number and produces a number that is half of its input.
-
-The two argument version takes the old combine state and a map of input
-names to input values. Each input value is a map with `:old` and
-`:new` keys containing the old and new state of each input.
+will cause this to be emitted
 
 ```clojure
-(defn sum [state inputs]
-  (let [ns (keep :new (vals inputs))]
-    (apply + ns)))
+[:node-create [:rooms 2] :map]
+[:value [:rooms 2] nil {:guests ["Bob"]}]
 ```
 
-The example above takes multiple inputs where the values are numbers
-and calculates their sum.
+As mentioned above, you will almost always use the default emitter but
+you can write your own custom emitter function if you need to. 
 
-A combine function is configured in the dataflow description by
-giving it a unique name and indicating the function to call and the
-inputs to that function.
+![App with Emit](/documentation/images/app/app-with-emit.png)
+
+In the diagram above, the emit function will be called when the state
+deltas report that any of its inputs have changed.
+
+The default emitter configuration not only controls the resolutions at
+which instructions are generated but it also controls which parts of
+the information model will be watched for changes.
+
+By default, this configuration is used
 
 ```clojure
-{:combine 
-  {:sum-combine 
-    {:fn sum :input #{:number-of-apples :number-of-oranges}}}}
+[[#{[:*]} (app/default-emitter)]]
 ```
 
+which will emit change instructions when any node of the tree has
+changed. By changing this to
 
-### Continue
+```clojure
+[[#{[:rooms :*]} (app/default-emitter)]]
+```
 
-A `continue` function can be used for recursion or message
-composition. Each transform consumes a single message stream and
-produces a data model. Every time a new message is processed, a new
-transaction is run. Within that transaction, time stops. The state of
-every data model is frozen so that the functions processing the
-current message see a consistent view of the world. Some combine
-functions will produce a single value from multiple data models. There
-are times when we may want to generate a new message when several data
-models are in a specific state. The combine function is used to
-'combine' multiple values into a single value; the continue function
-can then use this value to produce new input messages.
+instructions will only be emitted for the children of the `[:rooms]`
+node. This allows us to have parts of the information model which do
+not directly effect the view.
 
-The generated messages will be used as input to transform functions
+To read more about emitters, see the section of the app-tutorial
+entitled [observing-change](https://github.com/pedestal/app-tutorial/wiki/Increment-the-Counter#observing-change).
+
+
+### Derived data
+
+So far we have seen one way to change the information model, the transform
+function. This allows us to change the information model based on input from
+the outside world. Most applications will have some values which
+depend on other values. For example, in the hotel information system
+we may want to ensure that a member of the hotel staff is assigned to
+each occupied room to ensure the comfort of the guests (this is a nice
+hotel). Each time a room is updated, we will need to ensure that a
+staff member who is on duty is assigned to that room. We will also
+need to do this when the status of a staff member changes.
+
+![Information Model Derive 1](/documentation/images/app/hotel-model-derive1.png)
+
+In the information model above, the blue area of the model might be updated
+when receiving messages from the check-in system. Messages like this:
+
+```clojure
+{msg/topic [:rooms 1 :guests] msg/type :add-name :name "Alice"}
+```
+
+The orange part might be updated when receiving messages from the
+system where staff sign in and out for work. Messages like this:
+
+```clojure
+{msg/topic [:staff :on-duty] msg/type :sign-in :name "Ann"}
+```
+
+Both of these parts of the model are updated by transform
+functions. The `sign-in` transform function is shown below.
+
+```clojure
+(defn sign-in [old-value message]
+  (assoc old-value (:name message) {:checkin (js/Date.)}))
+```
+
+The transform routing table would now look like this:
+
+```clojure
+[[:add-name [:rooms :* :guests] add-name]
+ [:sign-in [:staff :on-duty] sign-in]]
+```
+
+We can now create a function which takes rooms and on-duty staff and
+returns a new map of staff assignments.
+
+```clojure    
+(defn assign-rooms [_ {:keys [rooms staff]}]
+  (let [s (sort (keys staff))
+        r (sort (keys rooms))]
+    (reduce (fn [a [k v]]
+              (update-in a [k] (fnil conj #{}) v))
+            {}
+            (map #(vector %1 %2) (cycle s) r))))
+```
+
+In Pedestal, such a function would be called a `derive` function. It
+derives one value in the information model from other values. There is one
+output value and there can be multiple input values. 
+ 
+Derive functions update a location in the information model. A derive
+function takes two arguments: the old value at the location which is
+being updated and its inputs. In the example above the old value is
+ignored and the inputs are passed as a map which contains `rooms` and
+`staff` keys. The return value is a map where the keys are staff
+members and the values are a set of room numbers that this staff
+member is to look after.
+
+![App with Derive](/documentation/images/app/app-with-derive.png)
+
+When we describe a Pedestal application, we provide a set of derive
+functions. Each derive function is described by a set of inputs, an
+output path and a function.
+
+```clojure
+[#{[:rooms] [:staff :on-duty]} 
+ [:staff :assignments]
+ assign-rooms]
+```
+
+![Information Model Derive 2](/documentation/images/app/hotel-model-derive2.png)
+
+This will pass a map for the inputs but it is not the map we want. The
+passed map will contain a complete report of what has changed. To get
+a map with only the inputs we can use this instead.
+
+```clojure
+[#{[:rooms] [:staff :on-duty]}
+ [:staff :assignments]
+ assign-rooms
+ :map]
+```
+
+This will give us a map of inputs but the keys will be `[:rooms]` and
+`[:staff :on-duty]`. That is not ideal. We can use a map to specify
+inputs which allows us to define the keys that will be used.
+
+```clojure
+[{[:rooms] :rooms [:staff :on-duty] :staff}
+ [:staff :assignments]
+ assign-rooms
+ :map]
+```
+
+To lean more about derive functions, see the section of the tutorial
+on [derived values](https://github.com/pedestal/app-tutorial/wiki/Derived-Values).
+
+
+### Continue functions
+
+A continue function is like derive except that it does not directly
+update the model. Continue functions take a single argument, the map
+of inputs (the same thing as the second argument to a derive function)
+and return a collection of transform messages which are processed
 within the same transaction.
 
-The continue function takes three arguments, the input name and the old
-and new input value. It returns a sequence of messages which will be
-processed within the same transaction.
+![App with Continue](/documentation/images/app/app-with-continue.png)
 
-```clojure
-(defn calc-continue [input-name old-value new-value]
-  (when-not (or (:good-enough? new-value)
-                (= (:new-guess new-value) :NaN)))
-    [{msg/topic :guess 
-      msg/type :new-guess
-      :guess (:new-guess new-value)}])
-```
+Continue functions allow for arbitrary recursion.
 
-This example continue function is taken from the square-root sample
-project which uses Heron's method to approximate square roots. It will
-produce a new `:guess` message when the new guess value is a valid
-number and is not a good enough approximation.
-
-The important thing to notice is that it examines the input value to
-determine if new messages need to be generated. Because messages
-returned from this function are processed within the same transaction,
-it must eventually return nil or the transaction will never complete.
-
-A continue function is configured in the dataflow description by
-mapping a combine name to the continue function.
-
-```clojure
-{:continue {:new-guess-combine calc-continue}}
-```
+For an example of a use case for continue functions see the 
+[app-tutorial](https://github.com/pedestal/app-tutorial/wiki/Start-a-Game#using-a-continue-function-to-set-focus-based-on-state).
 
 
-### Emit (Treeify)
+### Effect functions
 
-The last function to process data within a dataflow is the `emit` or
-`treeify` function. This function takes the output from one or more
-combine functions and/or transform functions (data models) as input
-and returns a sequence of application tree deltas.
+Effect functions are just like emit functions except that they return
+a collection of messages which are meant to be sent out of an
+application. These messages are usually sent to a back-end service.
 
-The first argument to the emit function is a map of inputs. The
-keys in the map are the keyword names of the inputs. The values are
-maps with `:new` and `:old` keys containing the new and old values of
-each input.
+Messages produced by effect functions go on a separate queue called the
+*effect* queue.
 
-The single argument version of this function is called when an emit
-function must generate all deltas to build the part of the application
-tree that it is responsible for. The two argument version is called
-when any of the function's inputs have changed.
-
-For the two argument version, the second argument is a set of
-keywords. Each keyword is the name of an input that has changed.
-
-The default emit implementation is available in the `io.pedestal.app` 
-namespace and looks like this:
-
-```clojure
-(defn default-emitter-fn
-  ([inputs]
-     (concat [[:node-exit []]]
-             (mapcat (fn [[k v]]
-                       [[:node-create [k] :map]
-                        [:value [k] (:new v)]])
-                     inputs)))
-  ([inputs changed-inputs]
-     (mapv (fn [changed-input]
-             [:value [changed-input] (:new (get inputs changed-input))])
-           changed-inputs)))
-```
-
-Calling this function with the following arguments:
-
-```clojure
-(default-emitter-fn {:some-view {:old nil :new 42}})
-```
-
-will produce the application tree deltas shown below.
-
-```clojure
-[[:node-create [:some-view] :map]
- [:value [:some-view] 42]]
-```
-
-An emit function is configured in the dataflow description by mapping
-a name to the function and its inputs.
-
-```clojure
-{:emit 
-  {:some-emitter 
-    {:fn an-emit-function :input #{:some-combine :some-transform}}}}
-```
+For examples of using effect functions, see the section of the
+app-tutorial on [simulating effects](https://github.com/pedestal/app-tutorial/wiki/Simulating-Effects).
 
 
-## Dataflow description
+### Why are there five functions? Did we miss one?
 
-On their own, these functions aren't that useful. To make something
-useful, we need to create a dataflow. A dataflow can be described with a
-Clojure map. The example below contains all of the possible
-keys that can be used to describe a dataflow.
+We didn't miss one. If anything we have some redundancy here.
 
-```clojure
-{:transform {:transform-a {:init "" :fn transform-a-fn}}
- :effect    {:transform-a effect-a-fn}
- :combine   {:combine-a {:fn combine-a-fn :input #{:transform-a}}}
- :continue  {:combine-a continue-a-fn}
- :emit      {:emit-a {:fn emit-a-fn :input #{:combine-a}}}}
-```
+One goal of Pedestal is to allow developers to use pure functions as
+much as possible when writing an application. Each of these functions
+does one thing. At a minimum, we need to do three things:
 
-The above application can be visualized as a simple graph.
+* process input
+* derive values
+* generate output
 
-![Full data flow](/documentation/images/client/model/full_flow.png)
+We have provided two ways to derive values and generate output:
+
+New values can be derived with
+
+* derive
+* continue
+
+Output can be generated with
+
+* emit
+* effect
+
+As with Clojure reference types, we supply the functions which
+generate new values from old values and we let the reference type take
+care of the hard work of coordination.
 
 
-## Creating an execution strategy
+### Possible changes to this model
 
-In the two sections above, we have seen how to define dataflow
-functions and how to describe a dataflow. We have not yet created
-anything which can run. The missing piece is the execution
-strategy. We have a set of pure functions which take inputs and
-produce new values. We have also defined how inputs and outputs flow
-through the various functions. What we have not defined is how the
-execution of the dataflow will proceed.
+It is likely that a future version of Pedestal will move emit and
+effect functions out of the core. We may also remove derive and use
+continue for recursion and dataflow. The output of the core would be
+the change report which is currently used internally to trigger
+flow. This will make the core of Pedestal more generally useful.
 
-We call the piece which runs the dataflow the **dataflow engine**.
 
-There are many questions which have to be answered by the dataflow
-engine implementation:
+### Dataflow
 
-* do we run dataflow steps sequentially or in parallel?
-* what features are supported by the dataflow engine?
-* how are input and output messages processed?
-* how much visibility is allowed into the running flow?
-* do we emit debugging data?
-
-Pedestal currently provides a single dataflow engine implementation.
-
-The `io.pedestal.app` namespace contains a `build` function which
-takes a dataflow description and returns a new application. The
-application contains all of the things that have been discussed in
-this document. The final piece that it adds is the dataflow engine.
-
-To create a new application, pass the dataflow description to
-the `build` function.
+We have now been introduced to the five types of functions: transform,
+emit, derive, continue and effect. Each is a pure
+function. `transform` and `derive` functions produce values which
+change the state of part of the information model. `derive` and `emit`
+functions are called when parts of the information model, which are
+inputs to these functions, are changed. All of the dependencies
+between functions and the information model are described in a data
+structure. The application which we have been imagining is described
+in the map below.
 
 ```clojure
 (require '[io.pedestal.app :as app])
-
-(def dataflow 
-  {:transform {:transform-a {:init "" :fn transform-a-fn}}
-   :effect    {:transform-a effect-a-fn}
-   :combine   {:combine-a {:fn combine-a-fn :input #{:transform-a}}}
-   :continue  {:combine-a continue-a-fn}
-   :emit      {:emit-a {:fn emit-a-fn :input #{:combine-a}}}})
-
-(def app (app/build dataflow))
+(def hotel-app
+  {:version 2
+   
+   :transform [[:add-name [:rooms :* :guests] add-name]
+               [:sign-in [:staff :on-duty] sign-in]]
+   
+   :derive #{[{[:rooms] :rooms [:staff :on-duty] :staff}
+              [:staff :assignments]
+              assign-rooms
+              :map]}
+   
+   :emit [[#{[:rooms :*]
+             [:staff :assignments :*]} (app/default-emitter)]]})
 ```
 
-The returned `app` is a map which contains the following keys:
+The `:version` key is used to indicate the version of the dataflow
+description which is being used. Even though there is one dataflow
+engine, the format for describing connections between things may
+change.
+
+The content of the `:derive` and `:emit` sections have been described
+above. For a more complete example of an application description, see
+the
+[app-tutorial](https://github.com/pedestal/app-tutorial/blob/master/tutorial-client/app/src/tutorial_client/behavior.clj).
+
+The `io.pedestal.app` namespace contains a `build` function which
+takes the above map as an argument and returns an application.
 
 ```clojure
-:state           ;; an atom containing all app state
-:description     ;; the dataflow description
-:flow            ;; an optimized dataflow map
-:default-emitter ;; the default emit function
-:input           ;; input queue
-:output          ;; output queue
-:app-model       ;; app model queue
+(def app (app/build hotel-app))
 ```
 
-The state map contains the following keys:
+We can then initialize an app with the `begin` function and then start
+to send it messages.
 
 ```clojure
-:subscriptions  ;; current path subscriptions
-:emitter-deltas ;; deltas generated by the last transaction
-:views          ;; combine states from last transaction
-:models         ;; data models from last transaction
-:input          ;; input which triggered the last transaction
-:output         ;; output messages generated by the last transaction
+(require '[io.pedestal.app.protocols :as p])
+(app/begin app)
+(p/put-message (:input app) 
+ {msg/topic [:rooms 1 :guests] msg/type :add-name :name "Alice"})
 ```
-
-As you experiment form the REPL or while writing tests, the
-`app` map is a valuable resource.
-
-### Working with queues
-
-The application described above exposes three queues which are used to
-send and receive messages and deltas.
-
-`io.pedestal.app.protocols` defines two protocols which these queues
-implement: `PutMessage` and `TakeMessage`.
-
-```clojure
-(defprotocol PutMessage
-  (put-message [this message]))
-
-(defprotocol TakeMessage
-  (take-message [this f]))
-```
-
-`put-message` will add the message and return
-immediately. `take-message` will call the passed function when the
-next message is available. The given function will be called only
-once.
-
-To process all messages on the queue, you can define a recursive
-function like the one shown below:
-
-```clojure
-(defn consume-queue 
-  "Process all messages on the passed queue with the function f."
-  [queue f]
-  (p/take-message queue
-                  (fn [message]
-                    (f message)
-                    (consume-queue queue f))))
-```
-
-Pedestal provides two functions to help consume queues:
-`io.pedestal.app/consume-output` for consuming the output queue and
-`io.pedestal.app.render/consume-app-model` for consuming application model
-deltas. Refer to the source for these functions for more information.
-
-
-## Main functions
-
-Most Pedestal applications have one or more `main` functions which
-create a new application and configure it. These main functions
-are typically referred to in `config/config.clj`.
-
-Using the dataflow described above and requiring some additional
-namespaces, a main function might look like the one shown below:
-
-```clojure
-(require '[io.pedestal.app.render :as render])
-
-(defn console-renderer [out]
-  (fn [deltas input-queue]
-    (binding [*out* out]
-      (doseq [d deltas]
-        (println d)))))
-
-(defn ^:export main []
-  (let [app (app/build dataflow)
-        render-fn (console-renderer *out*)
-        app-model (render/consume-app-model app render-fn)]
-    (app/begin app)
-    {:app app :app-model app-model}))
-```
-
-In this example we create a rendering function which will print all
-deltas it receives to the console (it is assumed that we are running
-on JVM Clojure). We then use `consume-app-model` to configure this
-function to be called when processing the `app-model-queue`. The
-function which is passed to `consume-app-model` will be called passing
-both the deltas and the input-queue. This allows the renderer to
-arrange for inputs to be sent back to the application.
-
-The application is started by calling the `begin` function. This will
-send `::init` messages to each model, passing in their initial
-values.
-
-Finally, this function returns a map containing the app and
-app-model. Returning this information is optional. It can be useful to
-have when debugging and is also necessary for integration with the
-developer tools. For example, returning this information allows
-the tools to enable recording.
-
-Notice that `consume-app-model` returns an app-model. This is an atom
-which contains a `io.pedestal.app.tree.Tree` record with keys:
-
-```clojure
-:deltas ;; a map of all deltas produced
-:tree   ;; the current value of the tree
-:t      ;; the current tree time
-```
-
-This information is also useful for testing and debugging.
-
-It is worth mentioning that Pedestal includes a
-`io.pedestal.app.query` namespace which supports queries against this
-tree, as well as queries against arbitrary data.
-
-```clojure
-(require '[io.pedestal.app.query :only [q]])
-
-(q '[:find ?e ?a ?v :where [?e ?a ?v]] @app-tree)
-```
-
-This syntax will be familiar to anyone who has used Datomic.
 
 
 ## Rendering
 
-In Pedestal, rendering is the process of consuming application model
-deltas and drawing changes in the user interface. How closely these
-deltas correspond to objects in the user interface is a design
-decision that you have to make.
+In each diagram above there is a box labeled *Renderer*. As mentioned
+above, this part of an application is responsible for consuming
+rendering instructions and making changes to the view. In Pedestal,
+anything which does this is a renderer.
 
-The application model can map directly to the UI and "drive" or "push"
-changes to the UI or it can simply report changes to information that
-is interesting to a renderer.
+Pedestal provides a helper function for consuming the rendering queue
+name `consume-app-model` which is located in the
+`io.pedestal.app.render` namespace. This function takes an app object
+and a rendering function and will call the rendering function when
+there are new instructions to render.
 
-As shown above, it is easy set up the function which handles
-rendering. Once this function is in place, rendering can do anything
-at all.
-
-Pedestal includes a rendering function implementation which helps in
-writing applications where application model deltas drive changes to the
-DOM. This is called the "push" renderer and is implemented in
-`io.pedestal.app.render.push`.
-
-Included with the Pedestal samples is a sample app named
-`helloworld-app` which shows how to create a very simple app and use
-the push renderer. The application is defined in a single file 
-`helloworld_app/app/src/helloworld_app/app.cljs`.
-
-In addition to the usual required namespaces, this namespace also
-requires `io.pedestal.app.render.push`.
+A rendering function takes a collection of deltas and the input-queue
+as arguments.
 
 ```clojure
-(ns helloworld-app.app
-  (:require [io.pedestal.app :as app]
-            ...
-            [io.pedestal.app.render.push :as push]))
+(defn example-renderer [instructions input-queue]
+  ;; modify the DOM and wire events
+ )
 ```
 
-In the main function, we call `push/renderer` to create the render
-function. `push/renderer` takes the root DOM element id, under which
-all changes will be made to the DOM, and a render configuration.
+With an app in hand, set this function as the renderer with
 
 ```clojure
-(defn ^:export main []
-  (let [app (app/build count-app)
-        render-fn (push/renderer "content" [[:value [:**] render-value]])]
-    (render/consume-app-model app render-fn)
-    (receive-input (:input app))
-    (app/begin app)))
+(io.pedestal.app.render/consume-app-model app example-renderer)
 ```
 
-A render configuration is a vector of vectors where each vector maps
-from a delta to a function which will handle changes to the DOM when
-that delta is received.
+There are many ways to handle rendering in a Pedestal
+application. Pedestal does provide some library support. For more
+information see the
+[Rendering](https://github.com/pedestal/app-tutorial/wiki/Rendering)
+section of the tutorial.
 
-In this example the render configuration is:
+
+## Services
+
+Any useful application will need to communicate with back-end
+services. As mentioned above, `effect` functions can produce messages
+which are sent to back-end services. Any messages which are received
+from back-end services can be turned into transform messages and
+placed on the input queue.
+
+Anything which consumes messages from the effect queue and places new
+messages on the input queue is considered to be a service.
+
+Pedestal provides a function to help with consuming the effects
+queue. This function is named `consume-effects` and is located in the
+`io.pedestal.app` namespace. It takes an app and services function as
+arguments.
+
+A services function is a function which receives a message and the
+input queue.
 
 ```clojure
-[[:value [:**] render-value]]
+(defn example-services [message input-queue]
+  ;; send message to a back-end service
+  ;; arrange for callback to transform response and place it on the
+  ;; input queue
+ )
 ```
 
-This will map `:value` deltas for any path to the `render-value`
-function. The `render-value` function is shown below.
+This function can be configured to consume the effects queue with
 
 ```clojure
-(defn render-value [renderer [op path old-value new-value] input-queue]
-  (dom/destroy-children! (dom/by-id "content"))
-  (dom/append! (dom/by-id "content")
-               (str "<h1>" new-value " Hello Worlds</h1>")))
+(app/consume-effects app example-services)
 ```
 
-A rendering handler function takes three arguments: the renderer
-object, the delta and the input-queue.
-
-The input-queue can be used to send a message back to the application.
-
-The delta contains the op, path and the arguments which describe the change
-being reported.
-
-The renderer object is used to help map changes in the application
-model to the DOM. The following functions are supported:
-
-```clojure
-(new-id! [renderer path] [renderer path v]
-  "create a new id")
-(get-id [renderer path]
-  "get the id associated with the given path") 
-(get-parent-id [renderer path]
-  "get the id associated with the parent path")
-(delete-id! [renderer path]
-  "delete the id associated with this path")
-(on-destroy! [renderer path f]
-  "run this function when the node at path is destroyed")
-(set-data! [renderer path d]
-  "associate data with the given path")
-(drop-data! [renderer path]
-  "drop data associated with the given path")
-(get-data [renderer path]
-  "get the data associated with the given path")
-```
-
-The example function above doesn't use any of these. See the chat
-sample app for some examples of usage.
-
-
-### The data renderer
-
-One goal of Pedestal is to allow for useful and functional user
-interfaces to be automatically generated from a stream of deltas. We
-are not there yet but we are well on the way.
-
-The included data renderer allows you to run and interact with any
-working application model without having to create your own
-renderer. For now, this feature is helpful during development but
-would never be deployed.
-
-The data renderer is really just a set of handler functions and a render
-configuration which maps all deltas to these functions.
-
-```clojure
-(ns data-renderer.example
-  (:require [io.pedestal.app :as app]
-            [io.pedestal.app.render :as render]
-            [io.pedestal.app.render.push :as push-render]
-            [io.pedestal.app.render.push.handlers.automatic :as auto]))
-
-(defn ^:export main []
-  (let [app (app/build dataflow-description)
-        render-fn (push-render/renderer "content" 
-                                        auto/data-renderer-config)]
-    (render/consume-app-model app render-fn)
-    (app/begin app)))
-```
+For more information, see the
+[Services](https://github.com/pedestal/app-tutorial/wiki/Connecting-to-the-Service)
+section of the tutorial.

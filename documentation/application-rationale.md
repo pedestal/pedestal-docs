@@ -17,80 +17,83 @@ title: Application Rationale
 
 # Application Rationale
 
-The Pedestal application library is designed to help developers create
-large applications which run in the browser.
+The Pedestal application library (pedestal-app) is designed to help
+developers create interactive web applications.
 
-When creating these kinds of applications, there are many problems
-that a developer will have to solve, some of which are listed
-below. Pedestal is designed to address these problems.
-
-
-### State Management
-
-Rich, collaborative applications will need to deal with a lot of
-application state. Pedestal provides a way to do this which fits into
-Clojure's philosophy on state, viewing state as a succession of
-values. The Pedestal application library provides a mechanism for
-managing state transitions which frees the developer to write nothing
-but pure functions.
+Pedestal reduces application complexity by giving developers tools to
+model, report and react to change.
 
 
-### Rendering State Changes
+## The problem
 
-Every application needs to reflect changes made to the state of the
-application in the user interface. This seems easy when an application
-is small but can become very difficult to deal with as it grows. When
-data models and rendering are tightly coupled it becomes difficult to
-change one without breaking the other.
+Interactive applications constantly receive inputs from multiple
+sources. This property forces them to be long-running, single-page
+applications which must have state.
 
-Pedestal introduces a clear separation between data models and
-rendering. In fact, it introduces a new model, the application model.
+There are three high-level tasks that this kind of application must
+perform:
 
+* Receive and process input
+* Manage state
+* Update the UI when state changes
 
-### Filtering State Changes
+There are hard problems associated with each of these tasks.
 
-Large applications allow users to performs many different tasks. Each
-task only cares about some subset of the entire application's
-state. Pedestal provides a way to allow rendering code to see only the
-state changes that are necessary to support the current task.
+All I/O in the browser is asynchronous. If we receive input from users
+or services then we must create callback functions to process these
+inputs. This reduces our ability to control how our program executes,
+and can make programs hard to understand. This problem is often
+referred to as **Callback Hell**.
 
+Inputs supply new information to our application which must be stored
+in some way. While applying changes to state, which are triggered by
+asynchronous inputs, we must ensure that we are always seeing a
+**consistent view of state**. Additionally, there may be many parts of
+that model which need to change based on the input. Where does the
+code which knows about these **data dependencies** live? If it is the
+responsibility of the code processing the input message then this code
+becomes brittle and must be changed every time we add a new feature to
+the application.
 
-### Slow Development Process
+The purpose of a user interface is to be a visual representation of
+the information model. When the model changes, the UI will need to
+change. In order to do this efficiently, we need to know **what has
+changed**.
 
-When the parts of a system are not properly decoupled, the whole
-system must be run in order to work on any part of it. This
-can drastically slow down development time when creating rich,
-collaborative applications. The time that it takes to start and
-restart a system combined with the time that it takes to manually
-simulate the actions of multiple agents can become overwhelming.
-
-One approach to this problem would be to automate testing. But this
-does not address the more fundamental problem of coupling. A better
-solution would be to decouple the system so that each part can be
-developed and tested in isolation from the other parts.
-
-Pedestal is designed to allow applications to be built in this way.
-
-
-### Debugging
-
-In a message-driven system, it is sometimes hard to determine the
-cause of a problem that is discovered when testing or running a part
-of the system.
-
-In a Pedestal application, each new message is processed within a
-transaction.  Each transaction ties a single input message to all of
-the state changes and output produced by processing that input.
-
-This makes it possible to track corrupted state and invalid rendering
-data to the inputs that caused them. In a debugging environment, all
-transitional states can be captured and used to reproduce the problem
-until it is fixed. Captured rendering deltas can be used to render what
-was visible to the user when the problem occurred.
+These are the problems that Pedestal addresses.
 
 
-### Testing
+## Pedestal's solution
 
-It is difficult to test applications which run in the browser. All
-application logic in a Pedestal application can be written and tested
-in Clojure.
+Every callback function in Pedestal has one job: convert an event
+into a message (data) and place this message on the application's
+**input queue**. This addresses the two problems of callbacks: it helps us
+understand how our program works and it gives back control.
+
+Event wiring code is just that, it wires up an event, captures it,
+converts it to data and puts it on a queue. Callback functions are no
+longer directly causing any other code in our application to run.
+
+We can now think of all input as being conveyed to our application on
+a queue. We are in control of how and when the messages on this queue
+are processed.
+
+Messages on this queue are processed one at a time. For each input
+message, a single **transaction** is run which results in a new
+state. While this transaction is running, no other input can change
+the state. This ensures that we have a consistent state within a
+transaction.
+
+Within a transaction, each change is defined by a pure function. Each
+function can focus on making one change. Changes to dependencies in
+the information model are handled by **dataflow**. This allows changes to
+automatically propagate when new inputs are received. New features are
+added by creating new dataflow functions rather than updating existing
+ones.
+
+For each transaction, the changes which have been made to the
+information model are translated into instructions which are sent to
+the renderer. The instructions describe the exact changes which need
+to be made to the UI. This technique of **communicating change**
+decouples rendering from state and allows rendering code to make
+efficient changes to the view. 
