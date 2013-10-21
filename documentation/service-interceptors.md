@@ -120,7 +120,7 @@ its path will have its leave function called last.
 Alternatively, an interceptor may call `terminate`, which will
 terminate execution of the path immediately and begin invoking leave
 stages. If the context contains a terminator predicate, as associated
-into a context with the `terminate-with` function, which returns true
+into a context with the `terminate-when` function, which returns true
 after the processing of any interceptor, the execution will terminate
 and the leave stages of interceptors will begin to be invoked.
 
