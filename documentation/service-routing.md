@@ -320,8 +320,7 @@ Route definitions can specify additional interceptors to include in
 the interceptor path for a given route. These interceptors function as
 before, after or around filters for specific routes. They are
 specified using a vector marked with _^:interceptors_ metadata. The
-values specified in the interceptors vector may be either a symbol
-that resolves to one of:
+values specified in the interceptors vector may be:
 
 - a symbol that resolves to one of:
 
@@ -553,7 +552,7 @@ it to find route names.
 ## URL generation
 
 The _io.pedestal.service.http.route/url-for-routes_ function takes a
-route table returns a function that accepts a route-name (and optional
+route table and returns a function that accepts a route-name (and optional
 arguments) and returns a URL that can be used in a hyperlink.
 
 ```clj
