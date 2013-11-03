@@ -51,10 +51,7 @@ streaming:
   instance writes itself to the HTTP output stream.
 
 The thread completing the interceptor path will write the body out to
-the HTTP response stream. If the request is processed synchronously,
-the work will be done on the Web server thread. If the request is
-processed asynchronously, the work will be done on whatever thread
-resumed processing (see [Service Async](/documentation/service-async)).
+the HTTP response stream.
 
 Here is an example of an interceptor that returns an arbitrarily large
 volume of data.
