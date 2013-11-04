@@ -36,7 +36,7 @@ Here is a synchronous handler that needs to wait for something to happen:
       [[["/takes-time" {:get takes-time}]]])
 ```
 
-Because this handle is synchronous, requests for `/takes-time` will
+Because this handler is synchronous, requests for `/takes-time` will
 block until the call to `lengthy-computation` completes, stopping the
 Web server thread from handling other work.
 
@@ -61,7 +61,9 @@ The `go` block allows work to take place asynchronously while the
 thread is released. When that work is complete, the request will
 complete, and a response will be delivered to the client.
 
-For more about streaming, see
-[Streaming Responses](/documentation/service-streaming). For more
-about SSE, see [Server-Sent Events](/documentation/service-sse).
+This facility allows a single value to be placed on a channel per
+interceptor; for more extensive use of channels, see
+[Server-Sent Events](/documentation/service-sse).
 
+For more about streaming, see
+[Streaming Responses](/documentation/service-streaming).
