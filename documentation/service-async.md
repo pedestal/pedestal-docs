@@ -18,10 +18,11 @@ title: Asynchronous Services
 # Asynchronous processing
 
 The interceptor infrastructure supports asynchronous processing via
-core.async channels. Any interceptor that returns a channel will
-initiate asynchronous behavior. When a new context is later written to
-the channel, the interceptor path will continue processing with this
-new context in place of the original context.
+[core.async](https://github.com/clojure/core.async) channels. Any
+interceptor that returns a channel will initiate asynchronous
+behavior. When a new context is later written to the channel, the
+interceptor path will continue processing with this new context in
+place of the original context.
 
 This allows long-running work to occur without blocking a Web server
 thread.
