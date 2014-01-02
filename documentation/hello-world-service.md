@@ -74,9 +74,10 @@ finish editing the file, run `lein deps` to fetch any jars you need.
 ## Edit service.clj
 
 Our project name is helloworld, so the template generated two files
-under `src/helloworld`. `service.clj` defines the logic of our 
-service. `server.clj` creates a server (a daemon) to host that
-service.
+under `src/helloworld`:
+
+1. `service.clj` defines the logic of our service. 
+2. `server.clj` creates a server (a daemon) to host that service.
 
 Of course, if you used a different project name, your service.clj
 would be src/your-project-name-here/service.clj. Also, the namespace
@@ -155,7 +156,7 @@ to get that map we just looked at, and it uses that map to create the actual ser
 
 We'll start the server from a repl, which is how we will normally run in development mode.
 
-```clojure
+```bash
 $ lein repl
 
 nREPL server started on port 60617 on host 127.0.0.1
