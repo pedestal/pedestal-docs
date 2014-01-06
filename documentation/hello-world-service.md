@@ -42,25 +42,28 @@ The generated project definition looks like this:
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [io.pedestal/pedestal.service "0.1.9"]
+                 [io.pedestal/pedestal.service "0.2.2"]
+                 [io.pedestal/pedestal.service-tools "0.2.2"]
 
                  ;; Remove this line and uncomment the next line to
                  ;; use Tomcat instead of Jetty:
-                 [io.pedestal/pedestal.jetty "0.1.9"]
-                 ;; [io.pedestal/pedestal.tomcat "0.1.9"]
-
-                 ;; auto-reload changes
-                 [ns-tracker "0.2.1"]
-
-                 ;; Logging
-                 [ch.qos.logback/logback-classic "1.0.7" :exclusions [org.slf4j/slf4j-api]]
-                 [org.slf4j/jul-to-slf4j "1.7.2"]
-                 [org.slf4j/jcl-over-slf4j "1.7.2"]
-                 [org.slf4j/log4j-over-slf4j "1.7.2"]]
-  :profiles {:dev {:source-paths ["dev"]}}
+                 [io.pedestal/pedestal.jetty "0.2.2"]
+                 ;; [io.pedestal/pedestal.tomcat "0.2.2"]
+                 ]
   :min-lein-version "2.0.0"
   :resource-paths ["config", "resources"]
-  :aliases {"run-dev" ["trampoline" "run" "-m" "dev"]}
+  :aliases {"run-dev" ["trampoline" "run" "-m" "helloworld.server/run-dev"]}
+  :repl-options  {:init-ns user
+                  :init (try
+                          (use 'io.pedestal.service-tools.dev)
+                          (require 'helloworld.service)
+                          ;; Nasty trick to get around being unable to reference non-clojure.core symbols in :init
+                          (eval '(init helloworld.service/service #'helloworld.service/routes))
+                          (catch Throwable t
+                            (println "ERROR: There was a problem loading io.pedestal.service-tools.dev")
+                            (clojure.stacktrace/print-stack-trace t)
+                            (println)))
+                  :welcome (println "Welcome to pedestal-service! Run (tools-help) to see a list of useful functions.")}
   :main ^{:skip-aot true} helloworld.server)
 ```
 
@@ -71,9 +74,10 @@ finish editing the file, run `lein deps` to fetch any jars you need.
 ## Edit service.clj
 
 Our project name is helloworld, so the template generated two files
-under `src/helloworld`. `service.clj` defines the logic of our 
-service. `server.clj` creates a server (a daemon) to host that
-service.
+under `src/helloworld`:
+
+1. `service.clj` defines the logic of our service. 
+2. `server.clj` creates a server (a daemon) to host that service.
 
 Of course, if you used a different project name, your service.clj
 would be src/your-project-name-here/service.clj. Also, the namespace
@@ -86,19 +90,24 @@ work. Edit src/helloworld/service.clj until it looks like this:
 ```clojure
 (ns helloworld.service
     (:require [io.pedestal.service.http :as bootstrap]
+              [io.pedestal.service.http.route :as route]
+              [io.pedestal.service.http.body-params :as body-params]
               [io.pedestal.service.http.route.definition :refer [defroutes]]
-              [ring.util.response :refer [response]]))
+              [ring.util.response :as ring-resp]))
 
 (defn home-page
   [request]
-  (response "Hello World!"))
+  (ring-resp/response "Hello World!"))
 
- (defroutes routes
-   [[["/" {:get home-page} ^:interceptors [bootstrap/html-body]]]])
-
+(defroutes routes
+  [[["/" {:get home-page}
+        ;; Set default interceptors for any other paths under /
+        ^:interceptors [(body-params/body-params) bootstrap/html-body]]]])
+  
 ;; Consumed by helloworld.server/create-server
 (def service {:env :prod
               ::bootstrap/routes routes
+              ::bootstrap/resource-path "/public"
               ::bootstrap/type :jetty
               ::bootstrap/port 8080})
 ```
@@ -118,55 +127,67 @@ definition without any "magic" or "action at a distance"
 metaprogramming.
 
 Take a peek into `src/helloworld/server.clj`. We won't be changing it,
-but it's interesting to look at the create-server function:
+but it's interesting to look at the main function:
 
 ``` clojure
 (ns helloworld.server
-  (:require [helloworld.service :as service]
-            [io.pedestal.service.http :as bootstrap]))
+  (:gen-class) ; for -main method in uberjar
+  (:require [io.pedestal.service-tools.server :as server]
+            [helloworld.service :as service]
+            [io.pedestal.service-tools.dev :as dev]))
 
 ;; ...
 
-(defn create-server
-  "Standalone dev/prod mode."
-  [& [opts]]
-  (alter-var-root #'service-instance
-                  (constantly (bootstrap/create-server (merge service/service opts)))))
+(defn -main
+  "The entry-point for 'lein run'"
+  [& args]
+  (server/init service/service)
+  (apply server/-main args))
 
 ;; ...
 
 ```
 
-You can see that `create-server` calls `helloworld.service/service` to
-get that map we just looked at. `create-server` merges that map with
-any per-invocation options, and then creates the actual server by
-calling `bootstrap/create-server`.
+You can see that `io.pedestal.service-tools.server/init` calls `helloworld.service/service` 
+to get that map we just looked at, and it uses that map to create the actual server.
+
 
 ## Run it in Dev Mode
 
 We'll start the server from a repl, which is how we will normally run in development mode.
 
-```
+```bash
 $ lein repl
 
-nREPL server started on port 52471
-REPL-y 0.2.0
+nREPL server started on port 60617 on host 127.0.0.1
+REPL-y 0.3.0
 Clojure 1.5.1
-    Docs: (doc function-name-here)
-          (find-doc "part-of-name-here")
-  Source: (source function-name-here)
- Javadoc: (javadoc java-object-or-class-here)
-    Exit: Control+D or (exit) or (quit)
+Welcome to pedestal-service! Run (tools-help) to see a list of useful functions.
 ```
 
-To make life easier in the repl, pedestal generated a "dev.clj" file with some convenience functions. We'll use one to start the server:
+To make life easier in the repl, pedestal has some convenience functions: 
 
 ```clojure
-helloworld.server=> (use 'dev)
-nil
-helloworld.server=> (start)
-nil
+user=> (tools-help)
 
+Start a new service development server with (start) or (start service-options)
+----
+Type (start) or (start service-options) to initialize and start a server
+Type (stop) to stop the current server
+Type (restart) to restart the current server
+----
+Type (watch) to watch for changes in the src/ directory
+
+nil
+```
+
+We'll use one to start the server:
+
+```clojure
+user=> (start)
+INFO  org.eclipse.jetty.server.Server - jetty-8.1.9.v20130131
+INFO  o.e.jetty.server.AbstractConnector - Started SelectChannelConnector@0.0.0.0:8080
+nil
 ```
 
 Now let's see "Hello World!"
@@ -175,8 +196,8 @@ Go to [http://localhost:8080/](http://localhost:8080/)  and you'll see a shiny "
 
 Done! Let's stop the server.
 
-```
-helloworld.server=> (stop)
+```clojure
+user=> (stop)
 nil
 ```
 
