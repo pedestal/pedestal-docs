@@ -148,8 +148,9 @@ but it's interesting to look at the main function:
 
 ```
 
-You can see that `io.pedestal.service-tools.server/init` calls `helloworld.service/service` 
-to get that map we just looked at, and it uses that map to create the actual server.
+You can see that `io.pedestal.service-tools.server/init` is invoked with
+`helloworld.service/service`--the map we just looked at--which is used to
+create the actual server.
 
 
 ## Run it in Dev Mode
