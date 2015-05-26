@@ -3,16 +3,7 @@ Pedestal Docs
 
 Documentation for the Pedestal web application framework
 
-
-## About this repository
-
-In the future, we will provide tools to generate properly styled HTML yourself. Due to abundant interest, however, we've opted to release these files while they're still a little raw.
-
-## Contributing
-
-Contributions and suggestions for improvement are welcome in the form of Pull Requests and Issues.
-
-Please see [CONTRIBUTING.md](CONTRIBUTING.md) for our contribution guidelines.
+**This repo has been deprecated.  Please see the documentation in the [Pedestal project](https://github.com/pedestal/pedestal/tree/master/guides)**
 
 ## Find out more
 
