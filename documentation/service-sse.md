@@ -107,7 +107,7 @@ send.
 
 It is important to understand that the server-sent events
 infrastructure uses the low-level streaming mechanism described
-[here](/documentation/service-streaming). As such, it is subject to the major
+[here](/documentation/service-streaming.md). As such, it is subject to the major
 limitation of that approach: once events have been streamed, any
 interceptors that post-process the response from the SSE interceptor
 will not be able change what was sent on the wire. Interceptor paths
