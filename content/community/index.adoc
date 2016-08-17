@@ -1,0 +1,27 @@
+= Community Resources
+Cognitect
+2016-08-05
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: community
+
+** TODO: Link and verbiage for each **
+
+== Pedestal Users
+
+* Mailing List
+
+== Hacking on Pedestal
+
+* Checkout Instructions
+* Local Build Instructions
+* Testing
+
+== Contributing to Pedestal
+
+* Source Code
+* Proposing Improvements
+* Contributor Guidelines
+* Github Process
+* CLA

@@ -1,0 +1,8 @@
+= Search Results
+Cognitect
+2016-08-05
+:type: search
+:toc: macro
+:icons: font
+
+ifdef::env-github,env-browser[:outfilesuffix: .adoc]
