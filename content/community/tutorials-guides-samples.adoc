@@ -1,0 +1,19 @@
+= Community Resources
+Michael Nygard
+2016-08-17
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: community
+
+ifdef::env-github,env-browser[:outfilesuffix: .adoc]
+
+== Community Blog Posts
+
+* http://seespotcode.net/2016/08/03/naming-routes-in-pedestal[Naming Routes in Pedestal]
+* http://frankiesardo.github.io/posts/2015-03-06-from-pedestal-routes-to-beautiful-documentation.html[From Pedestal routes to beautiful documentation]
+
+
+== Projects with Pedestal
+
+* https://github.com/mtnygard/todo-backend-pedestal[Todo Backend, Pedestal] - An implementation of the http://www.todobackend.com/[Todo Backend spec] using Pedestal and Datomic
