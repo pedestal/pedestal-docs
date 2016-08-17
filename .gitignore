@@ -1,5 +1,7 @@
 # JBake ignores
-/output/
+output/*
+!output/api
+output/api/index
 
 # Leiningen ignores
 pom.xml
