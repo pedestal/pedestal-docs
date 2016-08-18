@@ -17,3 +17,8 @@ ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 == Projects with Pedestal
 
 * https://github.com/mtnygard/todo-backend-pedestal[Todo Backend, Pedestal] - An implementation of the http://www.todobackend.com/[Todo Backend spec] using Pedestal and Datomic
+
+== Pedestal Templates
+
+* Ryan Neufeld's link:https://github.com/rkneufeld/pedestal-micro[Pedestal-micro] template for microservices.
+* Paul deGrandis' link:https://github.com/ohpauleez/pedestal-micro[Fork of Ryan's] microservice template
