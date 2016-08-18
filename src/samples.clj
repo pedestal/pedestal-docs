@@ -6,7 +6,7 @@
 (defn snake-case
   [x]
   (-> x
-      (str/replace #"^\** *" "")
+      (str/replace #"^[=*]+ *" "")
       str/lower-case
       (str/replace #"[^a-z ]" "")
       (str/replace " " "-")))
@@ -34,16 +34,18 @@
   [long-str]
   (for [s (str/split long-str #"\n")]
     (cond
-      (str/starts-with? s "= ")
-      (println (div
-                ["w-nav-link" "clj-section-nav-heading"]
+      (str/starts-with? s "== ")
+      (println (a
+                (snake-case s)
+                ["w-nav-link" "clj-section-nav-item-link"]
                 (title s)) "\n")
 
       (str/starts-with? s "* ")
-      (println (a
+#_      (println (a
                  (snake-case s)
                  ["w-nav-link" "clj-section-nav-item-link"]
                  (title s)) "\n")
+      "\n"
 
       :else
       (str s "\n"))))
