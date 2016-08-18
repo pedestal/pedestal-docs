@@ -1,0 +1,157 @@
+= Hello World
+Michael Nygard
+2016-08-18
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: guides
+
+toc::[]
+
+== Welcome
+
+We're glad you've decided to give Pedestal a try. We think it's pretty
+powerful. Before we get into the heavy lifting though, we should start
+with some basics.
+
+== What You Will Learn
+
+After reading this guide, you will be able to:
+
+- Create a Pedestal project from a template using Leiningen.
+- Define a route.
+- Return a page on that route.
+- Accept and use URL parameters http://localhost:8080/hello?name=Michael.
+- Return plain text or HTML in your response.
+
+== Guide Assumptions
+
+This guide is for beginners who are new to Pedestal. It doesn't assume
+that you have any prior experience with Pedestal, Clojure, or any
+other Clojure-based web framework. You should be familiar with the
+basics of HTTP: URLs, response codes, and content types.
+
+If you've already done some of those other things, you might want to
+skip ahead to link:your-first-api[Your First API] to start building
+some logic and multiple routes.
+
+This guide also assumes that you are in a Unix-like development
+environment, with Java installed. We've tested it on Mac OS X and
+Linux (any flavor) with great results. We haven't yet tried it on the
+Windows Subsystem for Linux, but would love to hear from you if you've
+succeeded with it there.
+
+== Getting Help If You're Stuck
+
+We'll take this in small steps. If you get stuck at any point in this
+guide, please submit an https://github.com/pedestal/docs/issues[issue]
+about this guide or hop over to the
+https://groups.google.com/forum/#!forum/pedestal-users[mailing list]
+and raise your hand there.
+
+== Where We Are Going
+
+In this guide, we're going to take a series of small steps. We'll see
+all the code to build a Pedestal service starting with an empty
+directory.
+
+The first time through, we will just do everything "by hand". This is
+a little more work in typing (or copy-and-pasting) but it will let you
+see how the pieces connect in the simplest possible use case.
+
+Then we'll do the same thing but with power tools. We'll use a popular
+build tool to create a project from a template. This one will have
+some more bells and whistles to explore. We will look at what is
+absolutely necessary, what is optional, and what benefits the template
+offers.
+
+Of course, nothing says you have to use this one official
+template. Other people have set up their own templates, specialized
+for different purposes. Since Pedestal is just a set of libraries, you
+have a lot of flexibility in how you weave them together to make an
+application. The link:../community/tutorials-guides-samples[Tutorials,
+Guides, and Samples] page has links to some other templates that users
+have created.
+
+== Before We Begin
+
+Pedestal services are written in Clojure code, which you then run on a
+Java Virtual Machine. You will need to have a Java Runtime Environment
+installed on your computer. Let's make sure you're up to date. Fire up
+a terminal and put in this command:
+
+----
+$ java -version
+----
+
+You should see some output like this:
+
+----
+openjdk version "1.8.0_91"
+OpenJDK Runtime Environment (build 1.8.0_91-8u91-b14-3ubuntu1~16.04.1-b14)
+OpenJDK 64-Bit Server VM (build 25.91-b14, mixed mode)
+----
+
+Yours might vary in some of the details. For comparison, I'm running on
+a http://linuxmint.org[Linux Mint] virtual machine.
+
+The main thing is that I actually _got_ some output! If you get
+"Command not found" or some variation of that, you probably need to
+http://www.oracle.com/technetwork/indexes/downloads/index.html#java[install
+Java].
+
+The second thing is to make sure that the Java version is at least
+1.7.
+
+OK, so now that you are ready to run Java applications, let's move on
+to the Pedestal part.
+
+== Starting From Scratch
+
+We're going to start this project with an empty directory. In
+practice, most of the time you'll generate a project from a
+template. But for now, it's more important to see what the pieces are
+and how they fit together.
+
+I'm going to call my project 'hello-world'. Feel free to call yours
+something different, but it's up to you to do the mental translation
+in the rest of this guide.
+
+----
+mkdir hello-world
+cd hello-world
+----
+
+A quick note on naming style. Clojure itself uses "kebab case" for its
+names. That's lowercase words, separated with hyphens. When you have a
+long name, it looks like the letters have been skewered. Hence, kebab
+case. Since Clojure's own libraries use this style, most applications
+and libraries do too.
+
+We need a place to keep our code. By convention, that's in a "src"
+directory:
+
+----
+mkdir src
+----
+
+Now we're going to create a file to hold our code. Call it
+"hello.clj". It's going to start with a "namespace declaration". This
+tell Clojure what namespace to put the code into. (If you're a Java
+programmer, you can think of a namespace as similar to a package
+name.)
+
+[source, clojure]
+.hello.clj
+----
+(ns hello                                                      ;; <1>
+  (:require [io.pedestal.http :as http]                        ;; <2>
+            [io.pedestal.http.route.definition :as [routes]])) ;; <3>
+----
+<1> This namespace is called 'hello'. This almost always matches the filename.
+<2> We need to use the 'io.pedestal.http' namespace, but would like to only type 'http' later in the file.
+<3> We need to use the 'io.pedestal.http.route.definition' namespace, but would like to spell it as 'routes' later in the file.
+
+This is very similar to using "import" in Java or "require" in
+Ruby. It just makes some names from other namespaces available to us
+in this namespace.

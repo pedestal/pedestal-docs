@@ -8,10 +8,11 @@ Cognitect
 
 == Getting Started
 
-* Hello, world!
-* Your First API
+* link:hello-world[Hello, world!]
+* link:your-first-api[Your First API]
 * Unit Testing Your Pedestal API
 * Serving Resources
+* link:server-sent-events[Server-sent events]
 * What is an Interceptor?
 * Connecting Pedestal to Datomic
 
