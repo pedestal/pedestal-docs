@@ -11,9 +11,11 @@ Cognitect
 * Hello, world!
 * Your First API
 * Unit Testing Your Pedestal API
+* Serving Resources
+* What is an Interceptor?
 * Connecting Pedestal to Datomic
 
-== Using Pedestal With
+== Using Pedestal With ...
 
 * Component
 * Figwheel

@@ -4,6 +4,7 @@ Cognitect
 :jbake-type: page
 :toc: macro
 :icons: font
+:section: api
 
 == Core Libraries
 
