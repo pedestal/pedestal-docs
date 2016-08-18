@@ -7,7 +7,7 @@
           <div class="clj-header-message">Pedestal is a <span class="clj-header-message-highlight">robust, practical, and fast</span> programming language with a set of useful features that together form a <span class="clj-header-message-highlight">simple, coherent, and powerful tool</span>.</div>
         </div>
         <div class="w-col w-col-4">
-          <div class="clj-download-button-container"><a href="http://repo1.maven.org/maven2/org/clojure/clojure/1.7.0/clojure-1.7.0.zip" class="w-button clj-download-button">Download&nbsp;Clojure 1.7.0</a>
+          <div class="clj-download-button-container"><a href="https://github.com/pedestal/pedestal" class="w-button clj-download-button">Get&nbsp;Pedestal</a>
           </div>
         </div>
       </div>
@@ -19,18 +19,32 @@
         <div class="w-col w-col-8">
           <div>
             <div class="clj-intro-message">
-              <h2>The Clojure Programming Language</h2>
-              <p>Clojure is a dynamic, general-purpose programming language, combining the approachability and interactive development of a scripting language with an efficient and robust infrastructure for multithreaded programming. Clojure is a compiled language, yet remains completely dynamic – every feature supported by Clojure is supported at runtime. Clojure provides easy access to the Java frameworks, with optional type hints and type inference, to ensure that calls to Java can avoid reflection.</p>
-              <p>Clojure is a dialect of Lisp, and shares with Lisp the code-as-data philosophy and a powerful macro system. Clojure is predominantly a functional programming language, and features a rich set of immutable, persistent data structures. When mutable state is needed, Clojure offers a software transactional memory system and reactive Agent system that ensure clean, correct, multithreaded designs.</p>
-              <p>I hope you find Clojure's combination of facilities elegant, powerful, practical and fun to use.</p>
-              <p>Rich Hickey
-                <br>author of Clojure and CTO Cognitect</p>
+              <h2>What is Pedestal?</h2>
+              <p>
+                Pedestal is a set of libraries that we use to build
+                services and applications. It runs in the back end and
+                can serve up whole HTML pages or handle API requests.
+              </p>
+              <p>
+                There are a lot of tools in that space, so why did we
+                build Pedestal?  We had two main reasons:
+              </p>
+              <ul>
+                <li>
+                  <b>Pedestal is designed for APIs first.</b> Most web
+                  app frameworks still focus on the "page model" and
+                  server side rendering. Pedestal lets you start
+                  simple and add that if you need it.
+                </li>
+                <li>
+                  <b>Pedestal makes is easy to create "live"
+                  applications.</b> Applications must respond with
+                  immediate feedback even while some back-end
+                  communication goes on. Pedestal makes it easy to
+                  deliver server-sent events and asynchronous updates.
+                </li>
+              </ul>
             </div>
-          </div>
-        </div>
-        <div class="w-col w-col-4">
-          <div class="clj-learn-more">
-            <h3 class="clj-learn-more-heading">Learn More</h3><a href="about/rationale" class="w-inline-block clj-learn-more-item"><h4 class="clj-learn-more-item-heading">Rationale</h4><p class="clj-learn-more-detail">A brief overview of Clojure and the features it includes</p></a><a href="guides/getting_started" class="w-inline-block clj-learn-more-item"><h4 class="clj-learn-more-item-heading">Getting Started</h4><p class="clj-learn-more-detail">Resources for getting Clojure up and running</p></a><a href="reference/documentation" class="w-inline-block clj-learn-more-item"><h4 class="clj-learn-more-item-heading">Reference</h4><p class="clj-learn-more-detail">Grand tour of all that Clojure has to offer</p></a><a href="guides/guides" class="w-inline-block clj-learn-more-item"><h4 class="clj-learn-more-item-heading">Guides</h4><p class="clj-learn-more-detail">Walkthroughs to help you learn along the way</p></a><a href="community/resources" class="w-inline-block clj-learn-more-item"><h4 class="clj-learn-more-item-heading">Community</h4><p class="clj-learn-more-detail">We have a vibrant, flourishing  community. Join us on our Google Group, find us on IRC in #clojure, or join our Slack channel.</p></a>
           </div>
         </div>
       </div>
@@ -86,49 +100,6 @@
       </div>
     </div>
   </div>
-  <div class="w-section clj-home-updates-section">
-    <div class="w-container">
-      <div class="w-row">
-        <div class="w-col w-col-6">
-          <div class="clj-home-updates-container">
-            <h3>News</h3>
-            <#assign c = 0>
-            <ul class="w-list-unstyled clj-home-updates-list">
-              <#list posts as post>
-                <#if (post.status == "published")>
-                  <li><span class="clj-home-updates-date">${post.date?string("yyyy-MM-dd")}</span>
-                      &nbsp;<a href="/${post.uri}" class="clj-home-updates-link"><#escape x as x?xml>${post.title}</#escape></a></li>
-                  <#assign c = c + 1>
-                  <#if (c >= 3)>
-                    <#break>
-                  </#if>
-                </#if>
-              </#list>
-            </ul>
-          </div>
-        </div>
-        <div class="w-col w-col-6">
-          <div class="clj-home-updates-container">
-            <h3>Upcoming Events</h3>
-              <#assign c = 0>
-              <ul class="w-list-unstyled clj-home-updates-list">
-              <#list events?reverse as event>
-                <#assign endtime = (event.end + " 23:59:00")?datetime("yyyy-MM-dd hh:mm:ss")>
-                <#if (event.status == "published" && endtime >= .now)>
-                  <li><span class="clj-home-updates-date">${endtime?string("yyyy-MM-dd")}</span>
-                      &nbsp;<a href="/${event.uri}" class="clj-home-updates-link"><#escape x as x?xml>${event.title} ${event.edition}</#escape></a></li>
-                  <#assign c = c + 1>
-                  <#if (c >= 3)>
-                    <#break>
-                  </#if>
-                </#if>
-              </#list>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
   <div class="w-section clj-home-support">
     <div class="w-container">
       <div class="w-row">
@@ -141,36 +112,6 @@
         </div>
         <div class="w-col w-col-4">
           <blockquote class="clj-home-support-quote">“We have created some of the sharpest tools in the business. We believe this platform is a better way to develop software, and we want you to have confidence using and deploying these tools. Open source doesn't mean you're on your own any more.” – cognitect.com</blockquote>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="w-section clj-home-companies-section">
-    <div class="w-container">
-      <div>
-        <h3 class="clj-home-companies-heading">Companies Succeeding with Clojure</h3>
-      </div>
-      <div class="w-row">
-        <div class="w-col w-col-4">
-          <div class="clj-home-company clj-home-company-walmart">
-            <blockquote class="clj-home-company-quote">“Our Clojure system just handled its first Walmart black Friday and came out without a scratch.”</blockquote>
-            <div class="clj-home-company-attribution">Anthony Marcar, Senior Architect
-              <br>Walmart Labs</div>
-          </div>
-        </div>
-        <div class="w-col w-col-4">
-          <div class="clj-home-company clj-home-company-puppet">
-            <blockquote class="clj-home-company-quote">“Clojure is a functional programming language from top to bottom. This means that code written in Clojure is very modular, composable, reusable and easy to reason about.”</blockquote>
-            <div class="clj-home-company-attribution">Chris Price, Software Engineer
-              <br>Puppet Labs</div>
-          </div>
-        </div>
-        <div class="w-col w-col-4">
-          <div class="clj-home-company clj-home-company-thoughtworks">
-            <blockquote class="clj-home-company-quote">“We discussed the existing Clojure community, the maturity of the language itself and the momentum we saw in the industry. Companies are seeing speed to market deliveries ... based on Clojure.”</blockquote>
-            <div class="clj-home-company-attribution">Dave Elliman, Head of Technology
-              <br>ThoughtWorks</div>
-          </div>
         </div>
       </div>
     </div>
