@@ -1041,6 +1041,28 @@ sub {
   top: 0.4em;
 }
 
+/* Code listings */
+.listingblock > .title {
+    text-rendering: optimizeLegibility;
+    text-align: left;
+    font-style: italic;
+    font-size: 1rem;
+    line-height: 1.4;
+    color: #7a2717;
+    font-weight: normal;
+    margin-top: 0;
+    margin-bottom: 4px;
+}
+
+.listingblock > .content {
+    position: relative;
+}
+
+.listingblock > .content > pre {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 /* highlight.js styles */
 
 .hljs {
@@ -1180,4 +1202,3 @@ sub {
 .clj-search-results .gsc-webResult .gsc-result {
     padding: 6px 0;
 }
-
