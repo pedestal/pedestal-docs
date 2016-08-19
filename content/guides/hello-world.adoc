@@ -135,14 +135,16 @@ directory:
 mkdir src
 ----
 
-Now we're going to create a file to hold our code. Call it
-"hello.clj". It's going to start with a "namespace declaration". This
+== A Place to Put Things
+
+Now we're going to create a file under "src" to hold our code. Call it
+"src/hello.clj". It's going to start with a "namespace declaration". This
 tell Clojure what namespace to put the code into. (If you're a Java
 programmer, you can think of a namespace as similar to a package
 name.)
 
 [source, clojure]
-.hello.clj
+.src/hello.clj
 ----
 (ns hello                                                      ;; <1>
   (:require [io.pedestal.http :as http]                        ;; <2>
@@ -155,3 +157,120 @@ name.)
 This is very similar to using "import" in Java or "require" in
 Ruby. It just makes some names from other namespaces available to us
 in this namespace.
+
+If you haven't written any Clojure before, this syntax might look a
+little strange. The first thing that jumps out at people is the
+parentheses. Why is there an open paren _before_ the "ns"? In Clojure,
+every expression is enclosed in its very own set of parentheses. There
+are no semicolons to end the line or curly braces to close an "if"
+expression. To find the end of any expression, you just find the
+matching paren.
+
+The first "thing" in an expression is the function or a macro to call.
+In this case `ns` is a macro that is built in to Clojure. It sets up a
+namespace and makes the stuff we `require` available.
+
+Speaking of the stuff we require, what is `io.pedestal.http` and
+`io.pedestal.http.route.definition`? Those are each namespaces from
+Pedestal libraries. The
+link:/api/pedestal.service/io.pedestal.http.html[`io.pedestal.http`]
+namespace has functions that let you connect with HTTP servers, handle
+requests, and send responses. The
+link:/api/pedestal.route/io.pedestal.http.route.html[`io.pedestal.http.route.definition`]
+namespace actually comes from a library dedicated to routing
+(ingeniously named `pedestal.route`.)
+
+Routing is split off into its own library because you can use it by
+itself, or you can use the HTTP library with a different routing
+layer. We won't need to do that in this guide, but other tutorials do
+some pretty amazing things by substituting modules.
+
+== Generating a Response
+
+Whew. That was a lot to unpack from just the first three lines of
+code! Let's pause for a moment to talk about the next steps. We're
+making a web service that can say hello. That means we need to do some
+basic things:
+
+1. Listen to on a socket for HTTP requests.
+2. Figure out what any given request means.
+3. Make a response to that request.
+
+We're going to do all of those things, but we're going to do them
+/backwards/. In Clojure, you always find the most important,
+highest-level functions at the _bottom_ of the file. Whenever I read a
+Clojure source file, I start at the bottom and page upward. So the
+next thing we're going to do is write a function that can return a
+response to a "hello world" request.
+
+[source, clojure]
+.src/hello.clj
+----
+(defn hello [request]                  ;; <1>
+  {:status 200 :body "Hello, world!"}) ;; <2>
+----
+<1> Define a function called `hello` that takes one argument, which we will call `request`
+<2> Return a map with two keys and two values.
+
+A Clojure function returns the value of the last expression in the
+function. In this case, that will be the map that we construct on line
+2. This is in "map literal" syntax, which just means that we're
+writing the whole map straight in the source code rather than building
+it up by calling functions.
+
+The map has two keys and their values:
+
+* `:status` 200
+* `:body`   "Hello, world!"
+
+That's the whole thing. When our function returns that map, Pedestal
+will translate that into a full HTTP response complete with content
+type header and everything. (Later on, we'll see how to take control
+of the whole response. For now we're just taking the easy road.)
+
+There's absolutely nothing special about this map. It's a plain old
+Clojure map. The /keys/ on the other hand, do mean something. They are
+part of the "response map" specification, which you can
+link:/reference/response-map[read about].
+
+In fact, you can call this function without hooking it up to a socket
+or route or anything. That's one of the beauties of working in
+Pedestal... you can try everything interactively in a running
+system. Let's do that before we move on.
+
+== Managing Dependencies
+
+Pedestal is built on the shoulders of giants, in the form of great
+open source technology that many people have contributed to. That
+gives us great power, but with great power comes great
+dependencies. We could download all the jar files we need and string
+together a classpath, but it's a huge pain. I just made a minimal
+project and found 57 entries on the classpath.
+
+This is why we /can/ have nice things, but it means we need some help
+managing those dependencies. We're going to use help in the form of
+http://boot-clj.com/[boot-clj]. Please take a few minutes to go follow
+their https://github.com/boot-clj/boot#install[installation
+instructions], then come back and we'll continue.
+
+Now we can make a build file that tells boot what libraries our service needs:
+
+[[app-listing]]
+[source,clojure]
+.build.boot
+----
+(set-env!
+ :resource-paths #{"src"}                                   ;; <1>
+ :dependencies   '[[io.pedestal/pedestal.service "0.5.0"]   ;; <2>
+                   [io.pedestal/pedestal.route   "0.5.0"]
+                   [io.pedestal/pedestal.jetty   "0.5.0"]])
+----
+<1> Tell Boot where our source code lives
+<2> Tell Boot we need three Pedestal libraries
+
+We talked about `pedestal.service` and `pedestal.route` before, but we
+have a new one here. Pedestal works with many different HTTP servers,
+so we don't want the core library to depend on _all_ of the possible
+servers out there. Instead, we let you decide which one to use by
+adding the library for your chosen service. We'll use Jetty for this
+guide, but many others are available.

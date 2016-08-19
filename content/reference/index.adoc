@@ -21,7 +21,7 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 * Writing Your Own Router
 * Defining Routes
 * Parameters
-* Responses
+* link:response-map[Response Map]
 * Generating Links
 * Content Negotiation
 * Session Management
