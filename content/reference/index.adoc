@@ -16,12 +16,14 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 
 == Handling HTTP
 
-* Context Map
+* link:service-map[Service Map]
+* link:context-map[Context Map]
+* link:request-map[Request Map]
+* link:response-map[Response Map]
 * Using the Built-in Routers
 * Writing Your Own Router
-* Defining Routes
+* link:defining-routes[Defining Routes]
 * Parameters
-* link:response-map[Response Map]
 * Generating Links
 * Content Negotiation
 * Session Management

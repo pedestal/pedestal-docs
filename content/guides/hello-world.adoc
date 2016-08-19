@@ -21,7 +21,6 @@ After reading this guide, you will be able to:
 - Create a Pedestal project from a template using Leiningen.
 - Define a route.
 - Return a page on that route.
-- Accept and use URL parameters http://localhost:8080/hello?name=Michael.
 - Return plain text or HTML in your response.
 
 == Guide Assumptions
@@ -146,9 +145,7 @@ name.)
 [source, clojure]
 .src/hello.clj
 ----
-(ns hello                                                      ;; <1>
-  (:require [io.pedestal.http :as http]                        ;; <2>
-            [io.pedestal.http.route.definition :as [routes]])) ;; <3>
+include::hello/src/hello.clj[tags=ns]
 ----
 <1> This namespace is called 'hello'. This almost always matches the filename.
 <2> We need to use the 'io.pedestal.http' namespace, but would like to only type 'http' later in the file.
@@ -166,17 +163,17 @@ are no semicolons to end the line or curly braces to close an "if"
 expression. To find the end of any expression, you just find the
 matching paren.
 
-The first "thing" in an expression is the function or a macro to call.
+The first thing in an expression is the function or a macro to call.
 In this case `ns` is a macro that is built in to Clojure. It sets up a
 namespace and makes the stuff we `require` available.
 
 Speaking of the stuff we require, what is `io.pedestal.http` and
-`io.pedestal.http.route.definition`? Those are each namespaces from
-Pedestal libraries. The
-link:/api/pedestal.service/io.pedestal.http.html[`io.pedestal.http`]
+`io.pedestal.http.route`? Those are each namespaces from Pedestal
+libraries. The
+link:../api/pedestal.service/io.pedestal.http.html[`io.pedestal.http`]
 namespace has functions that let you connect with HTTP servers, handle
 requests, and send responses. The
-link:/api/pedestal.route/io.pedestal.http.route.html[`io.pedestal.http.route.definition`]
+link:../api/pedestal.route/io.pedestal.http.route.html[`io.pedestal.http.route`]
 namespace actually comes from a library dedicated to routing
 (ingeniously named `pedestal.route`.)
 
@@ -197,7 +194,7 @@ basic things:
 3. Make a response to that request.
 
 We're going to do all of those things, but we're going to do them
-/backwards/. In Clojure, you always find the most important,
+_backwards_. In Clojure, you always find the most important,
 highest-level functions at the _bottom_ of the file. Whenever I read a
 Clojure source file, I start at the bottom and page upward. So the
 next thing we're going to do is write a function that can return a
@@ -206,8 +203,7 @@ response to a "hello world" request.
 [source, clojure]
 .src/hello.clj
 ----
-(defn hello [request]                  ;; <1>
-  {:status 200 :body "Hello, world!"}) ;; <2>
+include::hello/src/hello.clj[tags=response]
 ----
 <1> Define a function called `hello` that takes one argument, which we will call `request`
 <2> Return a map with two keys and two values.
@@ -229,9 +225,9 @@ type header and everything. (Later on, we'll see how to take control
 of the whole response. For now we're just taking the easy road.)
 
 There's absolutely nothing special about this map. It's a plain old
-Clojure map. The /keys/ on the other hand, do mean something. They are
+Clojure map. The _keys_ on the other hand, do mean something. They are
 part of the "response map" specification, which you can
-link:/reference/response-map[read about].
+link:../reference/response-map[read about].
 
 In fact, you can call this function without hooking it up to a socket
 or route or anything. That's one of the beauties of working in
@@ -247,7 +243,7 @@ dependencies. We could download all the jar files we need and string
 together a classpath, but it's a huge pain. I just made a minimal
 project and found 57 entries on the classpath.
 
-This is why we /can/ have nice things, but it means we need some help
+This is why we _can_ have nice things, but it means we need some help
 managing those dependencies. We're going to use help in the form of
 http://boot-clj.com/[boot-clj]. Please take a few minutes to go follow
 their https://github.com/boot-clj/boot#install[installation
@@ -259,11 +255,7 @@ Now we can make a build file that tells boot what libraries our service needs:
 [source,clojure]
 .build.boot
 ----
-(set-env!
- :resource-paths #{"src"}                                   ;; <1>
- :dependencies   '[[io.pedestal/pedestal.service "0.5.0"]   ;; <2>
-                   [io.pedestal/pedestal.route   "0.5.0"]
-                   [io.pedestal/pedestal.jetty   "0.5.0"]])
+include::hello/build.boot[]
 ----
 <1> Tell Boot where our source code lives
 <2> Tell Boot we need three Pedestal libraries
@@ -272,5 +264,195 @@ We talked about `pedestal.service` and `pedestal.route` before, but we
 have a new one here. Pedestal works with many different HTTP servers,
 so we don't want the core library to depend on _all_ of the possible
 servers out there. Instead, we let you decide which one to use by
-adding the library for your chosen service. We'll use Jetty for this
+adding the library for your chosen service. We're using Jetty for this
 guide, but many others are available.
+
+Let's try out our response function.
+
+----
+$ boot repl
+nREPL server started on port 37569 on host 127.0.0.1 - nrepl://127.0.0.1:37569
+REPL-y 0.3.7, nREPL 0.2.12
+Clojure 1.9.0-alpha10
+OpenJDK 64-Bit Server VM 1.8.0_91-8u91-b14-3ubuntu1~16.04.1-b14
+        Exit: Control+D or (exit) or (quit)
+    Commands: (user/help)
+        Docs: (doc function-name-here)
+              (find-doc "part-of-name-here")
+Find by Name: (find-name "part-of-name-here")
+      Source: (source function-name-here)
+     Javadoc: (javadoc java-object-or-class-here)
+    Examples from clojuredocs.org: [clojuredocs or cdoc]
+              (user/clojuredocs name-here)
+              (user/clojuredocs "ns-here" "name-here")
+boot.user=>
+----
+
+It's pretty safe to ignore all that output for now. The main thing to
+look for is the prompt that says `boot.user=>`. That shows you can
+input Clojure code to evaluate it (turn it into a value) and that
+you're currently in the `boot.user` namespace. We need to tell Clojure about our `hello` namespace:
+
+----
+boot.user=> (require 'hello)
+nil
+boot.user=>
+----
+
+So Clojure apparently just burped 'nil' at us and came back to the
+prompt. Believe it or not, that means it worked. The `require`
+function returns nil, which Clojure printed for us.
+
+If you get a message like these:
+
+ clojure.lang.Compiler$CompilerException: java.lang.RuntimeException: Unable to resolve symbol: hello in this context, compiling:(/tmp/boot.user164143164117124931.clj:1:1)
+ Unable to resolve symbol: hello in this context
+
+It means you missed the single-quote before "hello" in the require.
+
+You can check to see if your function got loaded:
+
+----
+boot.user=> hello/respond-hello
+#object[hello$respond_hello 0x2db5083a "hello$respond_hello@2db5083a"]
+----
+
+This arcane output tells us that the symbol `respond-hello` in the
+namespace `hello` is an object. It happens to be function object. Why
+did Clojure print a function object at us? Because we told it to
+evaluate the symbol, when we probably wanted it to call the
+function. Like http://www.smbc-comics.com/?id=2491[Batman], our symbol
+had no parens.
+
+----
+boot.user=> (hello/respond-hello {})
+{:status 200, :body "Hello, world!"}
+----
+
+Well, we got the singularly unexciting result that we can call a
+function and it returns the map that we told it to. Let's move on to
+hooking this up to a route.
+
+== Routes
+
+In Pedestal, routing is the process of matching an incoming request to
+a handler or chain of handlers. In link:what-is-an-interceptor[another
+guide], we'll talk much more about what goes in those handlers. For
+the time being, we can just use our function as a handler.
+
+Let's tell Pedestal that we want the route "/greet" to map to our
+handler function:
+
+[[app-listing]]
+[source,clojure]
+.src/hello.clj
+----
+include::hello/src/hello.clj[tags=routing]
+----
+<1> We specify routes in a short notation, but they must be expanded and turned into a Router for use.
+<2> This is the "table syntax". There are link:../reference/defining-routes[others available].
+
+This one route says that incoming HTTP GET requests with the query
+string '/greet' should call the function `respond-hello`, and that
+we're naming this route `:greet`. Every route must have a unique
+name. Sometimes Pedestal can automatically assign a name for your
+route, but we'll get to that later.
+
+We still haven't hooked this up to an HTTP server, but we can still do some testing by hand:
+
+----
+boot.user=> (require :reload 'hello)
+nil
+boot.user=> (require '[io.pedestal.http.route :as route])
+nil
+boot.user=> (route/try-routing-for hello/routes :prefix-tree "/greet" :get)
+{:path "/greet", :method :get, :path-re #"/\Qgreet\E", :path-parts ["greet"], :interceptors [#Interceptor{:name }], :route-name :greet, :path-params {}, :io.pedestal.http.route.prefix-tree/satisfies-constraints? #object[clojure.core$constantly$fn__6443 0x6182d451 "clojure.core$constantly$fn__6443@6182d451"]}
+boot.user=> (route/try-routing-for hello/routes :prefix-tree "/greet" :post)
+nil
+boot.user=> (route/try-routing-for hello/routes :prefix-tree "/greet" :put)
+nil
+----
+
+The first thing we need to do is tell Clojure to reload the latest
+code from `hello.clj`. That's what the `:reload` keyword does in the
+`require` call. Without that, you'll get an "cannot resolve symbol"
+error when you try to reference `hello/routes`.
+
+The function `try-routing-for` lets us ask "What would Pedestal do?"
+with an incoming HTTP request. We gave it our table of one route, a
+magic keyword `:prefix-tree`, then the query string and HTTP verb.
+
+When there's a match, `try-routing-for` returns the route that
+succeeded. When there's no match, it returns nil. So the output shows
+that a GET to "/greet" will be match, but a PUT or POST will not. When
+no route matches, Pedestal returns a 404 response.
+
+You might also notice that the output on the matching route has a
+bunch of stuff that wasn't there in our input to `expand-routes`. In
+fact, it is exactly the job of `expand-routes` to add all that extra
+stuff that Pedestal needs but we don't want to type.
+
+== Hooking It All Up
+
+We're ready for that last step: connecting everything to an HTTP
+server. That's one more function (at the end of the file) to create
+the server.
+
+[[app-listing]]
+[source,clojure]
+.src/hello.clj
+----
+include::hello/src/hello.clj[tags=server]
+----
+<1> `io.pedestal.http/create-server` is a convenience function that builds everything in one step.
+<2> This is where we tell Pedestal which routes to use for this service.
+<3> We tell Pedestal that we want to use Jetty as our HTTP responder.
+<4> Port 8080 is so boring. We'll use somthing different, but not _too_ different.
+<5> Start the server. This will not return.
+
+All we need to do now is run it.
+
+----
+boot.user=> (require :reload 'hello)
+nil
+boot.user=> (hello/start)
+----
+
+Yep, it didn't return. Jetty is running and listening for connections, though. Flip to a different window and try curl or try http://127.0.0.1:8890/greet.
+
+----
+$ curl -i http://127.0.0.1:8890/greet
+HTTP/1.1 200 OK
+Date: Fri, 19 Aug 2016 20:27:06 GMT
+Strict-Transport-Security: max-age=31536000; includeSubdomains
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Content-Type: text/plain
+Transfer-Encoding: chunked
+Server: Jetty(9.3.8.v20160314)
+
+Hello, world!
+----
+
+It's alive! Treat yourself to a hot beverage and a high five.
+
+
+
+== The Path So Far
+
+We've covered a lot of ground in this guide. You have learned how to:
+
+* Start a Pedestal project from scratch.
+* Write a function to return a response.
+* Define routes for Pedestal.
+* Run a Jetty server that handles those routes.
+
+Along the way you've also learned a bit of Clojure and some debugging
+tricks.
+
+== Where to Next?
+
+The link:hello-world-query[next part] in this trail adds the ability
+to receive a query parameter, apply logic to it, and return an HTML or
+JSON page.
