@@ -1,0 +1,339 @@
+= Hello World, With Parameters
+Michael Nygard
+2016-08-22
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: guides
+
+toc::[]
+
+== Welcome Back
+
+Now that you've gone through the basics in link:hello-world[the Hello
+World guide] it's time to go one level deeper. We're going to add two
+features. That will be our vehicle to talk about some important
+concepts in Pedestal.
+
+== What You Will Learn
+
+After reading this guide, you will be able to:
+
+- Accept query paramters.
+- Use the request map.
+- Apply logic in your handler.
+- Conditionally return an error.
+- Return HTML in your response.
+
+== Guide Assumptions
+
+Like link:hello-world[Hello World], this guide is for beginners who
+are new to Pedestal and may be new to Clojure. It doesn't assume any
+prior experience with a Clojure-based web framework. You should be
+familiar with the basics of HTTP: URLs, response codes, and content
+types.
+
+If you've already done some of those other things, you might want to
+skip ahead to link:your-first-api[Your First API] to start building
+some logic and multiple routes.
+
+If you like to jump straight in to the deep end, you might be
+interested in the link:crash-course[Pedestal Crash Course] which
+assumes you know quite a bit about Clojure and web frameworks.
+
+This guide also assumes that you are in a Unix-like development
+environment, with Java installed. We've tested it on Mac OS X and
+Linux (any flavor) with great results. We haven't yet tried it on the
+Windows Subsystem for Linux, but would love to hear from you if you've
+succeeded with it there.
+
+== Getting Help If You're Stuck
+
+We'll take this in small steps. If you get stuck at any point in this
+guide, please submit an https://github.com/pedestal/docs/issues[issue]
+about this guide or hop over to the
+https://groups.google.com/forum/#!forum/pedestal-users[mailing list]
+and raise your hand there.
+
+
+== Where We Are Going
+
+In this guide, we will build on the `hello.clj` example from last
+time. We will enhance it to take a single parameter in the URL and
+return a friendly greeting to that person.
+
+There are some people we don't want to meet, though. So we'll also
+include a list of names that should *not* be said. Then we can make
+our handler function a bit smarter. If any forbidden name is uttered,
+our handler will return a 404 response instead of a cordial greeting.
+
+Finally, it will be time to get rid of the plain text and respond with
+something nicer.
+
+== Before We Begin
+
+If you worked through link:hello-world[Hello World], then you already
+have all the files you need. If not, take a moment to grab the sources
+from
+link:https://github.com/pedestal/docs/tree/master/content/guides[that guide].
+That will be our starting point for enhancements this time.
+
+== Accepting Parameters
+
+HTTP offers a few different ways for the client to send data up to our
+service. The most basic is probably the URL query parameter. We
+usually see these on GET requests, but nothing stops a client from
+using them on other request types.
+
+.URL with Query Parameter
+====
+http://localhost:8890/hello?name=Michael
+====
+
+Because query parameters are so common, Pedestal handles them
+automatically. You can try that URL with your service right now.
+
+As a reminder, we're running the server by using
+link:boot-clj.org[Boot] to start an interactive session (called a
+REPL, rhymes with ripple) then starting the service in that session:
+
+----
+$ boot repl
+nREPL server started on port 37569 on host 127.0.0.1 - nrepl://127.0.0.1:37569
+REPL-y 0.3.7, nREPL 0.2.12
+Clojure 1.9.0-alpha10
+OpenJDK 64-Bit Server VM 1.8.0_91-8u91-b14-3ubuntu1~16.04.1-b14
+        Exit: Control+D or (exit) or (quit)
+    Commands: (user/help)
+        Docs: (doc function-name-here)
+              (find-doc "part-of-name-here")
+Find by Name: (find-name "part-of-name-here")
+      Source: (source function-name-here)
+     Javadoc: (javadoc java-object-or-class-here)
+    Examples from clojuredocs.org: [clojuredocs or cdoc]
+              (user/clojuredocs name-here)
+              (user/clojuredocs "ns-here" "name-here")
+boot.user=> (require 'hello)
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+nil
+boot.user=> (hello/start)
+----
+
+Then from another window, we can send a request
+
+----
+$ curl -i http://localhost:8890/greet?name=Michael
+HTTP/1.1 200 OK
+Date: Mon, 22 Aug 2016 14:23:41 GMT
+Strict-Transport-Security: max-age=31536000; includeSubdomains
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Content-Type: text/plain
+Transfer-Encoding: chunked
+Server: Jetty(9.3.8.v20160314)
+
+Hello, world!
+----
+
+Even though we added a query parameter to our request, Pedestal still
+found the right route and invoked our `respond-hello` function. So
+where did the parameter go? To answer that we have to talk about the
+mysterious `request` argument to the handler.
+
+== The Request Map
+
+Here's a reminder of what `respond-hello` looks like:
+
+[[app-listing]]
+[source,clojure]
+----
+include::hello/src/hello.clj[tags=response]
+----
+<1> The function takes one argument, which we call `request`
+<2> And it returns a map.
+
+We aren't using the request argument right now, so we don't really
+know what it is. (Well, it's probably not too hard to guess that it
+has to do with the HTTP request that Pedestal received. From the title
+of this section, you probably also deduced that it's a map!)
+
+Let's take a look at that request by echoing it back to the
+client. This is a common debugging trick that you can use.
+
+[[app-listing]]
+[source,clojure]
+----
+include::hello-query/src/hello.clj[tags=response_debug_body]
+----
+<1> Instead of returning the string "Hello, world!" we return the _entire_ request as the response body.
+
+Restart your service with that new definition and use curl. You'll see
+something like this:
+
+----
+$ curl -i http://localhost:8890/greet?name=Michael
+HTTP/1.1 200 OK
+Date: Mon, 22 Aug 2016 14:35:11 GMT
+Strict-Transport-Security: max-age=31536000; includeSubdomains
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Content-Type: application/edn
+Transfer-Encoding: chunked
+Server: Jetty(9.3.8.v20160314)
+
+{:protocol "HTTP/1.1", :async-supported? true, :remote-addr "127.0.0.1", :params {:name "Michael"}, :servlet-response #object[org.eclipse.jetty.server.Response 0x49955795 "HTTP/1.1 200 \nDate: Mon, 22 Aug 2016 14:35:11 GMT\r\nStrict-Transport-Security: max-age=31536000; includeSubdomains\r\nX-Frame-Options: DENY\r\nX-Content-Type-Options: nosniff\r\nX-XSS-Protection: 1; mode=block\r\nContent-Type: application/edn\r\n\r\n"], :servlet #object[io.pedestal.http.servlet.FnServlet 0x185fced4 "io.pedestal.http.servlet.FnServlet@185fced4"], :headers {"user-agent" "curl/7.47.0", "accept" "*/*", "host" "localhost:8890"}, :server-port 8890, :servlet-request #object[org.eclipse.jetty.server.Request 0x4b0f012d "Request(GET //localhost:8890/greet?name=Michael)@4b0f012d"], :query-params {:name "Michael"}, :path-info "/greet", :url-for #object[io.pedestal.http.route$url_for_routes$fn__11094 0x5d327c71 "io.pedestal.http.route$url_for_routes$fn__11094@5d327c71"], :uri "/greet", :server-name "localhost", :query-string "name=Michael", :path-params {}, :body #object[org.eclipse.jetty.server.HttpInputOverHTTP 0x150ca6ce "HttpInputOverHTTP@150ca6ce[c=0,s=STREAM]"], :scheme :http, :request-method :get}
+----
+
+Yikes!
+
+We need to unpack that a bit to make sense out of it. It's a Clojure
+map, just printed all in one long line. I'll reformat it with some
+line breaks. Syntax highlighting will help us read it too. Feel free
+to paste this map into your favorite text editor with Clojure syntax
+highlighting to pick it apart yourself.
+
+I'm also going to omit some of the keys. They will be relevant later,
+but they're not interesting now. And anyway, they don't print very
+readably because they're objects rather than data.
+
+Here's what we are left with.
+
+[source,clojure]
+----
+{
+ :protocol         "HTTP/1.1",
+ :async-supported? true,
+ :remote-addr      "127.0.0.1",
+ :path-info        "/greet",
+ :uri              "/greet",
+ :query-string     "name=Michael",
+ :query-params     {:name "Michael"},
+ :params           {:name "Michael"},
+ :headers          {"user-agent" "curl/7.47.0", "accept" "*/*", "host" "localhost:8890"},
+ :server-port      8890,
+ :server-name      "localhost",
+ :path-params      {},
+ :scheme           :http,
+ :request-method   :get
+}
+----
+
+This is a _request map_. It really is just a Clojure map. You access
+its values with `get` and `get-in`. All the gory details about request
+maps are in the link:../reference/request-map[reference section]. For
+now, we'll look at three interesting keys.
+
+The whole query string appears under the `:query-string` key. That's
+the portion of the URL after, but not including, the '?'
+character. The query string can be a pain to deal with. It is
+URL-encoded and may have multiple parameters with delimiters. Pedestal
+ginsus that up into a map of parameters for you, which is attached to
+the `:query-params` key. Each parameter name gets turned into a
+keyword. Parameter values are always strings, though, so you may still
+have to parse them a bit.
+
+You see that `:params` duplicates the same map as
+`:query-params`. Pedestal merges all the different kinds of parameters
+into one map for convenience. Most of the time, I know when I want a
+query parameter so I just use `:query-params`, though.
+
+== Using the Parameter
+
+Inside our handler function, the `:name` parameter is available inside
+a nested map. Let's dig it out and add it to our response.
+
+[[app-listing]]
+[source,clojure]
+.src/hello.clj
+----
+include::hello-query/src/hello.clj[tags=response]
+----
+<1> Extract the parameter, bind it to the name `nm`.
+<2> For the response body, concatenate "Hello," and the parameter into a string.
+
+Here we can just grab the value right out of the map and use it in the
+response.
+
+(You might notice that I'm using `nm` instead of spelling out
+`name`. That's because I've been bitten many times in the past by a
+subtle issue. There is a core function called `name`. If I ever change
+my mind about what to call the parameter, I might end up using
+`greeter` in one place but forget and leave `name` in another
+place. In that case, I'd be returning a stringified respresentation of
+_the `clojure.core/name` function_ instead of my parameter value! I've
+done this often enough that I just avoid shadowing core library
+symbols as a policy.)
+
+Restart your service and use curl to try a few different requests with parameters.
+
+----
+$ curl http://localhost:8890/greet?name=Michael
+Hello, Michael
+$ curl http://localhost:8890/greet?name=Pankaj
+Hello, Pankaj
+$ curl http://localhost:8890/greet?name=Geeta
+Hello, Geeta
+$ curl http://localhost:8890/greet?name=ไอรีนซีพีชาไอที
+Hello, ไอรีนซีพีชาไอที
+$ curl http://localhost:8890/greet?name=No%20One%20To%20Be%20Trifled%20With
+Hello, No One To Be Trifled With
+$ curl http://localhost:8890/greet?name=
+Hello,
+$ curl http://localhost:8890/greet
+Hello,
+----
+
+Dang. We were doing really well right up until the end
+there. Obviously we need to do something smarter when the input is
+missing. Bad user input is a way of life on the web, so let's not make
+an error out of this. Instead, we just won't personalize the greeting.
+
+[[app-listing]]
+[source,clojure]
+.src/hello.clj
+----
+include::hello-query/src/hello.clj[tags=response_logic]
+----
+<1> Both nil and a zero-length string count as empty.
+<2> This is our fallback response.
+<3> And our personalized greeting.
+<4> Generating the response.
+
+Let's try that again:
+
+----
+$ curl http://localhost:8890/greet
+Hello, world!
+$ curl http://localhost:8890/greet?name=
+Hello, world!
+$ curl http://localhost:8890/greet?name=ไอรีนซีพีชาไอที
+Hello, ไอรีนซีพีชาไอที
+----
+
+Much better! But our handler function is getting a bit unweildy. I
+don't mean that it is a whole six lines long, but rather that it mixes
+too many concerns. This function parses inputs, applies "domain"
+logic, and deals with creating a response body. It would be better to
+refactor this to separate those concerns.
+
+
+[[app-listing]]
+[source,clojure]
+.src/hello.clj
+----
+include::hello-query/src/hello.clj[tags=response_logic_refactor]
+----
+<1> This function can generate any "OK" result.
+<2> Our logic is now separated.
+<3> The handler now coordinates the rest.
+
+This version separates the concerns nicely. One big benefit is that
+the `greeting-for` function is now easier to test. It's just a pure
+function that doesn't require any HTTP muckery to exercise. Likewise,
+that `ok` function is quite easy to test. Both functions are likely to
+get more complex, but each one will only deal with it's own
+complexity.

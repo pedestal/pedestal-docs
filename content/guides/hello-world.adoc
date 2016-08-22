@@ -62,20 +62,6 @@ The first time through, we will just do everything "by hand". This is
 a little more work in typing (or copy-and-pasting) but it will let you
 see how the pieces connect in the simplest possible use case.
 
-Then we'll do the same thing but with power tools. We'll use a popular
-build tool to create a project from a template. This one will have
-some more bells and whistles to explore. We will look at what is
-absolutely necessary, what is optional, and what benefits the template
-offers.
-
-Of course, nothing says you have to use this one official
-template. Other people have set up their own templates, specialized
-for different purposes. Since Pedestal is just a set of libraries, you
-have a lot of flexibility in how you weave them together to make an
-application. The link:../community/tutorials-guides-samples[Tutorials,
-Guides, and Samples] page has links to some other templates that users
-have created.
-
 == Before We Begin
 
 Pedestal services are written in Clojure code, which you then run on a
@@ -422,7 +408,9 @@ nil
 boot.user=> (hello/start)
 ----
 
-Yep, it didn't return. Jetty is running and listening for connections, though. Flip to a different window and try curl or try http://127.0.0.1:8890/greet.
+Yep, it didn't return. Jetty is running and listening for connections,
+though. Flip to a different window and try curl or use a browser to hit
+http://127.0.0.1:8890/greet.
 
 ----
 $ curl -i http://127.0.0.1:8890/greet
@@ -485,6 +473,6 @@ tricks.
 
 == Where to Next?
 
-The link:hello-world-query[next part] in this trail adds the ability
+The link:hello-world-query-parameters[next part] in this trail adds the ability
 to receive a query parameter, apply logic to it, and return an HTML or
 JSON page.

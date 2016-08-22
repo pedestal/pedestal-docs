@@ -9,13 +9,14 @@ Cognitect
 == Getting Started
 
 * link:hello-world[Hello, world!]
-* link:hello-world-query[Hello, world! with query parameters]
+* link:hello-world-query-parameters[Hello, world! with query parameters]
 * link:your-first-api[Your First API]
 * Unit Testing Your Pedestal API
 * Serving Resources
 * link:server-sent-events[Server-sent events]
 * link:what-is-an-interceptor[What is an Interceptor?]
 * Connecting Pedestal to Datomic
+* Quick Start - Dive in to the deep end!
 
 == Using Pedestal With ...
 
