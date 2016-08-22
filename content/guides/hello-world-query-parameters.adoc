@@ -314,7 +314,7 @@ $ curl http://localhost:8890/greet?name=ไอรีนซีพีชาไอ�
 Hello, ไอรีนซีพีชาไอที
 ----
 
-Much better! But our handler function is getting a bit unweildy. I
+Much better! But our handler function is getting a bit unwieldy. I
 don't mean that it is a whole six lines long, but rather that it mixes
 too many concerns. This function parses inputs, applies "domain"
 logic, and deals with creating a response body. It would be better to
@@ -337,3 +337,134 @@ function that doesn't require any HTTP muckery to exercise. Likewise,
 that `ok` function is quite easy to test. Both functions are likely to
 get more complex, but each one will only deal with it's own
 complexity.
+
+In this example, we're treating the case of an empty name the same as
+if the name parameter just isn't included. See if you can make the
+handler more strict so it will return a "400 Bad Request" response if
+the name parameter is present but zero length.
+
+== Conditional Responses
+
+There are some names that should not be spoken. Let's enhance our
+service to avoid them. This will be a relatively simple change. We can
+hardcode the names as a set, then use that set as a function. (Clojure
+sets are functions that test for the presence of their argument in the
+set itself.)
+
+This part needs to go before `greeting-for` because we'll use it to
+make a decision in that function.
+
+[[app-listing]]
+[source,clojure]
+.src/hello.clj
+----
+include::hello-query/src/hello.clj[tags=not_to_be_named]
+----
+
+Now we need to think about our greeting function. Right now it returns
+a string. We want to make sure the user gets a 404 if the query names
+one of the forbidden ones. We could have `greeting-for` directly
+return the response map, but that starts to entangle the concerns we
+just factored out. We'll do the simplest thing that could possibly
+work: is `greeting-for` returns `nil`, that means the request failed.
+
+
+[[app-listing]]
+[source,clojure]
+.src/hello.clj
+----
+include::hello-query/src/hello.clj[tags=greeting_with_404]
+----
+
+Because there are now three possible conditions that can happen in
+`respond-hello`, I've changed from an `if` to a `cond`
+expression. `cond` uses pairs of "condition / value" clauses. So if
+`(unmentionables nm)` returns any truthy value, then cond returns the
+`nil` and stops evaluating. If `(empty? nm)` returns true, then cond
+returns the literal string "Hello, world!\n" and nothing else. If
+neither of those happened, then cond sees the keyword `:else` as a
+condition. There's actually nothing special about `:else`... any
+truthy value will do. `:else` is just a convention. Then we build the
+string the same way as before.
+
+A nested `if` would also have worked here. In fact `cond` is a macro
+that expands into a series of nested `if` expressions. All three of
+these conditions are kind of parallel in significance, so I like that
+they appear to be parallel in the structure of the code. The shape of
+the code mirrors the shape of my thinking about these cases.
+
+The second thing you'll notice is that the handler now makes a
+decision whether to call our `ok` helper or the new function
+`not-found`. I do hope you weren't expecting much in `not-found`! It's
+as simple as it gets.
+
+Restart your service and give it a try:
+
+----
+$ curl http://localhost:8890/greet?name=Michael
+Hello, Michael
+$ curl http://localhost:8890/greet?name=Rumplestiltskin
+Not found
+$ curl http://localhost:8890/greet?name=曹操
+Not found
+$ curl http://localhost:8890/greet?name=voldemort
+Hello, voldemort
+$ curl http://localhost:8890/greet?name=He%20who%20must%20not%20be%20named
+Hello, He who must not be named
+----
+
+Looks like it mostly works, though it has some trouble with different
+capitalization. Take a look at the docs for http://clojure.github.io/clojure/clojure.string-api.html[`clojure.string`] and see
+if you can figure out how to make the comparison case-insensitive.
+
+== The Whole Shebang
+
+Once again, we built this thing in small steps, so it may seem like
+there was a lot to deal with. The final product is still pretty small
+though. Here's all the final code.
+
+[[app-listing]]
+[source,clojure,subs="-callouts"]
+.src/hello.clj
+----
+include::hello-query/src/hello.clj[tags=ns]
+
+include::hello-query/src/hello.clj[tags=not_to_be_named]
+
+include::hello-query/src/hello.clj[tags=greeting_with_404]
+
+include::hello-query/src/hello.clj[tags=routing]
+
+include::hello-query/src/hello.clj[tags=server]
+----
+
+[[app-listing]]
+[source,clojure,subs="-callouts"]
+.build.boot
+----
+include::hello-query/build.boot[]
+----
+
+== The Path So Far
+
+In this guide, we built upon link:hello-world[Hello World] to add:
+
+* Query parameters
+* General response functions
+* "Domain" logic
+* Conditional responses
+
+We also learned about the link:../reference/request-map[request map]
+and how to deal with bad user input.
+
+== Where to Next?
+
+So far, almost all our responses have been plain text. (When we
+returned the request map in the body, the content type was actually
+`application/edn` but we can ignore that for now.)
+
+Plain text is ugly, so we want to be able to return HTML. Rich clients
+don't like HTML so much, so we also want to return JSON sometimes. The
+link:hello-world-content-types[next stop] on this trail looks at how
+Pedestal handles content types and response bodies. This will be our
+first taste of interceptors.

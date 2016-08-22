@@ -239,7 +239,8 @@ http://boot-clj.com/[boot-clj]. Please take a few minutes to go follow
 their https://github.com/boot-clj/boot#install[installation
 instructions], then come back and we'll continue.
 
-Now we can make a build file that tells boot what libraries our service needs:
+Now we can make a build file that tells boot what libraries our
+service needs. This goes in the main directory `hello`:
 
 [[app-listing]]
 [source,clojure]

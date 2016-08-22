@@ -41,6 +41,31 @@
     (ok resp)))
                                                          ;; end::response_logic_refactor[]
 
+                                                         ;; tag::not_to_be_named[]
+(def unmentionables #{"YHWH" "Voldemort" "Mxyzptlk" "Rumplestiltskin" "曹操"})
+                                                         ;; end::not_to_be_named[]
+
+                                                         ;; tag::greeting_with_404[]
+(defn ok [body]
+  {:status 200 :body body})
+
+(defn not-found []
+  {:status 404 :body "Not found\n"})
+
+(defn greeting-for [nm]
+  (cond
+    (unmentionables nm) nil
+    (empty? nm)         "Hello, world!\n"
+    :else               (str "Hello, " nm "\n")))
+
+(defn respond-hello [request]
+  (let [nm   (get-in request [:query-params :name])
+        resp (greeting-for nm)]
+    (if resp
+      (ok resp)
+      (not-found))))
+                                                         ;; end::greeting_with_404[]
+
                                                          ;; tag::routing[]
 (def routes
   (route/expand-routes                                   ;; <1>
