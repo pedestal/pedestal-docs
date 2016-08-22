@@ -17,7 +17,7 @@ Cognitect
 * link:server-sent-events[Server-sent events]
 * link:what-is-an-interceptor[What is an Interceptor?]
 * Connecting Pedestal to Datomic
-* Quick Start - Dive in to the deep end!
+* link:crash-course[Crash Course] - Get going fast
 
 == Using Pedestal With ...
 

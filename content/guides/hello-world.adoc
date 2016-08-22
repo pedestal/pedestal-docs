@@ -40,6 +40,11 @@ Linux (any flavor) with great results. We haven't yet tried it on the
 Windows Subsystem for Linux, but would love to hear from you if you've
 succeeded with it there.
 
+We will be installing a tool to help manage dependencies and download
+libraries. The one this guide uses is http://boot-clj.com[Boot]. Feel
+free to take a look and install it now. We'll discuss it at the
+appropriate time, so you can also wait until then.
+
 == Getting Help If You're Stuck
 
 We'll take this in small steps. If you get stuck at any point in this
@@ -172,6 +177,9 @@ itself, or you can use the HTTP library with a different routing
 layer. We won't need to do that in this guide, but other tutorials do
 some pretty amazing things by substituting modules.
 
+Also, don't worry about the indentation. Your editor might handle that
+for you, but in any case, Clojure doesn't care about whitespace.
+
 == Generating a Response
 
 Whew. That was a lot to unpack from just the first three lines of
@@ -255,8 +263,11 @@ We talked about `pedestal.service` and `pedestal.route` before, but we
 have a new one here. Pedestal works with many different HTTP servers,
 so we don't want the core library to depend on _all_ of the possible
 servers out there. Instead, we let you decide which one to use by
-adding the library for your chosen service. We're using Jetty for this
-guide, but many others are available.
+adding the library for your chosen service. We're using
+http://www.eclipse.org/jetty/[Jetty] for this guide. It is a fast,
+stable, and mature HTTP server. Best of all, it doesn't require any
+installation ahead of time... we can start it up from inside our
+service. That makes our service more self-contained and portable.
 
 Let's try out our response function.
 
@@ -428,7 +439,9 @@ Server: Jetty(9.3.8.v20160314)
 Hello, world!
 ----
 
-It's alive! Treat yourself to a hot beverage and a high five.
+It's alive! Treat yourself to a hot beverage and a high five. Whenever
+you get tired of poking it, just hit Control-C in the terminal that is
+running the server to kill it.
 
 == The Whole Shebang
 

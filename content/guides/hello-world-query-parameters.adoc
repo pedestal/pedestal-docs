@@ -94,7 +94,7 @@ Because query parameters are so common, Pedestal handles them
 automatically. You can try that URL with your service right now.
 
 As a reminder, we're running the server by using
-link:boot-clj.org[Boot] to start an interactive session (called a
+http://boot-clj.com[Boot] to start an interactive session (called a
 REPL, rhymes with ripple) then starting the service in that session:
 
 ----
