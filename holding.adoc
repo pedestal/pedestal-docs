@@ -1,0 +1,37 @@
+== About Macros
+
+Macros are special, because they get to work on the source
+code itself. Ordinary functions only get to see the values produced by
+the code. Here's an example.
+
+Suppose we have a function call like:
+
+----
+(println "The sum is " (+ 1 1))
+----
+
+(In other languages, you might write it like 'println("The sum is" +
+(1 + 1));' Notice there are the same number of parens? They're just
+placed differently.)
+
+By the time the `println` function is called, it receives two
+arguments. The first is the string "The sum is". The second is the
+number 2. We say that a functions arguments are /evaluated/ before the
+function is called. They are evaluated in the most literal sense of
+the word... they get turned into values!
+
+In contrast, the arguments to a macro are *not* evaluated before the
+macro is invoked. Support we have a macro called `my-print` and we
+call it the same way as before:
+
+----
+(my-print "The sum is " (+ 1 1))
+----
+
+When `my-print` gets called, it also receives two arguments. The first
+is the string "The sum is " just like in the `println` case. But the
+second argument is not the number 2. The second argument is a list
+with three elements: the symbol `+`, the number 1, and another copy of
+the number 1. Inside `my-print`, we can manipulate that code but we
+don't have access to the values. `my-print` doesn't get to know what 1
++ 1 is.
