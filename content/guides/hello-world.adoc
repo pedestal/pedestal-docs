@@ -21,7 +21,7 @@ After reading this guide, you will be able to:
 - Create a Pedestal project from a template using Leiningen.
 - Define a route.
 - Return a page on that route.
-- Return plain text or HTML in your response.
+- Return plain text in your response.
 
 == Guide Assumptions
 
@@ -47,6 +47,10 @@ guide, please submit an https://github.com/pedestal/docs/issues[issue]
 about this guide or hop over to the
 https://groups.google.com/forum/#!forum/pedestal-users[mailing list]
 and raise your hand there.
+
+This guide shows fragments of code as we add them. Sometimes it helps
+to see the whole thing at once, so you can always check out
+<<_the_whole_shebang,the whole shebang>> at the end of this guide.
 
 == Where We Are Going
 
@@ -437,7 +441,35 @@ Hello, world!
 
 It's alive! Treat yourself to a hot beverage and a high five.
 
+== The Whole Shebang
 
+This might seem complicated because I've used so many words to
+describe all this. The code is pretty short though. For reference, and
+in case you've hit any snags along the way, here are the complete
+contents of both files.
+
+[[app-listing]]
+[source,clojure,subs="-callouts"]
+.src/hello.clj
+----
+include::hello/src/hello.clj[tags=ns]
+
+include::hello/src/hello.clj[tags=response]
+
+include::hello/src/hello.clj[tags=routing]
+
+include::hello/src/hello.clj[tags=server]
+----
+
+[[app-listing]]
+[source,clojure,subs="-callouts"]
+.build.boot
+----
+include::hello/build.boot[]
+----
+
+You can also see all the code in the Github repository for
+link:https://github.com/pedestal/docs/tree/master/content/guides[this guide].
 
 == The Path So Far
 
