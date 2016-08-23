@@ -1,0 +1,13 @@
+= Hello World, With Content Types
+Michael Nygard
+2016-08-22
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: guides
+
+toc::[]
+
+== Welcome Back
+
+In the first two parts of this trail, we made a link:hello-world[very basic service] and we enhanced it to link:hello-world-query-parameters[accept a parameter]. Now we are going to
