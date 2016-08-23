@@ -487,6 +487,6 @@ tricks.
 
 == Where to Next?
 
-The link:hello-world-query-parameters[next part] in this trail adds the ability
-to receive a query parameter, apply logic to it, and return an HTML or
-JSON page.
+The link:hello-world-query-parameters[next part] in this trail adds
+the ability to receive a query parameter, apply logic to it, and
+return a different response for an error.
