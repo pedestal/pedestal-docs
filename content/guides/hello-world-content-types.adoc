@@ -446,7 +446,7 @@ understand how and when each line of code gets invoked.
 [source,clojure,subs="-callouts"]
 .src/hello.clj
 ----
-include::hello-content/src/hello.clj[tags=ns;ok;continuo;coerce_refactored]
+include::hello-content/src/hello.clj[tags=ns;continuo;coerce_refactored]
 
 include::hello-content/src/hello.clj[tags=server]
 ----
