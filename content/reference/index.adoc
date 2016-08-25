@@ -20,6 +20,8 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 * link:context-map[Context Map]
 * link:request-map[Request Map]
 * link:response-map[Response Map]
+* link:lazy-request-map[Lazy Request Map]
+* link:zero-copy-request[Zero Copy Request]
 * link:default-interceptors[Default Interceptors]
 * Using the Built-in Routers
 * Writing Your Own Router
