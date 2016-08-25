@@ -46,5 +46,5 @@ Cognitect
 
 == Interactive Development
 
-* Developing at the REPL
+* link:developing-at-the-repl[Developing at the REPL]
 * Getting Debug Output

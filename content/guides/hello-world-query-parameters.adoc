@@ -55,7 +55,6 @@ about this guide or hop over to the
 https://groups.google.com/forum/#!forum/pedestal-users[mailing list]
 and raise your hand there.
 
-
 == Where We Are Going
 
 In this guide, we will build on the `hello.clj` example from last
@@ -66,9 +65,6 @@ There are some people we don't want to meet, though. So we'll also
 include a list of names that should *not* be said. Then we can make
 our handler function a bit smarter. If any forbidden name is uttered,
 our handler will return a 404 response instead of a cordial greeting.
-
-Finally, it will be time to get rid of the plain text and respond with
-something nicer.
 
 == Before We Begin
 
