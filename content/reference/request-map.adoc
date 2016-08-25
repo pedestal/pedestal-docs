@@ -1,6 +1,6 @@
 = Request Map
-TBD
-2016-08-22
+Michael Nygard
+2016-08-25
 :jbake-type: page
 :toc: macro
 :icons: font
