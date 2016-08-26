@@ -13,6 +13,7 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 * Interceptors
 * Chain providers
 * Key Protocols
+* link:handlers[Handlers]
 
 == Handling HTTP
 
@@ -31,12 +32,15 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 * Content Negotiation
 * Session Management
 * Cookie Management
-* SSL and Certificates
+* HTTP/2
+* TLS, ALPN, Certificates
 
 == Common Scenarios
 
 * Pedestal and Datomic
 * JSON APIs
+* Interactive development
+* Unit testing
 
 == Advanced HTTP
 
