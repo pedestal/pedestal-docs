@@ -21,7 +21,7 @@ Cognitect
 
 == Using Pedestal With ...
 
-* Component
+* link:pedestal-with-component[Component]
 * Figwheel
 * Om
 * Om.next
