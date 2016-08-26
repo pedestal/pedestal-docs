@@ -58,7 +58,7 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 
 == Deployment and Operations
 
-* Jetty
+* link:jetty[Jetty]
 * Immutant/Wildfly
 * Tomcat
 * BlueMix
