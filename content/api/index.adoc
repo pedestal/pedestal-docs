@@ -14,7 +14,7 @@ link:pedestal.route/index.html[pedestal.route]
 
 link:pedestal.interceptor/index.html[pedestal.interceptor]
 
-link:pedestal.service.tools/index.html[pedestal.service.tools]
+link:pedestal.service-tools/index.html[pedestal.service-tools]
 
 link:pedestal.log/index.html[pedestal.log]
 

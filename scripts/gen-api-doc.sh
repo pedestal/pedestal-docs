@@ -33,15 +33,15 @@ do
         exit -1
     fi
 
-    moddir=${d}/output/api/pedestal-${m}
+    moddir=${D}/output/api/pedestal.${m}
 
     if [ -d $moddir ] ; then
         rm $moddir/*.html
     else
-        mkdir -p $D/output/api/pedestal-${m}
+        mkdir -p $moddir
     fi
 
-    cp -r target/doc/* $D/output/api/pedestal-${m}/
+    cp -r target/doc/* $moddir
 
     popd
 done
