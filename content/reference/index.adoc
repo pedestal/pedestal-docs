@@ -1,0 +1,75 @@
+= Reference
+Cognitect
+2016-08-05
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: reference
+
+ifdef::env-github,env-browser[:outfilessuffix: .adoc]
+
+== Parts of Pedestal
+
+* Interceptors
+* Chain providers
+* Key Protocols
+* link:handlers[Handlers]
+
+== Handling HTTP
+
+* link:service-map[Service Map]
+* link:context-map[Context Map]
+* link:request-map[Request Map]
+* link:response-map[Response Map]
+* link:lazy-request-map[Lazy Request Map]
+* link:zero-copy-request[Zero Copy Request]
+* link:default-interceptors[Default Interceptors]
+* Using the Built-in Routers
+* Writing Your Own Router
+* link:defining-routes[Defining Routes]
+* link:parameters[Parameters]
+* Generating Links
+* Content Negotiation
+* Session Management
+* Cookie Management
+* HTTP/2
+* TLS, ALPN, Certificates
+
+== Common Scenarios
+
+* Pedestal and Datomic
+* JSON APIs
+* Interactive development
+* Unit testing
+
+== Advanced HTTP
+
+* Fast-Path Resource Handling
+* Async Communication
+* Server-Sent Events
+* Websockets
+
+== Securing a Pedestal Application
+
+* Cross-Site Request Forgery (CSRF)
+* Cross-Origin Resource Sharing (CORS)
+* Authentication and Authorization
+* Secure Headers
+
+== Deployment and Operations
+
+* link:jetty[Jetty]
+* Immutant/Wildfly
+* Tomcat
+* BlueMix
+* Nginx
+* Netty
+* Vert.x
+* Docker
+* OSv
+* Elastic Beanstalk
+* CloudFormation
+* Metrics With StatsD
+* Metrics With JMX
+* Metrics With CloudWatch
+* Metrics With Your Own Provider

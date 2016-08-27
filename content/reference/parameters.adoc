@@ -1,0 +1,23 @@
+= Parameters
+Michael Nygard
+2016-08-26
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: reference
+
+ifdef::env-github,env-browser[:outfilessuffix: .adoc]
+
+== Placeholder
+
+Pull requests welcomed!
+
+=== Query Parameters
+
+=== Path Parameters
+
+=== The Method Parameter
+
+=== Body Parameters
+
+__TODO__ Incorporate information from https://github.com/pedestal/pedestal/issues/444

@@ -1,0 +1,33 @@
+= Server Sent Events
+TBD
+2016-08-22
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: guides
+
+toc::[]
+
+== Placeholder
+
+**Pull requests welcome!**
+
+== Welcome
+
+== What You Will Learn
+
+== Guide Assumptions
+
+== Getting Help if You're Stuck
+
+== Where We Are Going
+
+== Before We Begin
+
+== Content Section 1
+
+== Content Section 2
+
+== The Path So Far
+
+== Where To Next?

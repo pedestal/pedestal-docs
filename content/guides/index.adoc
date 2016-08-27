@@ -1,0 +1,50 @@
+= Guides
+Cognitect
+2016-08-05
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: guides
+
+== Getting Started
+
+* link:hello-world[Hello, world!]
+* link:hello-world-query-parameters[Hello, world! with query parameters]
+* link:hello-world-content-types[Hello, world! with content types]
+* link:your-first-api[Your First API]
+* Unit Testing Your Pedestal API
+* Serving Resources
+* link:server-sent-events[Server-sent events]
+* link:what-is-an-interceptor[What is an Interceptor?]
+* Connecting Pedestal to Datomic
+* link:crash-course[Crash Course] - Get going fast
+
+== Using Pedestal With ...
+
+* link:pedestal-with-component[Component]
+* Figwheel
+* Om
+* Om.next
+* Datomic
+
+== High Performance Pedestal
+
+* Using HTTP/2 with Pedestal
+* Core.async and NIO for full async deployment
+* Error handling in async applications
+
+== Fun with Interceptors
+
+* An Interceptors that adds Interceptors
+* Writing a Custom Router
+
+== Security
+
+* Anti-CSRF Guide
+* CORS Guide
+* Authentication and Authorization
+
+== Interactive Development
+
+* link:developing-at-the-repl[Developing at the REPL]
+* Getting Debug Output

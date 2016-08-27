@@ -1,0 +1,17 @@
+= Jetty Configuration and Deployment
+Michael Nygard
+2016-08-26
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: reference
+
+ifdef::env-github,env-browser[:outfilessuffix: .adoc]
+
+== Placeholder
+
+Pull requests welcomed!
+
+__TODO__ Incorporate details from https://github.com/pedestal/pedestal/issues/448
+
+__TODO__ Incorporate details from https://github.com/pedestal/pedestal/issues/449

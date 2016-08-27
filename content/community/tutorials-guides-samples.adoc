@@ -1,0 +1,30 @@
+= Community Resources
+Michael Nygard
+2016-08-17
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: community
+
+ifdef::env-github,env-browser[:outfilesuffix: .adoc]
+
+== Community Posts
+
+* http://seespotcode.net/2016/08/03/naming-routes-in-pedestal[Naming Routes in Pedestal] by http://seespotcode.net/[Michael Glaesemann]
+* http://frankiesardo.github.io/posts/2015-03-06-from-pedestal-routes-to-beautiful-documentation.html[From Pedestal routes to beautiful documentation] by http://frankiesardo.github.io/index.html[Frankie Sardo]
+* https://gist.github.com/ohpauleez/15522bc408d8e09cd7657dd768643a5f[Conditional Interceptors that Enqueue New Interceptors] by https://github.com/ohpauleez[Paul deGrandis]
+
+== Community Tutorials
+
+* https://speakerdeck.com/rkneufeld/web-apps-on-a-pedestal[Web Apps on a Pedestal] by Ryan Neufeld.
+** https://github.com/rkneufeld/pedestal-workshop[Source]
+
+
+== Projects with Pedestal
+
+* https://github.com/mtnygard/todo-backend-pedestal[Todo Backend, Pedestal] - An implementation of the http://www.todobackend.com/[Todo Backend spec] using Pedestal and Datomic
+
+== Pedestal Templates
+
+* Ryan Neufeld's link:https://github.com/rkneufeld/pedestal-micro[Pedestal-micro] template for microservices.
+* Paul deGrandis' link:https://github.com/ohpauleez/pedestal-micro[Fork of Ryan's] microservice template

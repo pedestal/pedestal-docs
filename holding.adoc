@@ -1,0 +1,65 @@
+= Holding Pen for Content
+Michael Nygard
+2016-08-22
+:jbake-type: page
+:toc: macro
+:icons: font
+
+_This is stuff I've written that I want to put someplace, but haven't gotten to the right spot yet.__
+
+== From Hello World
+
+*Edited for length. Add this in a guide about starting from a template.*
+
+Then we'll do the same thing but with power tools. We'll use a popular
+build tool to create a project from a template. This one will have
+some more bells and whistles to explore. We will look at what is
+absolutely necessary, what is optional, and what benefits the template
+offers.
+
+Of course, nothing says you have to use this one official
+template. Other people have set up their own templates, specialized
+for different purposes. Since Pedestal is just a set of libraries, you
+have a lot of flexibility in how you weave them together to make an
+application. The link:../community/tutorials-guides-samples[Tutorials,
+Guides, and Samples] page has links to some other templates that users
+have created.
+
+
+== About Macros
+
+Macros are special, because they get to work on the source
+code itself. Ordinary functions only get to see the values produced by
+the code. Here's an example.
+
+Suppose we have a function call like:
+
+----
+(println "The sum is " (+ 1 1))
+----
+
+(In other languages, you might write it like 'println("The sum is" +
+(1 + 1));' Notice there are the same number of parens? They're just
+placed differently.)
+
+By the time the `println` function is called, it receives two
+arguments. The first is the string "The sum is". The second is the
+number 2. We say that a functions arguments are /evaluated/ before the
+function is called. They are evaluated in the most literal sense of
+the word... they get turned into values!
+
+In contrast, the arguments to a macro are *not* evaluated before the
+macro is invoked. Support we have a macro called `my-print` and we
+call it the same way as before:
+
+----
+(my-print "The sum is " (+ 1 1))
+----
+
+When `my-print` gets called, it also receives two arguments. The first
+is the string "The sum is " just like in the `println` case. But the
+second argument is not the number 2. The second argument is a list
+with three elements: the symbol `+`, the number 1, and another copy of
+the number 1. Inside `my-print`, we can manipulate that code but we
+don't have access to the values. `my-print` doesn't get to know what 1
++ 1 is.

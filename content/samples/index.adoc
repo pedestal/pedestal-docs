@@ -1,0 +1,43 @@
+= Guide to Sample Applications
+Document Writer
+2016-08-15
+:jbake-type: page
+:toc: macro
+:icons: font
+
+* https://github.com/pedestal/pedestal/tree/master/samples/chain-providers[chain-providers] - This sample demonstrates using Pedestal with a custom backend server.
+Interceptor Chain Providers allow Pedestal to be used on top of any HTTP Server that's supported on the JVM.
+* https://github.com/pedestal/pedestal/tree/master/samples/cors[cors] - Here we demonstrate an implementation 
+of [cross-origin resource sharing](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing).
+* https://github.com/pedestal/pedestal/tree/master/samples/fast-pedestal[fast-pedestal] - This sample illustrates various techniques to reduce latency and increase throughput/goodput.
+* https://github.com/pedestal/pedestal/tree/master/samples/hello-world[hello-world] - A bare-minimum Pedestal service that greets visitors.
+* https://github.com/pedestal/pedestal/tree/master/samples/helloworld-metrics[helloworld-metrics] - Pedestal offers metrics logging capabilities starting with Pedestal-0.5.0.
+The default metrics recorder publishes to JMX, but you can override that
+behavior by setting the JVM Property `io.pedestal.log.defaultMetricsRecorder`
+or the environment variable `PEDESTAL_METRICS_RECORDER`.
+The value of the setting should be a namespaced symbol
+that resolves to a 0-arity function or nil.
+That function should return something that satisfies the MetricRecorder protocol.
+* https://github.com/pedestal/pedestal/tree/master/samples/http2[http2] - This very simple app demonstrates using Jetty's HTTP2 capabilties.
+* https://github.com/pedestal/pedestal/tree/master/samples/immutant[immutant] - This is the `hello-world` example, adpted to illustrate using [Immutant](http://immutant.org).
+* https://github.com/pedestal/pedestal/tree/master/samples/jetty-web-sockets[jetty-web-sockets] - This sample illustrates how to use WebSockets with Pedestal and Jetty.
+* https://github.com/pedestal/pedestal/tree/master/samples/nio[nio] - This sample demonstrates using a ByteBuffer as a response body. For large response
+amidst a high number of concurrent connections, using NIO (via a ByteBuffer or
+ReadableByteChannel) can increase your app's performance.
+* https://github.com/pedestal/pedestal/tree/master/samples/ring-middleware[ring-middleware] - Pedestal incorporates existing ring middleware into its
+interceptors functionality. In this example, we implement a service
+that stores your name in the session via setting a session token
+in the cookie store. We are depending on `ring.middleware.session.cookie`
+for this functionality.
+* https://github.com/pedestal/pedestal/tree/master/samples/server-sent-events[server-sent-events] - Demonstrates setting up, using and tearing down a server-sent-events
+event stream. Events are sent from multiple threads.
+* https://github.com/pedestal/pedestal/tree/master/samples/server-with-links[server-with-links] - This very simple app demonstrates generating a link
+based on your application's routing table.
+* https://github.com/pedestal/pedestal/tree/master/samples/servlet-filters-gzip[servlet-filters-gzip] - This sample shows how to use Servlet Filters and new Jetty Handlers
+within your Pedestal services.
+The sample specifically applies a gzip filter to the service configuration
+of Jetty. To check on the encoding of the server's response,
+hit with curl, requesting compression:
+* https://github.com/pedestal/pedestal/tree/master/samples/template-server[template-server] - Included (in no particular order):
+* https://github.com/pedestal/pedestal/tree/master/samples/war-example[war-example] - This sample shows the necessary tooling and options for building a deployable
+WAR file.
