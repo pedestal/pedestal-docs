@@ -14,7 +14,8 @@ content), see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Building the Site
 
-The site is built using [JBake](http://jbake.org/).
+The site is built using [JBake](http://jbake.org/). JBake 2.5.0 is required.
+Earlier versions don't work.
 
 To install JBake 2.5.0-SNAPSHOT:
 
@@ -22,6 +23,16 @@ To install JBake 2.5.0-SNAPSHOT:
   (or download this file with your browser)
 * `unzip -o jbake-2.5.0-SNAPSHOT-bin.zip`
 * Add jbake-2.5.0-SNAPSHOT/bin to your system PATH
+
+
+To build the site, you need side-by-side checkouts of Pedestal and Pedestal Docs.
+
+Retrieve Pedestal and switch to a publicly-available version:
+
+    git clone https://github.com/pedestal/pedestal.git pedestal
+    cd pedestal
+    git checkout 0.5.1
+    cd .. # back out to the parent directory
 
 To build the site:
 
