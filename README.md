@@ -51,6 +51,11 @@ Generate the pages:
 * `jbake` - this will create the static site in the output directory
 * Run `jbake -s` to serve these pages at http://localhost:8820/index
 
+Autogenerate the pages on change:
+
+* Install the command `entr`
+* `find content templates assets | entr jbake`
+
 
 License
 -------
