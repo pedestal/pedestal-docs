@@ -23,6 +23,7 @@ ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 == Projects with Pedestal
 
 * https://github.com/mtnygard/todo-backend-pedestal[Todo Backend, Pedestal] - An implementation of the http://www.todobackend.com/[Todo Backend spec] using Pedestal and Datomic
+* https://github.com/grzm/component.pedestal[Component.Pedestal] - Michael Glaesemann's Pedestal wrapper for Stuart Sierra's Component library.
 
 == Pedestal Templates
 
