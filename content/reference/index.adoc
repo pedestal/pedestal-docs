@@ -24,16 +24,20 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 * link:lazy-request-map[Lazy Request Map]
 * link:zero-copy-request[Zero Copy Request]
 * link:default-interceptors[Default Interceptors]
-* Using the Built-in Routers
-* Writing Your Own Router
-* link:defining-routes[Defining Routes]
-* link:parameters[Parameters]
-* Generating Links
 * Content Negotiation
 * Session Management
 * Cookie Management
 * HTTP/2
 * TLS, ALPN, Certificates
+
+=== Routing and Linking
+
+* Using the Built-in Routers
+* Writing Your Own Router
+* link:defining-routes[Defining Routes]
+* link:parameters[Parameters]
+* Generating Links
+* Routing Constraints
 
 == Common Scenarios
 

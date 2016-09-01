@@ -112,8 +112,8 @@ something different, but it's up to you to do the mental translation
 in the rest of this guide.
 
 ----
-mkdir hello-world
-cd hello-world
+$ mkdir hello-world
+$ cd hello-world
 ----
 
 A quick note on naming style. Clojure itself uses "kebab case" for its
@@ -126,7 +126,7 @@ We need a place to keep our code. By convention, that's in a "src"
 directory:
 
 ----
-mkdir src
+$ mkdir src
 ----
 
 == A Place to Put Things
