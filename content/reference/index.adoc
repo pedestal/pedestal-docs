@@ -10,7 +10,7 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 
 == Parts of Pedestal
 
-* Interceptors
+* link:interceptors[Interceptors]
 * Chain providers
 * Key Protocols
 * link:handlers[Handlers]

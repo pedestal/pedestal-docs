@@ -171,6 +171,14 @@ doesn't return. We can fix that by adding a key to the map that says
 ----
 include::todo-api/src/main.clj[tags=server]
 ----
+<1> `defonce` here means we can recompile this file in the same REPL
+without overwriting the value in this atom.
+<2> `reset!` replaces the current value in the atom with the new value.
+<3> Tell Pedestal not to wait for the server to exit. You set `join?`
+to true when running "for real" so that your main function does exit
+and terminate the process.
+<4> This is a quick way to bounce the server.
+
 
 The key `::http/join?` does the trick. We can now run `start-dev` in
 our REPL sessions. Instead of waiting forever, the REPL thread now
@@ -212,15 +220,12 @@ boot.user=>
 Whatever happened to "no news is good news?" Believe it or not, that
 is all successful output. The big glob at the end is the value of the
 server. It's a big map with all the state in it. The most important
-thing to do with it is _hang on to it_ so you can stop the server
-later.
+thing to do with it is _hang on to it_ so we can stop the server
+later. We do that by putting it in an
+http://clojure.org/reference/atoms[atom].
 
-----
-boot.user=> (def server *1)
-#'boot.user/server
-boot.user=> (io.pedestal.http/stop server)
-#:io.pedestal.http{...}
-----
+Now we can use `start-dev`, `stop-dev`, and `restart` as we change
+routes and interceptors.
 
 == Poking the Routes
 
@@ -239,13 +244,12 @@ boot.user=> (test/response-for (:io.pedestal.http/service-fn server) :get "/todo
 boot.user=>
 ----
 
-The response looks pretty large because we are using the `echo`
+The response is pretty large because we are using the `echo`
 interceptor, so the whole request is nested inside the response. If we
 omit the response body, it isn't quite so hard to read.
 
 ----
 boot.user=> (dissoc (test/response-for (:io.pedestal.http/service-fn server) :get "/todo") :body)
-[nREPL-worker-5] INFO io.pedestal.http - {:msg "GET /todo", :line 78}
 {:status 200, :headers {"Strict-Transport-Security" "max-age=31536000; includeSubdomains", "X-Frame-Options" "DENY", "X-Content-Type-Options" "nosniff", "X-XSS-Protection" "1; mode=block", "Content-Type" "application/edn"}}
 boot.user=>
 ----
@@ -265,7 +269,7 @@ boot.user=>
 This 404 response comes from Pedestal itself. That is the default
 response when the router cannot find a route that matches the URL
 pattern _and_ passes constraints. (For much more about routers, see
-link:../reference/index#_routing_and_linking[the Routing and Linking] reference.)
+link:../reference/index#_routing_and_linking[the Routing and Linking] references.)
 
 === Path Parameters
 
@@ -297,9 +301,315 @@ this:
 :path-params {:list-id "abcdef", :item "12345"}}
 ----
 
-Pedestal extracted these parameters from the URL and bound them in to
-the request for us.
+Pedestal extracted these parameters from the URL and bound them to
+the request for us. Note that the values are always strings, because
+URLs are strings. If we want to treat "12345" as a number, that's up
+to us. But our application had better not break if some sly user sends
+us up a request with something other than numbers there.
+
+== Create List
+
+The first request to handle is creating lists. This is a POST to the
+"/todo" URL. In the interest of simplicity, the only part of a request
+body we need is a name field. Also in the interest of simplicity, we
+are not going to deal with content negotiation yet.
+
+What do we need to do in order to create a list?
+
+1. Make a new data structure for the list.
+1. Add it to our repository.
+
+We could do this all in one handler function. But we should take
+advantage of the interceptor construct to separate concerns. A very
+typical request lifecycle in Pedestal looks like this:
+
+1. `A` attaches a database connection to the request.
+1. `B` looks up an item of interest and attaches it to
+the request.
+1. `C` makes decisions and attaches the result of
+those decisions to the request.
+1. `D` executes a transaction with those decisions.
+
+This way, `A` and `D` are quite generic. They can even be the `enter`
+and `leave` functions of the same interceptor. `B` is lightly
+parameterized. Only `C` is unique to each request type.
+
+(By the way, when using Datomic, `A` also grabs the current database
+value and attaches it to the request as well.)
+
+For this guide, we are going to cheat and create an in-memory
+repository:
+
+[source,clojure]
+.src/main.clj
+----
+include::todo-api/src/main.clj[tag=repository]
+----
+
+And the interceptor to snapshot the database and handle transactions:
+
+[source,clojure]
+.src/main.clj
+----
+include::todo-api/src/main.clj[tag=db_interceptor]
+----
+<1> `@database` gets the current value of the atom. We attach it to
+the request inside the context.
+<2> The `:tx-data` key on the context may be set by other
+interceptors.
+<3> The `do` block is a sure sign of a side effect. The `swap!` here is our stand-in for a real database transaction.
+<4> We attach the updated database value in case any other
+interceptors need to use it.
+<5> If there wasn't any tx-data, we just return the context without
+changes. If you forget this and return nil, every request will respond
+with 404.
+
+Now we need a handler to receive the request, extract a name, and
+create the actual list.
+
+[source,clojure]
+.src/main.clj
+----
+include::todo-api/src/main.clj[tag=list_create]
+
+include::todo-api/src/main.clj[tag=routes_with_list_create]
+----
+<1> If there was a query parameter, use it. Otherwise use a placeholder.
+<2> Generate a unique ID. In a real service, the DB itself would do
+this for us.
+<3> Don't modify the DB here. Attach data to the context that the
+db-interceptor will use.
+<4> We modify the route definition to use both new interceptors, in
+order.
+
+There are a couple of things to notice about this updated route
+definition. First, instead of using `echo` here, we have a vector with
+our `db-interceptor` and `list-create` interceptors. Recall from
+link:hello-world-content-types#_interceptors[the introduction to
+interceptors] that interceptors work like a stack. The `:enter`
+functions get called from left to right, then the `:leave` functions
+get called from right to left. That means calls to the
+`db-interceptor` bracket the call to the `list-create` interceptor.
+
+The second thing about the new route is that we removed the
+`:route-name :list-create` clause. Pedestal requires that every route
+must have a unique name. When we used the `echo` interceptor
+everywhere, there was no way for Pedestal to create unique, meaningful
+names for the routes so we had to help it out. Now, `list-create` has
+it's own name so we can let Pedestal do it's default behavior: use the
+name of the last interceptor in the stack.
+
+(Incidentally, when you use a function in a route, Pedestal also can't
+pick a good name for you. A function value doesn't carry any reference
+back to it's original definition. There are quoting forms you can read
+about in link:../reference/index#_routing_and_linking[the routing and
+linking] reference that offer some tricks for that.)
+
+Let's give it a try. Here's a new helper function to make it easier to
+try requests out interactively:
+
+[source,clojure]
+.src/main.clj
+----
+include::todo-api/src/main.clj[tag=test_request]
+----
+
+With this new helper we can try out a lot of requests from the REPL.
+
+----
+boot.user> (main/test-request :post "/todo?name=A-List")
+{:status 404, :body "Not Found", :headers {"Content-Type" "text/plain"}}
+----
+
+Uh oh. What happened here? We just tried this route a minute ago. Was
+it the query parameter?
+
+----
+boot.user> (main/test-request :post "/todo")
+{:status 404, :body "Not Found", :headers {"Content-Type" "text/plain"}}
+----
+
+Nope.
+
+If you check the contents of your in-memory database by running
+`@main/database` in the REPL, you'll see the new item in there. So why
+did Pedestal complain about a 404?
+
+The problem is that neither the `list-create` or `db-interceptor`
+interceptor attached any kind of response to the context. Pedestal
+looked at the context after running all the interceptors, saw that
+there was no response, and sent the 404 as a fallback. We need to
+attach a response somewhere.
+
+=== Url-for
+
+The usual thing in REST APIs is to return a 201 status code, with a
+"Location" header that identifies where the new resource
+lives. Pedestal provides a function to generate a URL by route name
+and even interpolate parameters into it. So our `list-create`
+interceptor can point the client over to a route that will render the
+new list.
+
+Of course, it would be nice if the response body also included the
+current state of the brand new list. That saves the client a round
+trip and saves the service a request. For now, we can do this all in
+one interceptor.
+
+[source,clojure]
+.src/main.clj
+----
+include::todo-api/src/main.clj[tags=list_create_with_response]
+----
+<1> Generate URL for route `:list-view` and the new ID we just generated.
+
+And the results:
+
+----
+main> (test-request :post "/todo?name=A")
+{:status 201, :body "{:name \"A\", :items []}", :headers {"Strict-Transport-Security" "max-age=31536000; includeSubdomains", "X-Frame-Options" "DENY", "X-Content-Type-Options" "nosniff", "X-XSS-Protection" "1; mode=block", "Location" "/todo/l30488", "Content-Type" "application/edn"}}
+----
+
+One quick note about the response body: in general, adding something
+to the database might cause it to change. Sometimes there are triggers
+or stored procedures that change it. Other times it's just an ID being
+assigned. Usually, instead of attaching the new entity here, I would
+attach its ID to the context and use _another_ interceptor later in
+the chain to look up the entity after `db-interceptor` executes the
+transaction.
+
+This becomes especially important when you are updating existing
+entities that could have concurrent changes from many sources.
+
+== View List
+
+Now that we've done one route, this will go a bit faster. The
+connection from route to interceptor to entity should be a bit more
+evident at this point.
+
+To view a list, we need to look it up from the "database". If it
+doesn't exist, we need to return a 404 (which can be done by omitting
+a response body). If it does exist, we send it in the response.
+
+[source,clojure]
+.src/main.clj
+----
+include::todo-api/src/main.clj[tags=list_view]
+----
+<1> "Query" our fake database.
+<2> If there was a path parameter, we will use it. Otherwise, 404.
+<3> If the path parameter names an actual list, we will
+use it. Otherwise, 404.
+<4> Everything is OK, so return the list.
+
+== Add Item to List
+
+Even faster this time! We need to check that the list exists, modify
+it, and return the new item.
+
+I hope that some alarm bells are going off for you now. I just
+described a sequence of actions. That means time could pass while
+executing those actions. What happens if the list is there when we
+check it but gets deleted before we try to add the new item?
+
+This is the kind of thing that is really important to do
+_atomically_. We can take advantage of that Clojure atom to execute a
+function atomically. That's what the `swap!` call does for us.
+
+But since that function might not succeed, it means we don't know
+enough to create the response inside the `list-item-create`
+interceptor. We need to defer response creation until after the
+`db-interceptor` runs its `leave` function. Basically, we need
+something to look up an item by it's list ID and item ID, then render
+the result.
+
+That's exactly what we would do for the `:list-item-view` route! We
+can get some reuse here. If `list-item-create` can add the item to the
+DB, then the item will exist. Otherwise it will be a 404. We just need
+to do something a little funky-looking with the `list-item-view`
+interceptor. We need to put it's behavior in the `leave` function
+instead of the `enter` function.
+
+Here's the pair of new interceptors, plus the updated route table.
+
+[source,clojure]
+.src/main.clj
+----
+include::todo-api/src/main.clj[tags=list_item_create]
+----
+<1> New generic interceptor that makes an 200 OK response with EDN
+body out of any Clojure data structure.
+<2> New interceptor that looks up list items but doesn't attach a
+response.
+<3> Instead, list-item-view attaches the result to the context where
+`entity-render` expects to find it.
+<4> This interceptor creates an item and sets up tx-data to be
+executed.
+<5> This is where `list-item-create` passes a parameter to
+`list-item-view`.
+
+To understand the interceptors for the `:list-item-create` route, we
+need to think about `enter` functions from left to right and `leave`
+functions from right to left.
+
+|===
+| Phase | Interceptor | Action
+
+| Enter | `entity-render    ` | None.
+| Enter | `list-item-view   ` | None.
+| Enter | `db-interceptor   ` | Attach the DB value to the context.
+| Enter | `list-item-create ` | Attach tx-data to the context and a
+  path-param to identify the item.
+| Leave | `list-item-create ` | None.
+| Leave | `db-interceptor   ` | Execute the tx-data, attach updated DB value to context.
+| Leave | `list-item-view   ` | Find the (new) item by path-params,
+  attach it to the context as :result.
+| Leave | `entity-render    ` | Find :result on the context, make an OK response.
+
+|===
+
+Splitting the work into these pipelined stages allows us to make very
+small, very targeted functions that collaborate via the context.
+
+(By the way, that repetetively nesting structure in list-item-view is
+a perfect candidate for a Clojure macro. I'll leave that as an
+exercise for you, Dear Reader.)
+
+The rest of the routes follow these same basic patterns. Take a few
+minutes to see if you can create the interceptors for the next few.
+
+== The Whole Shebang
+
+Here is the final version of the code. Everything is cleaned, folded,
+and sorted nicely.
+
+[source,clojure]
+.src/main.clj
+----
+include::todo-api/src/main-complete.clj[]
+----
+
 
 == The Path So Far
 
+In this guide, we have built a new API with an in-memory
+database. You're ready to go get funding and launch!
+
+We covered some more advanced concepts with interceptors this time:
+
+* Passing results from one interceptor to another
+* Reusing interceptors in different routes
+* Separating query from transaction with `enter` and `leave` functions
+* Testing our routes interactively at a REPL.
+
 == Where To Next?
+
+Congratulations! You've finished the whole link:index#_getting_started[Getting
+Started] trail.
+
+For more guided learning, head back up to the link:index[Guides]
+page. Or, to go deep on some of these topics, check out any of the
+following references:
+
+* link:../reference/interceptors[Interceptors]
+* link:../reference/index#_routing_and_linking[Routing and Linking]
+* link:../reference/default-interceptors[Default Interceptors]
