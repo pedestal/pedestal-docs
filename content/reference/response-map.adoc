@@ -1,12 +1,31 @@
 = Response Map
-TBD
-2016-08-22
+Michael Glaesemann
+2016-9-03
 :jbake-type: page
 :toc: macro
 :icons: font
 :section: reference
 
+== Description
 
-== Placeholder
+The response map is attached to the link:context-map[Context Map] before the
+first interceptor is invoked. The response map describes the outgoing HTTP
+response.
 
-**Pull requests welcomed!**
+[cols="s,d,d,d", options="header", grid="rows"]
+|===
+| Key | Always Present? | Type | Description
+| `:status`
+| Y
+| integer
+| The HTTP status code
+
+| `:headers`
+| N
+| map of String -> String
+| Response headers sent to the client. Header names are all converted to lower case.
+
+| `:body`
+| N
+| String, ISeq, File, InputStream
+| The body of the response sent to the client.

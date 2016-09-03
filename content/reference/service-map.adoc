@@ -1,12 +1,130 @@
 = Service Map
-TBD
-2016-08-22
+Michael Glaesemann
+2016-09-03
 :jbake-type: page
 :toc: macro
 :icons: font
 :section: reference
 
+== Description
 
-== Placeholder
+The Service Map is a map that defines the logic of the service that will
+be created when the server starts.
 
-**Pull requests welcomed!**
+[cols="s,d,d,d", options="header", grid="rows"]
+|===
+| Key | Always present? | Type | Description
+
+| `:io.pedestal.http/routes`
+| Y
+| Sequence of maps, function, ExpandableRoutes
+| Something that satisfies the `io.pedestal.http.route/ExpandableRoutes` protocol, a function that returns routes when called, or a seq of route maps that defines a service's routes. If passing in a seq of route maps, it's recommended to use `io.pedestal.http.route/expand-routes`.
+
+| `:io.pedestal.http/router`
+| N
+| Keyword or route constructor
+| The router implementation to to use. Can be `:linear-search`, `:map-tree` `:prefix-tree`, or a custom `io.pedestal.http.route.router/Router` constructor function. Defaults to `:map-tree`, which fallsback on `:prefix-tree`.
+
+| `:io.pedestal.http/resource-path`
+| N
+| string
+| File path used as root by the `io.pedestal.http.ring-middlewares/resource` interceptor. If non-`nil`, the interceptor is added. Default is `nil`.
+
+| `:io.pedestal.http/type`
+| Y
+| keyword
+| Container for service. One of `:jetty`, `:immutant`, or `:tomcat`.
+
+| `:io.pedestal.http/join?`
+| N
+| boolean
+| If false, do not block the thread that starts the web server. Passed to the container.
+
+
+| `:io.pedestal.http/host`
+| N
+| string
+| Hostname, e.g., "localhost". Passed to the container.
+
+| `:io.pedestal.http/container-options`
+| N
+| Map
+| Map of options to pass to the container.
+
+| `:io.pedestal.http/port`
+| N
+| integer
+| Port for the running server.
+
+| `:io.pedestal.http/interceptors`
+| N
+| vector
+| Vector of interceptors. No additional interceptors are added if this key is non-`nil`. The default interceptors are defined bythe service map options and `io.pedestal.http/default-interceptors`.
+
+| `:io.pedestal.http/file-path`
+| N
+| string
+| File path used as root by the `io.pedestal.http.ring-middlewares/file` interceptor. If non-`nil`, this interceptor is added. Default is `nil`.
+
+| `:io.pedestal.http/method-param-name`
+| N
+| keyword
+| Query string parameter used to set the current HTTP verb. Default is `:_method`.
+
+
+| `:io.pedestal.http/allowed-origins`
+| N
+| map
+| Determines what origins are allowed for the `io.pedestal.http.cors/allow-origin` interceptor. If non-`nil`, this interceptor is added. Default is `nil`.
+
+
+| `:io.pedestal.http/not-found-interceptor`
+| N
+| `io.pedestal.interceptor/Interceptor`
+| Interceptor to use when returning a not found response. Default is the `io.pedestal.http/not-found` interceptor.
+
+
+| `:io.pedestal.http/mime-types`
+| N
+| map
+| Mime-types map used by the `io.pedestal.http.ring-middlewares/content-type` interceptor. Default is `{}`.
+
+| `:io.pedestal.http/enable-session`
+| N
+| map
+| A settings map to include the session `io.pedestal.http.ring-middlewares/session` interceptor. If non-`nil`, this interceptor is added. Default is `nil`.
+
+| `:io.pedestal.http/enable-csrf`
+| N
+| map
+| A settings map to include the `io.pedestal.http.csrf/anti-forgery` interceptor. This implies sessions are enabled. If non-`nil`, this interceptor is added. Default is `nil`.
+
+| `:io.pedestal.http/secure-headers`
+| N
+| map
+| A settings map for various secure headers. Keys are: [`:hsts-settings` `:frame-options-settings` `:content-type-settings` `:xss-protection-settings`] If non-`nil`, the `io.pedestal.http.secure-headers/secure-headers` interceptor is added.  Default is the default `secure-headers` settings.
+
+| `:io.pedestal.http/service-fn`
+| N
+| function
+| A function which can be used as an implementation of the `javax.servlet.Servlet.service` method.
+
+| `:io.pedestal.http/servlet`
+| N
+| `javax.servlet.Servlet`
+| Present if the servlet is running.
+
+| `:io.pedestal.http/start-fn`
+| N
+| function
+| Zero-arity function that starts the server.
+
+| `:io.pedestal.http/stop-fn`
+| N
+| function
+| Zero-arity function that stops the server.
+
+| `:io.pedestal.http/chain-provider`
+| N
+|
+|
