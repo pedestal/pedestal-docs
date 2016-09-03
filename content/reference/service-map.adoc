@@ -11,103 +11,106 @@ Michael Glaesemann
 The Service Map is a map that defines the logic of the service that will
 be created when the server starts.
 
+Pedestal may add other keys to this map for its own use. Other applications
+should treay any such keys and their values as implementation values details
+and their behaviour will remain unspecified.
+
+
 [cols="s,d,d,d", options="header", grid="rows"]
 |===
 | Key | Always present? | Type | Description
 
 | `:io.pedestal.http/routes`
 | Y
-| Sequence of maps, function, ExpandableRoutes
-| Something that satisfies the `io.pedestal.http.route/ExpandableRoutes` protocol, a function that returns routes when called, or a seq of route maps that defines a service's routes. If passing in a seq of route maps, it's recommended to use `io.pedestal.http.route/expand-routes`.
+| Function, something which satisfies `io.pedestal.http.route/ExpandableRoutes`, or sequence of maps
+| Something that satisfies the link:../api/pedestal.route/io.pedestal.http.route.html#var-ExpandableRoutes[`io.pedestal.http.route/ExpandableRoutes`] protocol, a function that returns routes when called, or a seq of route maps that defines a service's routes. If passing in a seq of route maps, it's recommended to use link:../api/pedestal.route/io.pedestal.http.route.html#var-expand-routes[`io.pedestal.http.route/expand-routes`] as the full route map contains some redundancies to make processing easier which `expand-routes` adds automatically.
 
 | `:io.pedestal.http/router`
 | N
 | Keyword or route constructor
-| The router implementation to to use. Can be `:linear-search`, `:map-tree` `:prefix-tree`, or a custom `io.pedestal.http.route.router/Router` constructor function. Defaults to `:map-tree`, which fallsback on `:prefix-tree`.
+| The router implementation to to use. Can be `:linear-search`, `:map-tree` `:prefix-tree`, or a custom link:../api/pedestal.route/io.pedestal.http.route.router.html#var-Router[`io.pedestal.http.route.router/Router`] constructor function. Defaults to `:map-tree`, which falls back to `:prefix-tree`.
 
 | `:io.pedestal.http/resource-path`
 | N
 | string
-| File path used as root by the `io.pedestal.http.ring-middlewares/resource` interceptor. If non-`nil`, the interceptor is added. Default is `nil`.
+| File path used as root by the link:../api/pedestal.service/io.pedestal.http.ring-middlewares.html#var-resource[`io.pedestal.http.ring-middlewares/resource`] interceptor. If non-`nil`, the interceptor is added. Default is `nil`.
 
 | `:io.pedestal.http/type`
 | Y
-| keyword
+| Keyword
 | Container for service. One of `:jetty`, `:immutant`, or `:tomcat`.
 
 | `:io.pedestal.http/join?`
 | N
-| boolean
-| If false, do not block the thread that starts the web server. Passed to the container.
+| Boolean
+| If `false`, do not block the thread that starts the web server. Passed to the container.
 
 
 | `:io.pedestal.http/host`
 | N
-| string
+| String
 | Hostname, e.g., "localhost". Passed to the container.
 
 | `:io.pedestal.http/container-options`
 | N
 | Map
-| Map of options to pass to the container.
+| Map of options to pass to the container. See link:index#_deployment_and_operations[Deployment and Operations] for container-specific options.
 
 | `:io.pedestal.http/port`
 | N
-| integer
-| Port for the running server.
+| Integer
+| Port for the running server. If `nil`, Pedestal defaults to port 80 and HTTP.
 
 | `:io.pedestal.http/interceptors`
 | N
-| vector
-| Vector of interceptors. No additional interceptors are added if this key is non-`nil`. The default interceptors are defined bythe service map options and `io.pedestal.http/default-interceptors`.
+| Vector
+| Vector of items that satisfy link:../api/pedestal.interceptor/io.pedestal.interceptor.html#var-IntoInterceptor[`io.pedestal.interceptor/IntoInterceptor`]. No additional interceptors are added if this key is non-`nil`. The default interceptors are defined by the service map options and link:../api/pedestal.service/io.pedestal.http.html#var-default-interceptors[`io.pedestal.http/default-interceptors`].
 
 | `:io.pedestal.http/file-path`
 | N
-| string
-| File path used as root by the `io.pedestal.http.ring-middlewares/file` interceptor. If non-`nil`, this interceptor is added. Default is `nil`.
+| String
+| File path used as root by the link:../api/pedestal.service/io.pedestal.http.ring-middlewares.html#var-file[`io.pedestal.http.ring-middlewares/file`] interceptor. If non-`nil`, this interceptor is added. Default is `nil`.
 
 | `:io.pedestal.http/method-param-name`
 | N
-| keyword
+| Keyword
 | Query string parameter used to set the current HTTP verb. Default is `:_method`.
 
 
 | `:io.pedestal.http/allowed-origins`
 | N
-| map
-| Determines what origins are allowed for the `io.pedestal.http.cors/allow-origin` interceptor. If non-`nil`, this interceptor is added. Default is `nil`.
-
+| Function, map, or sequence of strings
+| Determines which origins are allowed for the link:../api/pedestal.service/io.pedestal.http.cors.html#var-allow-origin[`io.pedestal.http.cors/allow-origin`] interceptor. If non-`nil`, this interceptor is added. Default is `nil`. Allowed values are a function of one argument that returns a truthy value when an origin is allowed; a map containing the following keys and values `:allowed-origins` sequence of strings or a function, `:creds` boolean indicating whether the client is allowed to send credentials, `:max-age` a long indicating the number of seconds a client should cache the response, and :methods, indicating accepted HTTP methods, defaulting to "GET, POST, PUT, DELETE, HEAD, PATCH, OPTIONS"; or a sequence of strings matching the the scheme, host and port (`scheme://host:port`) of allowed origins.
 
 | `:io.pedestal.http/not-found-interceptor`
 | N
 | `io.pedestal.interceptor/Interceptor`
-| Interceptor to use when returning a not found response. Default is the `io.pedestal.http/not-found` interceptor.
-
+| Interceptor to use when returning a 404 Not Found response. Default is the link:../api/pedestal.service/io.pedestal.http.html#var-not-found[`io.pedestal.http/not-found`] interceptor.
 
 | `:io.pedestal.http/mime-types`
 | N
-| map
-| Mime-types map used by the `io.pedestal.http.ring-middlewares/content-type` interceptor. Default is `{}`.
+| Map of String -> String
+| Mime-types map used by the link:../api/pedestal.service/io.pedestal.http.ring-middlewares.html#var-content-type[`io.pedestal.http.ring-middlewares/content-type`] interceptor. Default is `{}`.
 
 | `:io.pedestal.http/enable-session`
 | N
-| map
-| A settings map to include the session `io.pedestal.http.ring-middlewares/session` interceptor. If non-`nil`, this interceptor is added. Default is `nil`.
+| Map
+| A settings map to pass to the link:../api/pedestal.service/io.pedestal.http.ring-middlewares.html#var-session[`io.pedestal.http.ring-middlewares/session`] interceptor. Settings are session-store specific. If non-`nil`, this interceptor is added. Default is `nil`.
 
 | `:io.pedestal.http/enable-csrf`
 | N
-| map
-| A settings map to include the `io.pedestal.http.csrf/anti-forgery` interceptor. This implies sessions are enabled. If non-`nil`, this interceptor is added. Default is `nil`.
+| Map
+| A settings map to pass to the link:../api/pedestal.service/io.pedestal.http.csrf.html#var-anti-forgery[`io.pedestal.http.csrf/anti-forgery`] interceptor. This implies sessions are enabled. If non-`nil`, this interceptor is added. Keys are `:read-token`, a function that takes a request and returns an anti-forgery token or `nil` if the token does not exist, `:cookie-token`, a truthy value for CSRF double-submit cookies; `:error-response` a function which takes the response body and returns a 403 Not Authorized response; and `:error-handler`, a function which takes the context and returns the appropriate response. Only one of `:error-response` or `:error-handler` may be specified. Default is `nil`.
 
 | `:io.pedestal.http/secure-headers`
 | N
-| map
-| A settings map for various secure headers. Keys are: [`:hsts-settings` `:frame-options-settings` `:content-type-settings` `:xss-protection-settings`] If non-`nil`, the `io.pedestal.http.secure-headers/secure-headers` interceptor is added.  Default is the default `secure-headers` settings.
+| map of keywork -> string
+| A settings map for various secure headers. Keys are: [`:hsts-settings` `:frame-options-settings` `:content-type-settings` `:xss-protection-settings`] If non-`nil`, the link:../api/pedestal.service/io.pedestal.http.secure-headers.html#var-secure-headers[`io.pedestal.http.secure-headers/secure-headers`] interceptor is added.  Defaults are `{:htst-header "max-age=31536000; includeSubdomains", :frame-options-settings "DENY", :content-type-settings "nosniff", :xss-protection-settings "1; mode=block"}`.
 
 | `:io.pedestal.http/service-fn`
 | N
 | function
-| A function which can be used as an implementation of the `javax.servlet.Servlet.service` method.
+| A function which can be used as an implementation of the `javax.servlet.Servlet.service` method. The function is defined by link:../api/pedestal.service/io.pedestal.http.html#var-create-server[`io.pedestal.http/create-server`].
 
 | `:io.pedestal.http/servlet`
 | N
