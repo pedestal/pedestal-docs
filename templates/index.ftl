@@ -77,13 +77,13 @@
       <div class="w-row">
         <div class="w-col w-col-6">
           <div class="clj-home-feature-item">
-            <h4>Dynamic on the Front End...</h4>
+            <h4>Streaming</h4>
             <p>Pedestal lets you create dynamic applications with server-sent events and websockets. It uses Clojure's async capabilities and Java NIO.</p>
           </div>
         </div>
         <div class="w-col w-col-6">
           <div class="clj-home-feature-item">
-            <h4>...And on the Back End</h4>
+            <h4>Late Binding</h4>
             <p>Routers and Interceptors let Pedestal services apply different behavior based on each incoming request, rather than statically wrapping everything up during initialization.</p>
           </div>
         </div>
