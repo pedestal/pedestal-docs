@@ -32,6 +32,7 @@ mailing list]
 
 * https://github.com/mtnygard/todo-backend-pedestal[Todo Backend, Pedestal] - An implementation of the http://www.todobackend.com/[Todo Backend spec] using Pedestal and Datomic
 * https://github.com/grzm/component.pedestal[Component.Pedestal] - Michael Glaesemann's Pedestal wrapper for Stuart Sierra's Component library.
+* https://github.com/pointslope/elements[Point Slope Elements] - a collection of Components created by https://www.pointslope.com/[Point Slope], including a Pedestal wrapper.
 
 == Pedestal Templates
 
