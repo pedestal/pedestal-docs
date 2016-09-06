@@ -53,7 +53,7 @@ Generate the pages:
 
 Autogenerate the pages on change:
 
-* Install the command `entr`
+* Install the command `entr`. On Mac OS X with homebrew, `brew install entr`
 * `find content templates assets | entr jbake`
 
 
