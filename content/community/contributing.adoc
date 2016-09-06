@@ -81,9 +81,8 @@ Some of the usual stuff we'll want to know:
 ** "I manifested a being from the outer dimensions."
 * What did you expect to happen?
 ** "Hello, world."
-* How can you reprodice it?
-** "I created a new Pedestal service with the template, then
-      installed some code that Bob Howard gave me."
+* How can you reproduce it?
+** "I created a new Pedestal service with the template, then installed some code that Bob Howard gave me."
 * What operating system and version are you using?
 ** e.g. "OS X 10.8"
 * What version of Clojure, Java, and Leiningen or Boot are you using?
