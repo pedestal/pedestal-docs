@@ -8,4 +8,5 @@
 <div class="w-nav-link clj-section-nav-heading">Community</div>
 
 <a href="index" class="w-nav-link clj-section-nav-item-link">Resources</a>
-<a href="tutorials-guides-samples" class="w-nav-link clj-section-nav-item-link">Tutorials, Guides, and Samples</a>
+<a href="contributing" class="w-nav-link clj-section-nav-item-link">Contributing to Pedestal</a>
+<a href="using-snapshots" class="w-nav-link clj-section-nav-item-link">Using Snapshots</a>

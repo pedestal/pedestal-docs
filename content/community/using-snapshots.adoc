@@ -1,0 +1,33 @@
+= Using Snapshots
+Michael Nygard
+2016-08-05
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: community
+
+ifdef::env-github,env-browser[:outfilesuffix: .adoc]
+
+toc::[]
+
+== Using a Snapshot
+
+If you want to try out the latest and greatest, you'll need to build
+and install snapshot jars locally:
+
+    lein sub install
+
+== Checkout Instructions
+
+All the code is in one repository, with subprojects for the different
+modules. Just clone https://github.com/pedestal/pedestal and you are
+good to go.
+
+== Testing Pedestal Itself
+
+If you're working on Pedestal itself, you can either test everything:
+
+    lein sub test
+
+Or just run `lein test` in the directory for the module you are
+working on.
