@@ -1,1 +1,6 @@
+before_script:
+  - curl -O http://cdn.cognitect.com/clojure.org/jbake-2.5.0-SNAPSHOT-bin.zip
+  - unzip -o jbake-2.5.0-SNAPSHOT-bin.zip
+  - export PATH=$PATH:$PWD/jbake-2.5.0-SNAPSHOT/bin
+
 script: ./script/deploy-prod.sh
