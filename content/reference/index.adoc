@@ -29,6 +29,8 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 * Cookie Management
 * HTTP/2
 * TLS, ALPN, Certificates
+* Streaming
+* link:server-sent-events[Server-Sent Events]
 
 === Routing and Linking
 
@@ -50,8 +52,8 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 
 * Fast-Path Resource Handling
 * Async Communication
-* Server-Sent Events
 * Websockets
+* Interceptors Compared to Middleware
 
 == Securing a Pedestal Application
 
