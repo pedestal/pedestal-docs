@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /search
+Disallow: /page/
+Disallow: /wiki/
+Disallow: /file/
+Disallow: /space/
+Disallow: /zone.html
+Sitemap: http://pedestal.io/sitemap.xml

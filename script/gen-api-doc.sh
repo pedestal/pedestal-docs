@@ -33,7 +33,7 @@ do
         exit -1
     fi
 
-    moddir=${D}/output/api/pedestal.${m}
+    moddir=${D}/api/pedestal.${m}
 
     if [ -d $moddir ] ; then
         rm $moddir/*.html
