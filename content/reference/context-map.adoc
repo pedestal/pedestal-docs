@@ -21,17 +21,22 @@ regarded as an implementation detail subject to change.
 |===
 | Key | Type | Description
 
-| :io.pedestal.interceptor.chain/queue
-| Stack of interceptors
-| This is the interceptor stack that the chain provider uses. You can inspect this for debugging purposes, but to manipulate it you should call `io.pedestal.interceptor.chain/enqueue`, `io.pedestal.interceptor.chain/terminate`, or `io.pedestal.interceptor.chain/terminate-when`.
+| :bindings
+| map of var -> value
+| As accepted by `clojure.core/with-bindings`. Prior to delegating execution to any interceptor, the interceptor framework will ensure that the bindings specified in this map are installed using `clojure.core/with-bindings`. If this map is altered and included in the returned context from an interceptor, the new bindings in the map will be installed as thread local bindings prior to another interceptor's execution.
+
+| :io.pedestal.interceptor.chain/error
+| Exception
+| When error processing is invoked, this value is the most recent exception that triggered error handling.
 
 | :io.pedestal.interceptor.chain/execution-id
 | Opaque
 | This identifier is set uniquely when the pipeline is invoked. It is useful for correlating log files. Do not assume anything about the structure or type of this identifier.
 
-| :io.pedestal.interceptor.chain/error
-| Exception
-| When error processing is invoked, this value is the most recent exception that triggered error handling.
+| :io.pedestal.interceptor.chain/queue
+| Stack of interceptors
+| This is the interceptor stack that the chain provider uses. You can inspect this for debugging purposes, but to manipulate it you should call `io.pedestal.interceptor.chain/enqueue`, `io.pedestal.interceptor.chain/terminate`, or `io.pedestal.interceptor.chain/terminate-when`.
+
 |===
 
 == As Applied to HTTP
