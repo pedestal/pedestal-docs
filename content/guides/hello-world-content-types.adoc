@@ -8,6 +8,8 @@ Michael Nygard
 
 toc::[]
 
+_by {author}_, _{revdate}_
+
 == Welcome Back
 
 In the first two parts of this trail, we made a link:hello-world[very

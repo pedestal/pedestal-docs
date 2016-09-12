@@ -1,12 +1,14 @@
 = Crash Course
-Michael Nygard
-2016-08-18
+TBD
+2099-01-01
 :jbake-type: page
 :toc: macro
 :icons: font
 :section: guides
 
 toc::[]
+
+_by {author}_, _{revdate}_
 
 == Placeholder
 

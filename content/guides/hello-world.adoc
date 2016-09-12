@@ -8,6 +8,8 @@ Michael Nygard
 
 toc::[]
 
+_by {author}_, _{revdate}_
+
 == Welcome
 
 We're glad you've decided to give Pedestal a try. We think it's pretty

@@ -1,12 +1,14 @@
 = What is an Interceptor?
 TBD
-2016-08-22
+2099-01-01
 :jbake-type: page
 :toc: macro
 :icons: font
 :section: guides
 
 toc::[]
+
+_by {author}_, _{revdate}_
 
 == Placeholder
 

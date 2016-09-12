@@ -8,6 +8,8 @@ Michael Nygard
 
 toc::[]
 
+_by {author}_, _{revdate}_
+
 == Welcome Back
 
 This is the fourth part in the link:index#_getting_started[Getting
