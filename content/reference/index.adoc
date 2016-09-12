@@ -54,6 +54,7 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 * Async Communication
 * Websockets
 * Interceptors Compared to Middleware
+* HTTP Without Servlets
 
 == Securing a Pedestal Application
 
