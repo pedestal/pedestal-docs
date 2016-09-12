@@ -1,13 +1,13 @@
-;; tag::ns[]
+ ;; tag::ns[]
 (ns routes)
-;; end::ns[]
+ ;; end::ns[]
 
-;; tag::response[]
+ ;; tag::response[]
 (defn respond-hello [request]
   {:status 200 :body "Hello, world!"})
-;; end::response[]
+ ;; end::response[]
 
-;; tag::routes[]
+ ;; tag::routes[]
 (def routes
   #{["/greet" :get respond-hello :route-name :greet]})
-;; end::routes[]
+ ;; end::routes[]

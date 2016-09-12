@@ -1,4 +1,4 @@
-;; tag::ns[]
+                                                                 ;; tag::ns[]
 (ns system-test
   (:require [io.pedestal.http :as http]
             [io.pedestal.http.route :as route]
@@ -8,19 +8,20 @@
             [routes]
             [system]
             [pedestal]))
-;; end::ns[]
+                                                                 ;; end::ns[]
 
-;; tag::url-for[]
-(def url-for (route/url-for-routes (route/expand-routes routes/routes)))
-;; end::url-for[]
+                                                                 ;; tag::url-for[]
+(def url-for (route/url-for-routes
+              (route/expand-routes routes/routes)))
+                                                                 ;; end::url-for[]
 
-;; tag::service-fn[]
+                                                                 ;; tag::service-fn[]
 (defn service-fn
   [system]
   (get-in system [:pedestal :service ::http/service-fn]))
-;; end::service-fn[]
+                                                                 ;; end::service-fn[]
 
-;; tag::with-system[]
+                                                                 ;; tag::with-system[]
 (defmacro with-system
   [[bound-var binding-expr] & body]
   `(let [~bound-var (component/start ~binding-expr)]
@@ -28,16 +29,16 @@
        ~@body
        (finally
          (component/stop ~bound-var)))))
-;; end::with-system[]
+                                                                 ;; end::with-system[]
 
-;; tag::test-system[]
+                                                                 ;; tag::test-system[]
 (defn test-system
   []
-  (system/app :pedestal-start-fn identity  ;; <1>
-              :pedestal-stop-fn identity)) ;; <2>
-;; end::test-system[]
+  (system/app :pedestal-start-fn identity                        ;; <1>
+              :pedestal-stop-fn identity))                       ;; <2>
+                                                                 ;; end::test-system[]
 
-;; tag::test[]
+                                                                 ;; tag::test[]
 (deftest greeting-test
   (with-system [sut (test-system)]                               ;; <1>
     (let [service               (service-fn sut)                 ;; <2>
@@ -46,4 +47,4 @@
                                               (url-for :greet))] ;; <3>
       (is (= 200 status))                                        ;; <4>
       (is (= "Hello, world!" body)))))                           ;; <5>
-;; end::test[]
+                                                                 ;; end::test[]

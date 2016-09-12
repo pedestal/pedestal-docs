@@ -9,6 +9,7 @@ Daniel De Aguiar
 ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 
 toc::[]
+_by {author}_, _{revdate}_
 
 == What You Will Learn
 After reading this guide you will be able to:
