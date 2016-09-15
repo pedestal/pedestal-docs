@@ -32,11 +32,18 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 * Streaming
 * link:server-sent-events[Server-Sent Events]
 
-=== Routing and Linking
+== Routing and Linking
 
+* link:routing-quick-reference[Quick Reference]
+* link:about-routes[About Routes]
+** link:table-syntax[Table Syntax]
+** link:terse-syntax[Terse Syntax]
+** link:full-syntax[Full Syntax]
+** link:debugging-routes[Debugging Routes]
 * Using the Built-in Routers
+** Prefix Tree Router
+** Linear Search Router
 * Writing Your Own Router
-* link:defining-routes[Defining Routes]
 * link:parameters[Parameters]
 * Generating Links
 * Routing Constraints
