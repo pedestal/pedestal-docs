@@ -38,7 +38,7 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 * link:about-routes[About Routes]
 ** link:table-syntax[Table Syntax]
 ** link:terse-syntax[Terse Syntax]
-** link:full-syntax[Full Syntax]
+** link:verbose-syntax[Verbose Syntax]
 ** link:debugging-routes[Debugging Routes]
 * Using the Built-in Routers
 ** Prefix Tree Router

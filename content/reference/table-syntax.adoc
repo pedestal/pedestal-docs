@@ -1,0 +1,116 @@
+= Table Syntax
+Michael Nygard
+2016-09-15
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: reference
+
+toc::[]
+
+== Quick Reference
+
+=== Route Vector Format
+
+1. Path string
+2. Verb. One of :any, :get, :put, :post, :delete, :patch, :options, :head
+3. Handler or vector of interceptors
+4. (Optional) Route name clause
+5. (Optional) Constraint clause
+
+=== Syntax for link:../api/pedestal.route/io.pedestal.http.route.definition.table.html#var-table-routes[`table-routes`]
+
+[source,clojure]
+----
+(ns myapp.service
+  (:require [io.pedestal.http.route.definition.table :as table]))
+
+(def application-routes
+  (table/table-routes
+    {:host "example.com" :scheme :https}
+    [["/user"          :get user-search-form]
+     ["/user/:user-id" :get view-user        :constraints {:user-id #"[0-9]+"}]
+     ,,,
+     ]))
+----
+
+=== Syntax for link:../api/pedestal.route/io.pedestal.http.route.html#var-expand-routes[`expand-routes`]
+
+[source,clojure]
+----
+(ns myapp.service
+  (:require [io.pedestal.http.route :as route]))
+
+(def application-routes
+  (route/expand-routes
+    #{{:host "example.com" :scheme :https}
+      ["/user"          :get user-search-form]
+      ["/user/:user-id" :get view-user        :constraints {:user-id #"[0-9]+"}]
+      ,,,
+      }))
+----
+
+== Detailed Reference
+
+=== Path string
+
+The path string must:
+
+- Start with a slash ("/")
+- Consist of zero or more path segments separated by slashes.
+
+Each path segment is one of:
+
+1. A string literal
+2. A colon (":") followed by a legal Clojure identifier name. This is a path parameter.
+3. An asterisk ("*") followed by a legal Clojure identifier name. This is a wildcard path.
+
+When routing a request, a path parameter will match any characters
+other than a slash. The matched string will be bound to the request by
+the path parameter name from the route.
+
+For example, using the route `/users/:id/orders/:order-id`, the following request URLs would be treated as:
+
+[cols="2,1,5"]
+|===
+| URL | Match? | Path params
+
+| /users/abcdef/orders
+| No
+|
+
+| /users/abcdef/orders/12345
+| Yes
+| `{:id "abcdef" :order-id "12345"}`
+
+| /users/123545/orders/From%20Strings
+| Yes
+| `{:id "123545" :order-id "From Strings"}`
+|===
+
+All path parameter values are strings.
+
+=== HTTP Verb
+
+The verb must be one of the keywords in `#{:any, :get, :put, :post, :delete, :patch, :options, :head}`.
+
+`:any` is a wildcard verb. During request routing, `:any` will match
+all requests.
+
+=== Handler or Interceptors
+
+The "handler position" be anything that satisfies the link:../api/pedestal.interceptor/io.pedestal.interceptor.html#var-IntoInterceptor[`IntoInterceptor`] protocol. This includes:
+
+- Function value
+- Symbol
+- Var
+- Map
+- List
+
+=== Route Name Clause
+
+A route name clause is the keyword `:route-name` followed by a keyword. Route names must be unique.
+
+=== Constraint Clause
+
+A constraint clause is the keyword `:constraints` followed by a map.
