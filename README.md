@@ -1,4 +1,4 @@
-# Pedestal Docs
+# Pedestal Docs [![Build Status](https://travis-ci.org/pedestal/pedestal-docs.svg?branch=master)](https://travis-ci.org/pedestal/pedestal-docs)
 
 This is an open-source repository of documentation for the
 [Pedestal](https://github.com/pedestal/pedestal) libraries.
