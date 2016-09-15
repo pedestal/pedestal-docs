@@ -260,19 +260,22 @@ one of the built in routers:
 - `:linear-search`
 
 |===
-| Router | Characteristics | Limitations
+| Router | Performance | Scaling in # Routes | Limitations
 
 |Map Tree (default after 0.5.2)
-| Very high performance
+| Very fast
+| Constant
 | Applies when all routes are static. Falls back to prefix tree if any routes have path parameters or wildcards.
 
 |Prefix Tree (default prior to 0.5.2)
 | High performance, space efficient
+| Log32(N)
 | Wildcard routes always win over explicit paths in the same subtree. E.g., `/path/:wild` will always match, even if `/path/user` is defined
 
 | Linear Search
-| Reduced performance, precise precedence
-| Routes are checked in order, O(N) performance
+| Lowest performance
+| O(N)
+| Routes are checked in order. Precedence is precise.
 |===
 
 === Custom Router
