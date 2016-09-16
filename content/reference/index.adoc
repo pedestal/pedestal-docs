@@ -8,8 +8,9 @@ Cognitect
 
 ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 
-== Parts of Pedestal
+== Pedestal Architecture
 
+* link:architecture-overview[Overview]
 * link:interceptors[Interceptors]
 * Chain providers
 * Key Protocols
