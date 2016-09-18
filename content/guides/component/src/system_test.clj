@@ -31,16 +31,10 @@
          (component/stop ~bound-var)))))
                                                                  ;; end::with-system[]
 
-                                                                 ;; tag::test-system[]
-(defn test-system
-  []
-  (system/app :pedestal-start-fn identity                        ;; <1>
-              :pedestal-stop-fn identity))                       ;; <2>
-                                                                 ;; end::test-system[]
 
                                                                  ;; tag::test[]
 (deftest greeting-test
-  (with-system [sut (test-system)]                               ;; <1>
+  (with-system [sut (system/system :test)]                       ;; <1>
     (let [service               (service-fn sut)                 ;; <2>
           {:keys [status body]} (response-for service
                                               :get

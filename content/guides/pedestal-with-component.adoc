@@ -42,21 +42,36 @@ wire it into a Component system map. We'll then proceed to testing our
 service.
 
 == Before We Begin
-What responsibilities do we want the Pedestal component to have? For
-the purposes of this guide, it should only be responsible for the
-initialization of the Pedestal Provider and starting of the
-server. It's configuration, the Pedestal service map, should be a
-component dependency and should not be managed by the Pedestal
-component.
+Let's consider our component's responsibilities since they will
+drive it's design.
 
-The Pedestal component should also be amiable to testing through
-Pedestal's testing facilities. This should only require a Pedestal
-service-fn to be available.
+Starting a server is an easy one. Without that we don't have a service.
+
+Provider initialization is also necessary but may be less apparent
+since Pedestal's bootstrapping function,
+`io.pedestal.http/create-server`, tends to buffer client code from
+that.
+
+A Pedestal service function (`:io.pedestal.http/service-fn`) will be
+exposed upon component initialization. This makes the component
+amenable to testing through Pedestal's testing facilities.
+
+That's really all we need to get started. Notice how Route or
+interceptor management was left out. Although it may be tempting to
+include them as component responsibilities, the management of routes
+or interceptors is more of an application-specific concern. This may
+be familiar to you if you studied the way the Pedestal _lein template_
+lays out a Pedestal service - configuration is kept separate from
+service plumbing. Since Pedestal service configuration is captured via a
+link::service-map[Service Map], we'll make our Pedestal component
+dependent on it as well.
+
+Now that we have a better idea of what we want our component to do,
+let's go build it!
 
 == A Simple Pedestal Component
 
-Let's start with the Pedestal component. Create a `src` directory with
-a `pedestal.clj` file.
+Create a `src` directory with a `pedestal.clj` file.
 
 [source, clojure]
 .src/pedestal.clj
@@ -75,63 +90,72 @@ Let's start implementing the component.
 include::component/src/pedestal.clj[tags=component-init]
 ----
 <1> Create a _Pedestal_ record. This record will contain a number of
- fields, the first field is _service-map_ which will hold the Pedestal
+ fields, the first field is _service-map_, which will hold the Pedestal
  service map component dependency.
-<2> The next field is _start-fn_, this will be passed in through the
- component constructor and will be used to start the Pedestal
- server. This function must accept one parameter, the Pedestal service
- map, and return a Pedestal service map.
-<3> The next field is _stop-fn_, like _start-fn_, the stop function
- will be passed in through the component constructor. It's responsible
- for stopping the Pedestal server. This function must accept one
- parameter, the Pedestal service map, and return a Pedestal service map.
-<4> The _service_ field is created as part of the component
+<3> The _service_ field is created as part of the component
  initialization process.
-<2> Include the _component/Lifecycle_ protocol since we'll be
+<4> Include the _component/Lifecycle_ protocol since we'll be
 implementing it's methods next.
 
-We'll first implement the `start` method.
+We'll first implement the `start` method. It will contain our
+component initialization code.
 ----
 include::component/src/pedestal.clj[tags=component-start]
 ----
-<1> The _start_ method contains our component initialization code.
-<2> Our component's initialization process will be idempotent. If
-the _service_ field has already been set we'll return the current
-component.
-<3> The Pedestal service map contains Pedestal's configuration. It is
-a component dependency and will be available during component
-initialization.
-<4> First we'll call the `create-server` function. This will
-initialize the service provider and configure the default
-interceptors.
-<5> Invoke the start function to start the server. As you'll see
-later, this function can simply be `identity` for testing purposes.
-<6> Assoc the initialized service map onto the component as
-`:service`. This is the only state the component needs to manage.
+<1> We're going to use
+`link:http://clojuredocs.org/clojure.core/cond-%3E[cond->]` to
+conditionally thread our service map through a number of
+expressions. Each expression returns a modified service map.
+<2> We'll always create a server. This will initialize the service
+provider and configure the default interceptors.
+<3> We'll _only_ start the server if we're not working with a test
+system. More on `test?` in a minute.
+<4> We'll always initialize the component with it's state, an
+initialized service map.
+
+Once our component is initialized, we should not be able to
+reinitialize it by invoking it's `start` method. Therefore, if the
+`service` field is set, we'll just return it. This makes our component
+initialization code link:https://en.wikipedia.org/wiki/Idempotence[idempotent].
 
 If you've read some of the other guides, this implementation should
 look somewhat familiar. It's a combination of the server-specific code
-used in the link:hello-world[Hello World guide].
+used in the link:hello-world[Hello World] guide.
 
-Now let's implement the `stop` method.
+****
+Before we go on, remember the `test?` function? It's idiomatic in
+Pedestal services to include an `:env` key in the service map to communicate the environment of the service. This
+currently does not affect the behavior of the service but it's a
+useful marker. Our component will leverage this idiom and will not
+start/stop the server if the service is configured for the test
+environment. The implementation is included below.
+----
+include::component/src/pedestal.clj[tags=test?]
+----
+****
+
+Now let's implement the `stop` method. It will contain our component
+teardown code.
 ----
 include::component/src/pedestal.clj[tags=component-stop]
 ----
-<1> The `stop` method contains our component teardown code.
-<2> Like `start`, `stop` will be idempotent. If the component has
-been initialized, we'll pass the initialized service map to the stop
-function, otherwise we won't.
-<3> Return the component with the _service_ field set to `nil`. This
-is preferred over `dissoc` since `dissoc` would return a plain map
-instead of a _Pedestal_ record.
+<1> Like `start`, `stop` will be idempotent. If the component has been
+initialized and we're not working with the test environment, we'll
+pass the initialized service map to the stop function.
+<2> Return the component with the _service_ field set to `nil`. You
+can't use `dissoc` here since it would return a plain map, breaking
+the component.
 
 Now that we've got our component, we need a way to
 initialize it. Let's tackle that next.
 ----
 include::component/src/pedestal.clj[tags=constructor]
 ----
-Our constructor initializes the Pedestal component with start and
-stop functions. As you'll see later. This is useful for testing purposes.
+Our component constructor is just a wrapper around the map-specific
+record constructor created by `defrecord`. The `defrecord` macro
+creates a number of constructors and any of them could be used here. I
+like to create my own wrapper around them since I typically perform
+additional setup during component construction.
 
 Now that we've got our Pedestal component, let's proceed to wiring it
 into a full-fledged system.
@@ -144,24 +168,21 @@ handlers.
 .src/routes.clj
 
 ----
-include::component/src/routes.clj[tags=ns]
-----
-The _routes_ namespace has no dependencies.
-
-Now let's implement a simple handler.
-----
 include::component/src/routes.clj[tags=response]
 ----
-The `respond-hello` handler may look familiar. You first saw it in
-the link:hello-world[Hello World guide]. It returns a simple, static
-response.
+The `respond-hello` handler returns a simple static response. It may
+look familiar since it made it's first appearance in the in
+the link:hello-world[Hello World] guide.
 
 Finally, let's implement the routes.
 ----
 include::component/src/routes.clj[tags=routes]
 ----
-We'll implement a single route, _/greet_, using Pedestal's Tabular
-Routing syntax.
+We'll implement a single route, _/greet_, using Pedestal's tabular
+routing syntax. In this case we're using `def` to create the var
+`routes`. In some programs you may define a function, via `defn`, to create your
+routes instead. This decision depends on whether route generation
+needs to be parameterized. In this case, it does not.
 
 Now that we've got our Pedestal Component and routes, we can wire
 them up in a Component system map.
@@ -182,26 +203,25 @@ create the Component system map.
 <4> Require `pedestal` for the Pedestal component.
 <5> Require `routes` for the application routes.
 
-Let's create a system initialization function named _app_.
+Let's create a system initialization function named _system_.
 ----
 include::component/src/system.clj[tags=app]
 ----
-<1> It will have two arities to support the option of passing in
-start/stop functions.
+<1> It will take the system environment as a single parameter. We'll
+use keywords like `:prod` or `:test` for this.
 <2> The system map will contain a `:service-map` key who's value is
 a Pedestal service map.
-<3> We'll configure the service map with our app-specific routes.
-<4> The system map will contain a `:pedestal` key who's value is an
+<3> The system map's `:env` key will map to our environment keyword.
+<4> We'll configure the service map with our app-specific routes.
+<5> The system map will contain a `:pedestal` key who's value is an
 uninitialized Pedestal component.
-<5> Pass the start/stop parameters to the Pedestal component
-constructor.
 <6> The Pedestal component depends on a service map, so will capture
 that dependency with `component/using`.
 
 == Running It
 We'll use link:http://boot-clj.com/:[boot-clj] to run our
 example. This should be familiar to you if you read through the
-link:hello-world[Hello World guide].
+link:hello-world[Hello World] guide.
 
 Let's create a `build.boot` file so that we can fire up a boot repl.
 
@@ -216,8 +236,6 @@ From the project's root directory, fire up a repl, and start the system.
 ----
 $ boot repl
 ...
-boot.user=> (require 'reloaded.repl)
-nil
 boot.user=> (require 'system)
 ...
 boot.user=> (reloaded.repl/go)
@@ -234,7 +252,7 @@ You can now interact with the started service.
  $ curl -i http://localhost:8890/greet
 
 HTTP/1.1 200 OK
-Date: Sun, 11 Sep 2016 23:16:24 GMT
+Date: Sun, 18 Sep 2016 12:03:05 GMT
 Strict-Transport-Security: max-age=31536000; includeSubdomains
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff
@@ -246,9 +264,7 @@ Server: Jetty(9.3.8.v20160314)
 Hello, world!%
 ----
 
-To stop the system, invoke the `reloaded.repl/stop` function from the
-repl.
-
+Let's stop the system.
 ----
 boot.user=> (reloaded.repl/stop)
 [nREPL-worker-3] INFO org.eclipse.jetty.server.ServerConnector - Stopped ServerConnector@2ce2b722{HTTP/1.1,[http/1.1, h2c, h2c-17, h2c-16, h2c-15, h2c-14]}{0.0.0.0:8890}
@@ -256,9 +272,52 @@ boot.user=> (reloaded.repl/stop)
 :stopped
 ----
 
+Our service is no longer available.
+----
+❯ curl -i http://localhost:8890/greet                                                                                          [08:01:57]
+curl: (7) Failed to connect to localhost port 8890: Connection refused
+----
+
+Let's start it again!
+----
+boot.user=> (reloaded.repl/start)
+[nREPL-worker-5] INFO org.eclipse.jetty.server.Server - jetty-9.3.8.v20160314
+[nREPL-worker-5] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@5938a5ec{/,null,AVAILABLE}
+[nREPL-worker-5] INFO org.eclipse.jetty.server.ServerConnector - Started ServerConnector@626b95fc{HTTP/1.1,[http/1.1, h2c, h2c-17, h2c-16, h2c-15, h2c-14]}{0.0.0.0:8890}
+[nREPL-worker-5] INFO org.eclipse.jetty.server.Server - Started @1297689ms
+:started
+----
+
+It's available again.
+----
+ ❯ curl -i http://localhost:8890/greet                                                                                          [08:04:05]
+HTTP/1.1 200 OK
+Date: Sun, 18 Sep 2016 12:04:05 GMT
+Strict-Transport-Security: max-age=31536000; includeSubdomains
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Content-Type: text/plain
+Transfer-Encoding: chunked
+Server: Jetty(9.3.8.v20160314)
+
+Hello, world!%
+----
+
+The link:https://github.com/stuartsierra/component[Component]
+design pattern ensures that the system is in the correct state no
+matter how many times we do this.
+
+
 == Testing
-Let's move on to testing our new service. First create a
-`system_test.clj` file in the `src` directory.
+Let's move on to testing our new service. Recall that our service contains one
+route, `/greet`. We'd like to verify that it returns the proper
+greeting. Before we can jump in and do that, though, we need to create
+some helpers. Some are just useful in general, while others are
+specific to our component implementation. Don't worry, you won't have
+to write to much code. Let's do it!
+
+First create a `system_test.clj` file in the `src` directory.
 
 [source, clojure]
 .src/system_test.clj
@@ -269,9 +328,11 @@ include::component/src/system_test.clj[tags=ns]
 The _system-test_ namespace requires all the dependencies
 necessary for testing.
 
-Before we implement our test, we'll create some test helpers.
+Now let's get to those helpers.
 
-The `url-for` helper allows us to refer to routes by _route-name_.
+The `url-for` helper allows us to refer to routes by
+_route-name_. I find this to be a very useful helper and use it in
+every project.
 ----
 include::component/src/system_test.clj[tags=url-for]
 ----
@@ -279,31 +340,27 @@ We need to expand the routes before invoking Pedestal's
 `route/url-for-routes` function.
 
 The `service-fn` helper extracts the Pedestal `::http/service-fn` from
-the started system.
+the started system. This helper keeps allows us to keep focus on our
+tests rather than test initialization.
 ----
 include::component/src/system_test.clj[tags=service-fn]
 ----
 
-The `with-system` macro allows us to start/stop systems between test executions.
+The `with-system` macro allows us to start/stop systems between test
+executions. We'll model it's design on macros like `with-open` and
+`with-redefs` so that it's shape and usage is familiar.
 ----
 include::component/src/system_test.clj[tags=with-system]
 ----
-
-We'll also need a test system constructor because we don't want to start an
-http server and bind to a port.
-----
-include::component/src/system_test.clj[tags=test-system]
-----
-<1> Create the Pedestal Provider (Jetty Servlet in this case) but
-don't start the server.
-<2> Since we didn't start the server, there's nothing to stop.
 
 Now that we've got our helpers implemented, let's move on to our
 test. Create a test named `greeting-test`.
 ----
 include::component/src/system_test.clj[tags=test]
 ----
-<1> `sut` will be bound to the started system by `with-system`.
+<1> `sut` (for _system under test_) will be bound to the started
+system by `with-system`. Notice how `:test` is passed as the system
+environment key.
 <2> Use the `service-fn` helper to extract the Pedestal service
 function from the started system.
 <3> Use Pedestal's `response-for` test helper to make a test request
@@ -337,6 +394,8 @@ For reference, here are the complete contents of all the files.
 .src/pedestal.clj
 ----
 include::component/src/pedestal.clj[tags=ns]
+
+include::component/src/pedestal.clj[tags=test?]
 
 include::component/src/pedestal.clj[tags=component-init]
 include::component/src/pedestal.clj[tags=component-start]
@@ -381,8 +440,6 @@ include::component/src/system_test.clj[tags=url-for]
 include::component/src/system_test.clj[tags=service-fn]
 
 include::component/src/system_test.clj[tags=with-system]
-
-include::component/src/system_test.clj[tags=test-system]
 
 include::component/src/system_test.clj[tags=test]
 ----

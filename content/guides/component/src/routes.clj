@@ -1,8 +1,6 @@
- ;; tag::ns[]
-(ns routes)
- ;; end::ns[]
-
  ;; tag::response[]
+(ns routes)
+
 (defn respond-hello [request]
   {:status 200 :body "Hello, world!"})
  ;; end::response[]

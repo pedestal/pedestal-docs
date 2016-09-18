@@ -1,36 +1,37 @@
-                                                       ;; tag::ns[]
-(ns pedestal                                           ;; <1>
-  (:require [com.stuartsierra.component :as component] ;; <2>
-            [io.pedestal.http :as http]))              ;; <3>
-                                                       ;; end::ns[]
-
-                                                       ;; tag::component-init[]
-(defrecord Pedestal [service-map                       ;; <1>
-                     start-fn                          ;; <2>
-                     stop-fn                           ;; <3>
-                     service]                          ;; <4>
-  component/Lifecycle                                  ;; <5>
-                                                       ;; end::component-init[]
-                                                       ;; tag::component-start[]
-  (start [this]                                        ;; <1>
-    (if service                                        ;; <2>
+                                                                      ;; tag::ns[]
+(ns pedestal                                                          ;; <1>
+  (:require [com.stuartsierra.component :as component]                ;; <2>
+            [io.pedestal.http :as http]))                             ;; <3>
+                                                                      ;; end::ns[]
+                                                                      ;; tag::test?[]
+(defn test?
+  [service-map]
+  (= :test (:env service-map)))
+                                                                      ;; end::test?[]
+                                                                      ;; tag::component-init[]
+(defrecord Pedestal [service-map                                      ;; <1>
+                     service]                                         ;; <2>
+  component/Lifecycle                                                 ;; <3>
+                                                                      ;; end::component-init[]
+                                                                      ;; tag::component-start[]
+  (start [this]
+    (if service
       this
-      (-> service-map                                  ;; <3>
-          (http/create-server)                         ;; <4>
-          (start-fn)                                   ;; <5>
-          ((partial assoc this :service)))))           ;; <6>
-                                                       ;; end::component-start[]
+      (cond-> service-map                                             ;; <1>
+        true                      http/create-server                  ;; <2>
+        (not (test? service-map)) http/start                          ;; <3>
+        true                      ((partial assoc this :service)))))  ;; <4>
+                                                                      ;; end::component-start[]
 
-                                                       ;; tag::component-stop[]
-  (stop [this]                                         ;; <1>
-    (when service                                      ;; <2>
-      (stop-fn service))
-    (assoc this :service nil)))                        ;; <3>
-                                                       ;; end::component-stop[]
+                                                                      ;; tag::component-stop[]
+  (stop [this]
+    (when (and service (not (test? service-map)))                     ;; <1>
+      (http/stop service))
+    (assoc this :service nil)))                                       ;; <2>
+                                                                      ;; end::component-stop[]
 
-                                                       ;; tag::constructor[]
+                                                                      ;; tag::constructor[]
 (defn new-pedestal
-  [start-fn stop-fn]
-  (map->Pedestal {:start-fn start-fn
-                  :stop-fn  stop-fn}))
-                                                       ;; end::constructor[]
+  []
+  (map->Pedestal {}))
+                                                                      ;; end::constructor[]
