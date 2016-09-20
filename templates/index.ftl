@@ -37,7 +37,7 @@
                   simple and add that if you need it.
                 </li>
                 <li>
-                  <b>Pedestal makes is easy to create "live"
+                  <b>Pedestal makes it easy to create "live"
                   applications.</b> Applications must respond with
                   immediate feedback even while some back-end
                   communication goes on. Pedestal makes it easy to
