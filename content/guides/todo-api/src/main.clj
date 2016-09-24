@@ -46,10 +46,10 @@
   {:name :list-create
    :enter
    (fn [context]
-     (let [nm    (get-in context [:request :query-params :name] "Unnamed List")         ;; <1>
-           list  (make-list nm)
-           db-id (str (gensym "l"))]                                                    ;; <2>
-       (assoc context :tx-data [assoc (gensym) list])))})                               ;; <3>
+     (let [nm       (get-in context [:request :query-params :name] "Unnamed List")      ;; <1>
+           new-list (make-list nm)
+           db-id    (str (gensym "l"))]                                                 ;; <2>
+       (assoc context :tx-data [assoc db-id new-list])))})                              ;; <3>
                                                                                         ;; end::list_create[]
 
                                                                                         ;; tag::routes[]
