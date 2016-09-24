@@ -469,7 +469,7 @@ include::todo-api/src/main.clj[tags=list_create_with_response]
 And the results:
 
 ----
-main> (test-request :post "/todo?name=A")
+boot.user> (main/test-request :post "/todo?name=A")
 {:status 201, :body "{:name \"A\", :items []}", :headers {"Strict-Transport-Security" "max-age=31536000; includeSubdomains", "X-Frame-Options" "DENY", "X-Content-Type-Options" "nosniff", "X-XSS-Protection" "1; mode=block", "Location" "/todo/l30488", "Content-Type" "application/edn"}}
 ----
 
