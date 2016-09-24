@@ -251,7 +251,7 @@ interceptor, so the whole request is nested inside the response. If we
 omit the response body, it isn't quite so hard to read.
 
 ----
-boot.user=> (dissoc (test/response-for (:io.pedestal.http/service-fn server) :get "/todo") :body)
+boot.user=> (dissoc (test/response-for (:io.pedestal.http/service-fn @main/server) :get "/todo") :body)
 {:status 200, :headers {"Strict-Transport-Security" "max-age=31536000; includeSubdomains", "X-Frame-Options" "DENY", "X-Content-Type-Options" "nosniff", "X-XSS-Protection" "1; mode=block", "Content-Type" "application/edn"}}
 boot.user=>
 ----
@@ -261,9 +261,9 @@ too bad. What happens if we ask for a route that doesn't exist? Or a
 verb that isn't supported on a real route?
 
 ----
-boot.user=> (dissoc (test/response-for (:io.pedestal.http/service-fn server) :get "/no-such-route") :body)
+boot.user=> (dissoc (test/response-for (:io.pedestal.http/service-fn @main/server) :get "/no-such-route") :body)
 {:status 404, :headers {"Content-Type" "text/plain"}}
-boot.user=> (dissoc (test/response-for (:io.pedestal.http/service-fn server) :delete "/todo") :body)
+boot.user=> (dissoc (test/response-for (:io.pedestal.http/service-fn @main/server) :delete "/todo") :body)
 {:status 404, :headers {"Content-Type" "text/plain"}}
 boot.user=>
 ----
@@ -284,7 +284,7 @@ to us. This is one of the ways we can make sure that routes do what we
 think they are going to do, before we write the real logic.
 
 ----
-boot.user> (test/response-for (:io.pedestal.http/service-fn server) :get "/todo/abcdef/12345")
+boot.user> (test/response-for (:io.pedestal.http/service-fn @main/server) :get "/todo/abcdef/12345")
 {:status 200, :body "{:io.pedestal.interceptor.chain/stack (#Interceptor{:name :main/echo} #Interceptor{:name :io.pedestal.http.route/router} #Interceptor{:name :io.pedestal.http.secure-headers/secure-headers} #Interceptor{:name :io.pedestal.http.route/method-param} #Interceptor{:name :io.pedestal.http.route/query-params} #Interceptor{:name :io.pedestal.http.ring-middlewares/content-type-interceptor} #Interceptor{:name :io.pedestal.http/not-found} #Interceptor{:name :io.pedestal.http/log-request} #Interceptor{:name :io.pedestal.http.impl.servlet-interceptor/ring-response} #Interceptor{:name :io.pedestal.http.impl.servlet-interceptor/stylobate} #Interceptor{:name :io.pedestal.http.impl.servlet-interceptor/terminator-injector}), :request {:protocol \"HTTP/1.1\", :async-supported? true, :remote-addr \"127.0.0.1\", :servlet-response #object[io.pedestal.test$test_servlet_response$reify__30081 0x3a70b3e3 \"io.pedestal.test$test_servlet_response$reify__30081@3a70b3e3\"], :servlet #object[io.pedestal.http.servlet.FnServlet 0x7a707abd \"io.pedestal.http.servlet.FnServlet@7a707abd\"], :headers {\"content-length\" \"0\", \"content-type\" \"\"}, :server-port -1, :servlet-request #object[io.pedestal.test$test_servlet_request$reify__30069 0x55c45773 \"io.pedestal.test$test_servlet_request$reify__30069@55c45773\"], :content-length 0, :content-type \"\", :path-info \"/todo/abcdef/12345\", :character-encoding \"UTF-8\", :url-for #object[io.pedestal.http.route$url_for_routes$fn__25901 0x2e0ca26f \"io.pedestal.http.route$url_for_routes$fn__25901@2e0ca26f\"], :uri \"/todo/abcdef/12345\", :server-name nil, :query-string nil, :path-params {:list-id \"abcdef\", :item \"12345\"}, :body #object[io.pedestal.test.proxy$javax.servlet.ServletInputStream$ff19274a 0x115ce3e6 \"io.pedestal.test.proxy$javax.servlet.ServletInputStream$ff19274a@115ce3e6\"], :scheme nil, :request-method :get}, :bindings {#'io.pedestal.http.route/*url-for* #object[io.pedestal.http.route$url_for_routes$fn__25901 0x2e0ca26f \"io.pedestal.http.route$url_for_routes$fn__25901@2e0ca26f\"]}, :enter-async [#object[io.pedestal.http.impl.servlet_interceptor$start_servlet_async 0x7a0e6e15 \"io.pedestal.http.impl.servlet_interceptor$start_servlet_async@7a0e6e15\"]], :io.pedestal.interceptor.chain/terminators (#object[io.pedestal.http.impl.servlet_interceptor$terminator_inject$fn__28763 0x6800c6e2 \"io.pedestal.http.impl.servlet_interceptor$terminator_inject$fn__28763@6800c6e2\"]), :servlet-response #object[io.pedestal.test$test_servlet_response$reify__30081 0x3a70b3e3 \"io.pedestal.test$test_servlet_response$reify__30081@3a70b3e3\"], :route {:path \"/todo/:list-id/:item\", :method :get, :path-constraints {:list-id \"([^/]+)\", :item \"([^/]+)\"}, :io.pedestal.http.route.prefix-tree/satisfies-constraints? #object[io.pedestal.http.route.prefix_tree$add_satisfies_constraints_QMARK_$fn__25780 0x2d81021d \"io.pedestal.http.route.prefix_tree$add_satisfies_constraints_QMARK_$fn__25780@2d81021d\"], :path-re #\"/\\Qtodo\\E/([^/]+)/([^/]+)\", :path-parts [\"todo\" :list-id :item], :interceptors [#Interceptor{:name :main/echo}], :route-name :list-item-view, :path-params {:list-id \"abcdef\", :item \"12345\"}}, :servlet #object[io.pedestal.http.servlet.FnServlet 0x7a707abd \"io.pedestal.http.servlet.FnServlet@7a707abd\"], :servlet-request #object[io.pedestal.test$test_servlet_request$reify__30069 0x55c45773 \"io.pedestal.test$test_servlet_request$reify__30069@55c45773\"], :io.pedestal.interceptor.chain/queue #object[clojure.lang.PersistentQueue 0x1f087b5e \"clojure.lang.PersistentQueue@1\"], :url-for #object[io.pedestal.http.route$url_for_routes$fn__25901 0x2e0ca26f \"io.pedestal.http.route$url_for_routes$fn__25901@2e0ca26f\"], :io.pedestal.interceptor.chain/execution-id 3, :servlet-config nil, :async? #object[io.pedestal.http.impl.servlet_interceptor$servlet_async_QMARK_ 0xffd0b98 \"io.pedestal.http.impl.servlet_interceptor$servlet_async_QMARK_@ffd0b98\"]}", :headers {"Strict-Transport-Security" "max-age=31536000; includeSubdomains", "X-Frame-Options" "DENY", "X-Content-Type-Options" "nosniff", "X-XSS-Protection" "1; mode=block", "Content-Type" "application/edn"}}
 boot.user>
 ----
