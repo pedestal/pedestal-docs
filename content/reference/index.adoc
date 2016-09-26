@@ -12,12 +12,13 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 
 * link:architecture-overview[Overview]
 * link:interceptors[Interceptors]
-* Chain providers
+* link:chain-providers[Chain Providers]
 * Key Protocols
 * link:handlers[Handlers]
 
 == Handling HTTP
 
+* link:servlet-interceptor[Servlet Interceptor]
 * link:service-map[Service Map]
 * link:context-map[Context Map]
 * link:request-map[Request Map]
@@ -30,7 +31,7 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 * Cookie Management
 * HTTP/2
 * TLS, ALPN, Certificates
-* Streaming
+* link:streaming[Streaming]
 * link:server-sent-events[Server-Sent Events]
 
 == Routing and Linking

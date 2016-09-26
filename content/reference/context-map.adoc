@@ -9,13 +9,12 @@ Michael Nygard
 
 == Description
 
-A chain of interceptors can be used for any kind of pipelined
-processing with branching decisions. It is not limited to HTTP request
-handling. There are some keys that the link:chain-provider[chain
-provider] expectes to find in the context map.
+The _context map_ is passed to each interceptor's `:enter` and
+`:leave` functions.
 
-Any key not described here is officially undefined and should be
-regarded as an implementation detail subject to change.
+There are the keys that interceptor chain execution puts into the
+context map. Any key not described here is officially undefined and
+should be regarded as an implementation detail subject to change.
 
 [cols="s,d,d", options="header", grid="rows"]
 |===
@@ -31,15 +30,15 @@ regarded as an implementation detail subject to change.
 
 | :io.pedestal.interceptor.chain/execution-id
 | Opaque
-| This identifier is set uniquely when the pipeline is invoked. It is useful for correlating log files. Do not assume anything about the structure or type of this identifier.
-
-| :io.pedestal.interceptor.chain/queue
-| Stack of interceptors
-| This is the interceptor stack that the chain provider uses. You can inspect this for debugging purposes, but to manipulate it you should call `io.pedestal.interceptor.chain/enqueue`, `io.pedestal.interceptor.chain/terminate`, or `io.pedestal.interceptor.chain/terminate-when`.
+| This identifier is set uniquely when the pipeline is invoked. It is useful for correlating log files. Do not assume anything about the structure or type of this identifier. :io.pedestal.interceptor.chain/queue Stack of interceptors This is the interceptor stack that the chain provider uses. You can inspect this for debugging purposes, but to manipulate it you should call link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-enqueue[`enqueue`], link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate[`terminate`], or link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate-when[`terminate-when`].
 
 |===
 
 == As Applied to HTTP
+
+A chain of interceptors can be used for any kind of pipelined
+processing with branching decisions. It is not limited to HTTP request
+handling.
 
 When used with Pedestal's HTTP handling, there are additional keys of
 interest.  The context map is created before the first interceptor is

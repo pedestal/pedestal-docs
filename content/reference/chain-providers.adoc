@@ -1,0 +1,25 @@
+= Chain Providers
+Cognitect
+2016-09-26
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: reference
+
+ifdef::env-github,env-browser[:outfilessuffix: .adoc]
+
+== Chain Providers
+
+The building blocks of Pedestal are not limited to web
+applications. The link:interceptors[interceptor] concept is very
+general and can be used in message-processing or dataflow applications
+just as well as request/reply web services.
+
+A _chain provider_ invokes a stack of interceptors in response to some
+stimulus. The job of a chain provider is to accept incoming stimuli
+(requests, messages, events, commands, etc.) set up the
+link:context-map[context map] and execute a stack of interceptors via
+link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-execute[`execute`].
+
+For HTTP, the link:servlet-interceptor[servlet interceptor] is the
+chain provider.

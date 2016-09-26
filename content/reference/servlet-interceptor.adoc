@@ -1,0 +1,22 @@
+= Streaming Responses
+Cognitect
+2016-09-26
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: reference
+
+ifdef::env-github,env-browser[:outfilessuffix: .adoc]
+
+== Servlet Interceptor
+
+As the name implies, the servlet interceptor is both a servlet and an
+interceptor. It is created when an application calls
+`io.pedestal.http/create-server` or `io.pedestal.http/create-servlet`.
+
+The servlet interceptor is a link:chain-providers[chain provider] that
+invokes interceptors when an HTTP request arrives.
+
+The servlet interceptor sets up the link:context-map[context map] and
+the link:request-map[request map]. It looks for the
+link:response-map[response map] after all interceptors have finished.
