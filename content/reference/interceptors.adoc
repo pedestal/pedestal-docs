@@ -1,6 +1,6 @@
 = Parameters
-TBD
-2016-09-08
+Michael Nygard
+2016-09-27
 :jbake-type: page
 :toc: macro
 :icons: font
@@ -8,6 +8,176 @@ TBD
 
 ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 
-== Placeholder
+== Interceptors
 
-Pull requests welcomed!
+Interceptors are the basic building block of features in Pedestal. The
+core library provides interceptors that are generally useful for
+creating HTTP web services. Applications augment those with their own
+logic to handle.
+
+An interceptor is a pair of unary functions. Each function is called
+with a link:context-map[context map] and must return either a context
+map or a channel that will deliver a context map.
+
+The `:enter` function is called when executing "into" the stack of
+interceptors. The `:leave` function is called when stepping back "out
+of" the stack of interceptors. This is shown here for a single interceptor:
+
+image::../images/guides/interceptors.png[]
+
+Either the enter or leave function may be omitted without harm.
+
+The stack of interceptors represents the call stack of functions to
+handle processing. As such, the `:leave` functions are called in
+reverse order to the `:enter` functions, as shown here:
+
+image::../images/guides/interceptor-stack.png[]
+
+=== Example
+
+A basic interceptor is shown here.
+
+[source,clojure]
+----
+(def attach-guid
+  {:name ::attach-guid
+   :enter (fn [context] (assoc context ::guid (java.util.UUID/randomUUID)))})
+----
+
+This interceptor has only the `:enter` function. Interceptors
+executing after this one would be able to access the `::guid` key on the
+context map.
+
+__NOTE: It is a good practice to use namespaced keywords for data you
+attach to the context map.__
+
+Another common usage of interceptors is to bracket processing of an
+HTTP request with additional functionality. For example:
+
+[source,clojure]
+----
+(def db-interceptor
+  {:name ::database-interceptor
+   :enter   (fn [context]
+              (update context :request assoc ::database @database))
+   :leave   (fn [context]
+              (if-let [[op & args] (::tx-data context)]
+                (do
+                  (apply swap! database op args)
+                  (assoc-in context [:request ::database] @database))
+                context))})
+----
+
+Notice that this interceptor expects some other interceptor(s) to add
+data to the context using the `::tx-data` key.
+
+Interceptors are values but they are not required to be compile-time
+values. Functions can close over state and return interceptors. Some
+frequently-used built-ins work this way. (E.g.,
+link:../api/pedestal.service/io.pedestal.http.body-params.html#var-body-params[`body-params`].)
+
+Here is an interceptor that accepts a connection string and attaches
+the database connection to every request:
+
+[source,clojure]
+----
+(defn attach-database [uri]
+  (let [conn (db/connect uri)]
+    {:name ::attach-database
+     :enter #(assoc % ::connection conn ::db (d/db conn))}))
+----
+
+In addition to closing over the argument `uri`, we're using an
+anonymous function for the `:enter` function here.
+
+=== Interceptor Return Values
+
+Interceptor functions must return values. Returning `nil` will cause
+an internal server error.
+
+An `:enter` or `:leave` function may return a context map directly. In
+this case, processing continues with the next interceptor.
+
+If the interceptor will take a long time to return a result, it may
+also return a core.async channel. Pedestal will yield the thread and
+wait for a value to be produced. Only one value will be consumed from
+this channel, and it must be a context map.
+
+A common usage for the second case is when making outbound service
+requests. Use a `go` block as the return value, and Pedestal will
+expect an asynchronous response.
+
+[source,clojure]
+----
+(def third-party-auth
+  {:name ::third-party-auth
+   :enter (fn [context]
+            (if (:session context)
+              context
+              (go
+                (assoc context :auth-response (call-auth-system context))))})
+----
+
+=== Manipulating the interceptor stack
+
+The stack of interceptors remaining to execute is held in the
+link:context-map[context map]. This means that an interceptor can
+enqueue other interceptors to be executed. In fact, this is how
+routing works. The router is an interceptor that matches requests and
+enqueues the desired interceptors when a route matches.
+
+Use
+link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-enqueue[`enqueue`]
+to push more interceptors onto the stack.
+
+Use
+link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate[`terminate`]
+if processing should not continue.
+
+=== IntoInterceptor
+
+The protocol
+link:../api/pedestal.interceptor/io.pedestal.interceptor.html#var-IntoInterceptor[`IntoInterceptor`]
+represents anything that can be used as an interceptor. Pedestal extends that protocol to the following:
+
+[cols="1,3"]
+|===
+| Type | Interpretation
+
+| Map
+| The `:enter`, `:leave`, and `:name` keys are used directly.
+
+| Function
+| The function is interpreted as a "handler". See below.
+
+| List
+| The list is evaluated and its result is used as an interceptor.
+
+| Cons
+| Same as List
+
+| Symbol
+| The symbol is resolved and its target is used as an interceptor.
+
+| Var
+| The var is dereferenced and its value is used as an interceptor.
+
+|===
+
+Most of these cases are provided to make routing syntax
+easier. Applications should mainly use the map form shown in the
+earlier examples.
+
+=== Handlers
+
+A "handler" function is a special case of an interceptor. It plays the
+role that a handler function plays in other web frameworks. Pedestal
+treats the handler as a function that takes a link:request-map[request
+map] and returns a link:response-map[response map].
+
+A handler does _not_ have access to the full execution
+context. Therefore, it cannot manipulate the interceptor stack.
+
+Because a handler takes one kind of thing (request) and returns a
+different kind of thing (response), it can only be used in the last
+position of a stack.
