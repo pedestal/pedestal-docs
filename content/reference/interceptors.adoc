@@ -1,4 +1,4 @@
-= Parameters
+= Interceptors
 Michael Nygard
 2016-09-27
 :jbake-type: page
@@ -8,7 +8,6 @@ Michael Nygard
 
 ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 
-== Interceptors
 
 Interceptors are the basic building block of features in Pedestal. The
 core library provides interceptors that are generally useful for

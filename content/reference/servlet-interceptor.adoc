@@ -1,4 +1,4 @@
-= Streaming Responses
+= Servlet Interceptor
 Cognitect
 2016-09-26
 :jbake-type: page
@@ -7,8 +7,6 @@ Cognitect
 :section: reference
 
 ifdef::env-github,env-browser[:outfilessuffix: .adoc]
-
-== Servlet Interceptor
 
 As the name implies, the servlet interceptor is both a servlet and an
 interceptor. It is created when an application calls
