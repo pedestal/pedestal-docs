@@ -8,20 +8,14 @@ Cognitect
 
 == Core Libraries
 
-link:pedestal.service/index.html[pedestal.service]
-
-link:pedestal.route/index.html[pedestal.route]
-
-link:pedestal.interceptor/index.html[pedestal.interceptor]
-
-link:pedestal.service-tools/index.html[pedestal.service-tools]
-
-link:pedestal.log/index.html[pedestal.log]
+* link:pedestal.service/index.html[pedestal.service]
+* link:pedestal.route/index.html[pedestal.route]
+* link:pedestal.interceptor/index.html[pedestal.interceptor]
+* link:pedestal.service-tools/index.html[pedestal.service-tools]
+* link:pedestal.log/index.html[pedestal.log]
 
 == Deployment Libraries
 
-link:pedestal.immutant/index.html[pedestal.immutant]
-
-link:pedestal.jetty/index.html[pedestal.jetty]
-
-link:pedestal.tomcat/index.html[pedestal.tomcat]
+* link:pedestal.immutant/index.html[pedestal.immutant]
+* link:pedestal.jetty/index.html[pedestal.jetty]
+* link:pedestal.tomcat/index.html[pedestal.tomcat]
