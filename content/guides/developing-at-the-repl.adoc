@@ -1,0 +1,416 @@
+= Developing at the REPL
+Christian Romney
+2016-09-09
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: guides
+
+toc::[]
+
+== Introduction
+
+Exploring your application at the REPL is fundamental to Clojure
+development. In the context of Pedestal applications, we often want
+to interrogate the routing system and invoke interceptors (or handlers)
+in isolation. These explorations often form the basis for more robust
+automated tests, which will be covered in the
+link:unit-testing[Unit Testing Your Pedestal API] guide.
+
+== What You Will Learn
+
+After reading this guide, you will be able to perform the following tasks at the REPL:
+
+- Start and stop the HTTP server.
+- List your application's routes.
+- Find a route by name.
+
+- Test for route recognition.
+- Test url generation.
+- Invoke an interceptor or handler. [TODO]
+- Examine the interceptor stack. [TODO]
+
+- Connect to a running application with Socket REPL. [TODO]
+- Capture the last request and examine it at the REPL. [TODO]
+
+== Guide Assumptions
+
+This guide assumes you have a working REPL in your Pedestal application.
+If you generated your application using the pedestal-service Leiningen
+template, this might be as simple as running `lein repl` at the command
+line. Perhaps your editor or IDE provides a facility for launching a REPL
+for your project. A great resource for understanding and configuring your
+REPL environment can be found at Lambda Island's
+https://lambdaisland.com/guides/clojure-repls[Ultimate Guide to Clojure REPLs].
+
+== Getting Help if You're Stuck
+
+We'll take this in small steps. If you get stuck at any point in this
+guide, please submit an https://github.com/pedestal/docs/issues[issue]
+about this guide or hop over to the
+https://groups.google.com/forum/#!forum/pedestal-users[mailing list]
+and raise your hand there. You can also try the #pedestal channel in
+the http://clojurians.net/[Clojurians] Slack team.
+
+== Before We Begin
+
+In this guide, we will develop a few simple utility functions that
+simplify interacting with your Pedestal application from the REPL.
+For the sake of having a consistent baseline setup, we'll use a clean
+project for this guide. Generate a new Pedestal service using the
+following command:
+
+[source,bash]
+----
+lein new pedestal-service repl; cd repl
+----
+
+The default project template creates two files: server.clj and
+service.clj. We'll mainly be working with the former to add
+some utility functions that streamline the development workflow.
+We're now ready to begin exploring the Pedestal application.
+Ladies and gentlemen, start your REPLs!
+
+== Starting and stopping the HTTP server
+
+The first thing we'll want to do from the REPL is to control
+the HTTP server. By default, your REPL should start in the
+repl.server namespace. The Leiningen template generates
+a useful function namd `run-dev` which will configure and
+start the HTTP server in development mode, preventing the
+HTTP server thread from being joined and locking up your REPL.
+
+At the REPL, invoke the `run-dev` function to start the
+server:
+
+[source,clojure]
+----
+repl.server> (run-dev)
+----
+
+Now fire up a browser and navigate to http://localhost:8080
+to see the default, "Hello, World!" message.
+
+To stop the server, try the following invocation:
+
+[source,clojure]
+----
+repl.server> (server/stop *1)
+----
+
+This works as expected, but can quickly become inconvenient.
+This is because we need to manually keep track of the service
+map that is returned from these functions. The reason for this
+being that the service map includes a reference to a stateful
+object representing the HTTP server. Fortunately, a couple of
+small changes will free us from the tedium of managing state
+by hand. The first thing we'll do is to rename the `run-dev`
+function to `dev-server` and add three new definitions:
+`start`, `stop`, and a replacement for `run-dev`.
+
+[source,clojure]
+----
+(defn dev-server
+  "Configures, starts and returns a development-mode Pedestal server."
+  [& args]
+  (println "\nCreating your [DEV] server...")
+  (-> service/service ;; start with production configuration
+      (merge {:env :dev
+              ;; do not block thread that starts web server
+              ::server/join? false
+              ;; Routes can be a function that resolve routes,
+              ;;  we can use this to set the routes to be reloadable
+              ::server/routes #(route/expand-routes (deref #'service/routes))
+              ;; all origins are allowed in dev mode
+              ::server/allowed-origins {:creds true :allowed-origins (constantly true)}})
+      ;; Wire up interceptor chains
+      server/default-interceptors
+      server/dev-interceptors
+      server/create-server
+      server/start))
+
+(defn start
+  "Starts the Pedestal server."
+  []
+  (alter-var-root #'runnable-service server/start))
+
+(defn stop
+  "Stops the Pedestal server."
+  []
+  (alter-var-root #'runnable-service server/stop))
+
+(defn run-dev
+  "The entry-point for `lein run-dev'."
+  []
+  (alter-var-root #'runnable-service dev-server))
+----
+
+Now, let's restart the REPL and try out our new utilities.
+The first function you'll invoke should be `run-dev`.
+
+[source,clojure]
+----
+repl.server> (run-dev)
+----
+
+Verify once again that the HTTP server responds to requests
+on port 8080. Now, let's stop the server:
+
+[source,clojure]
+----
+repl.server> (stop)
+----
+
+This is much more convenient since we no longer have to keep
+track of our service reference. Try starting and stopping the
+server. You may also want to write a `restart` function that
+invokes `stop` and `start` in succession.
+
+== Working with Routes
+
+Now that we're able to control the HTTP server, we'll want some
+additional amenities. Next we're going to add some route
+introspection utilities. Pedestal ships with all of the raw materials
+we need. Our job is simply to package these tools together into more
+convenient forms adapted to our specific needs.
+
+Pedestal supports a few different route definition formats. Version
+0.5.0 saw the advent of a new table format which is now the default
+generated by the `pedestal-service` Leiningen template. Let's add a
+reference to the table format namespace from server.clj. Your namespace
+declaration should now look like this:
+
+[source,clojure]
+----
+(ns repl.server
+  (:gen-class) 
+  (:require [io.pedestal.http :as server]
+            [io.pedestal.http.route :as route]
+            [io.pedestal.http.route.definition.table :refer [table-routes]] ; <-- new 
+            [repl.service :as service]
+            [clojure.java.io :as io]))
+----
+
+With that reference in place, we can add a new utility to
+print our application's routes at the REPL:
+
+[source,clojure]
+----
+(defn print-routes
+  "Print our application's routes"
+  []
+  (route/print-routes (table-routes service/routes)))
+----
+
+Try this new function out at the REPL:
+
+[source,clojure]
+----
+repl.server> (print-routes)
+
+[:get /about :repl.service/about-page]
+[:get / :repl.service/home-page]
+nil
+----
+
+This simple output lists the HTTP method, relative path,
+and handler function for each one of our routes. This is
+a great start, but as our application grows we may want
+to find a route by name. Let's add another utility to do
+just that:
+
+[source,clojure]
+----
+(defn named-route
+  "Finds a route by name"
+  [route-name]
+  (->> service/routes
+       table-routes
+       (filter #(= route-name (:route-name %)))
+       first))
+----
+
+Let's test our new function:
+
+[source,clojure]
+----
+repl.server> (named-route ::service/home-page)
+----
+
+This function returns a map describing the home page
+route in greater detail than `print-routes`. Besides
+the `:path` and `:method` keys, we're given access to
+the list of `:interceptors` that will be invoked when
+this route is requested. It's not uncommon for Pedestal
+services to have quite a few interceptors, so the raw
+output from named-route can get a little unweildy. Let's
+see if we can produce some friendlier output. 
+
+== Interceptors and Handlers
+
+Interceptors are central to Pedestal applications.
+Not only do they provide the same pre- and post-processing
+of requests that Ring middleware does, but they also provide
+the main functionality behind every request. Handlers are
+nothing more than interceptors. It is often 
+
+[source,clojure]
+----
+(defn print-route
+  "Prints a route and its interceptors"
+  [rname]
+  (letfn [(joined-by
+            [s coll]
+            (apply str (interpose s coll)))
+          
+          (repeat-str
+            [s n]
+            (apply str (repeat n s)))
+          
+          (interceptor-info
+            [i]
+            (let [iname  (or (:name i) "<handler>")
+                  stages (joined-by 
+                          ","
+                          (keys
+                           (filter
+                            (comp (complement nil?) val)
+                            (dissoc i :name))))]
+              (str iname " (" stages ")")))]
+    (when-let [rte (named-route rname)]
+      (let [{:keys [path method route-name interceptors]} rte
+            name-line (str "[" method " " path " " route-name "]")]
+        (joined-by
+         "\n"
+         (into [name-line (repeat-str "-" (count name-line))]
+               (map interceptor-info interceptors)))))))
+----
+
+Let's use our new utility to print the `::service/home-page` route
+information.
+
+[source,clojure]
+----
+repl.server> (print-route ::service/home-page)
+----
+
+This call produces the following output:
+
+[source,clojure]
+----
+ [:get / :repl.service/home-page]
+ --------------------------------
+ :io.pedestal.http.body-params/body-params (:enter)
+ :io.pedestal.http/html-body (:leave)
+ <handler> (:enter)
+----
+
+Of course, this is a completely arbitrary representation of your route
+definition. Your own needs and aesthetic sensibilities should inform
+the structure of your application's output.
+
+== Route Recognition and Generation
+
+One of Pedestal's benefits is that its routing table is bidirectional.
+Not only does Pedestal use the route definition to recognize routes
+based on request data, but it can also generate urls to known route
+handlers. Let's take a closer look at both of these capabilities in turn.
+
+=== Route Recognition
+
+When developing Pedestal applications, we often want to verify that
+a given HTTP verb and relative path will invoke the correct handler.
+Again, Pedestal provides all of the plumbing we need to answer these
+questions from the comfort of the REPL. Add the following function
+to `server.clj`:
+
+[source,clojure]
+----
+(defn recognize-route
+  "Verifies the requested HTTP verb and path are recognized by the router."
+  [verb path]
+  (route/try-routing-for (table-routes service/routes) :prefix-tree path verb))
+----
+
+With this function in place, we can test for route recognition from the REPL:
+
+[source,clojure]
+----
+repl.server> (recognize-route :get "/about")
+
+=> 
+{:path "/about",
+ :method :get,
+ :path-re #"/\Qabout\E",
+ :path-parts ["about"],
+ :interceptors
+ [{:name :io.pedestal.http.body-params/body-params,
+   :enter #function[io.pedestal.interceptor.helpers/on-request/fn--8294],
+   :leave nil,
+   :error nil}
+  {:name :io.pedestal.http/html-body,
+   :enter nil,
+   :leave #function[io.pedestal.interceptor.helpers/on-response/fn--8311],
+   :error nil}
+  {:name nil, :enter #function[io.pedestal.interceptor/eval155/fn--156/fn--157], :leave nil, :error nil}],
+ :route-name :repl.service/about-page,
+ :path-params {},
+ :io.pedestal.http.route.prefix-tree/satisfies-constraints? #function[clojure.core/constantly/fn--4614]}
+----
+
+=== Route Generation
+
+When we generate urls during the lifetime of a request, we can simply
+use Pedestal's `url-for` function which is defined in the
+`io.pedestal.http.route` namespace. However, this function relies on
+the *url-for* variable which is dynamically bound during the life of a
+request. In order to test URL generation from the REPL, we'll define
+the following utility:
+
+[source,clojure]
+----
+(defn url-for
+  "Returns a url string for the named route"
+  [route-name & opts]
+  (let [f (route/url-for-routes (table-routes service/routes))
+        defaults   {:host "localhost" :scheme :http :port 8080}
+        route-opts (flatten (seq (merge defaults (apply hash-map opts))))]
+    (apply f route-name route-opts)))
+----
+
+Let's generate the URL for the about page:
+
+[source,clojure]
+----
+repl.server> (url-for ::service/about-page)
+
+=> "/about"
+
+repl.server> (url-for ::service/about-page :absolute? true)
+
+=> "http://localhost:8080/about"
+----
+
+The `url-for` function accepts a number of useful options. See the
+http://pedestal.io/api/pedestal.route/io.pedestal.http.route.html#var-url-for-routes[API
+documentation] for full details. 
+
+== Useful Techniques
+
+* Capture request
+
+
+== Connecting to a Running Application
+
+== Next Steps
+
+In this guide we learned how to explore our Pedestal application from
+the REPL. Some of these explorations may serve as the basis for unit
+tests. Head over to the unit testing guide to learn how to test the
+complete interceptor chain for a given route and much more.
+
+Alternatively, you may want to learn to manage your applications stateful
+components (like the HTTP server) more effectively. Check out the guide
+on link:pedestal-component[Integrating Pedestal with Component] to learn
+how easy it can be to incorporate Stuart Sierra's Reloaded worflow into
+your Pedestal development.
