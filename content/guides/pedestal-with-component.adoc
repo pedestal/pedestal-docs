@@ -42,35 +42,25 @@ wire it into a Component system map. We'll then proceed to testing our
 service.
 
 == Before We Begin
-Let's consider our component's responsibilities since they will
-drive it's design.
+We'll limit our component's responsibilities to lifecycle management
+of the Pedestal http server and provider. We'll also expose the
+Pedestal service function (`:io.pedestal.http/service-fn`) upon
+component initialization as a testing convenience.
 
-Starting a server is an easy one. Without that we don't have a service.
+Route or interceptor management will not be a component responsibility
+because the management of routes/interceptors is more of an
+application-specific concern. This may be familiar to you if you
+studied the way the Pedestal _lein template_ lays out a Pedestal
+service - routes, interceptors and configuration is kept separate from
+service plumbing.
 
-Provider initialization is also necessary but may be less apparent
-since Pedestal's bootstrapping function,
-`io.pedestal.http/create-server`, tends to buffer client code from
-that.
-
-A Pedestal service function (`:io.pedestal.http/service-fn`) will be
-exposed upon component initialization. This makes the component
-amenable to testing through Pedestal's testing facilities.
-
-That's really all we need to get started. Notice how Route or
-interceptor management was left out. Although it may be tempting to
-include them as component responsibilities, the management of routes
-or interceptors is more of an application-specific concern. This may
-be familiar to you if you studied the way the Pedestal _lein template_
-lays out a Pedestal service - configuration is kept separate from
-service plumbing. Since Pedestal service configuration is captured via a
-link::service-map[Service Map], we'll make our Pedestal component
-dependent on it as well.
+Finally, Pedestal service configuration, captured via a
+link::service-map[Service Map], will be a component dependency.
 
 Now that we have a better idea of what we want our component to do,
 let's go build it!
 
 == A Simple Pedestal Component
-
 Create a `src` directory with a `pedestal.clj` file.
 
 [source, clojure]
@@ -450,10 +440,23 @@ include::component/src/system_test.clj[tags=test]
 ----
 include::component/build.boot[]
 ----
-== What's next?
 
-In a separate guide (coming soon!), we'll demonstrate how to introduce dependencies
-and make them accessible to our handlers.
+== The Path So Far
+At the beginning of this guide, we set out to create a Pedestal
+component, demonstrate it's usage as well as how to test it without
+starting the http server. In the process, we also introduced a few general purpose
+test helpers.
+
+Keep in mind that Pedestal services are highly configurable. It's
+important to separate that configuration from the core component
+implementation. By limiting our component's responsibilities to http
+server and Pedestal provider life cycle support, we can use it in a
+wide variety of Pedestal implementations.
+
+== What's next?
+In a separate guide, link:pedestal-component-handlers-and-dependencies[Pedestal
+Component: Handlers and Dependencies], we'll demonstrate how to introduce
+dependencies and make them accessible to our handlers.
 
 == In the wild
 There are a number of implementations of Pedestal components in the
