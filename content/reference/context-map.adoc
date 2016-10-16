@@ -30,7 +30,11 @@ should be regarded as an implementation detail subject to change.
 
 | :io.pedestal.interceptor.chain/execution-id
 | Opaque
-| This identifier is set uniquely when the pipeline is invoked. It is useful for correlating log files. Do not assume anything about the structure or type of this identifier. :io.pedestal.interceptor.chain/queue Stack of interceptors This is the interceptor stack that the chain provider uses. You can inspect this for debugging purposes, but to manipulate it you should call link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-enqueue[`enqueue`], link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate[`terminate`], or link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate-when[`terminate-when`].
+| This identifier is set uniquely when the pipeline is invoked. It is useful for correlating log files. Do not assume anything about the structure or type of this identifier.
+
+| :io.pedestal.interceptor.chain/queue
+| Stack of interceptors
+| This is the interceptor stack that the chain provider uses. You can inspect this for debugging purposes, but to manipulate it you should call link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-enqueue[`enqueue`], link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate[`terminate`], or link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate-when[`terminate-when`].
 
 |===
 
