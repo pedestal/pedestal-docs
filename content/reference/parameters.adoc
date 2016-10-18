@@ -8,8 +8,6 @@ Michael Nygard
 
 ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 
-== Placeholder
-
 HTTP allows clients to provide per-request information through several
 mechanisms:
 
