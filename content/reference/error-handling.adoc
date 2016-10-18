@@ -27,6 +27,14 @@ invoke the usual `:enter` and `:leave` functions. Instead, it looks
 for the next interceptor in the chain that has a `:error` function
 attached to it.
 
+This error handling proceeds the same way regardless of whether
+interceptors in the chain returned link:context-map[context maps] or
+async channels. (See
+link:interceptors#_interceptor_return_values[Interceptor Return
+Values] for details on async return.) As a result, Pedestal unifies
+error handling for synchronous interceptors and asynchronous
+interceptors.
+
 For HTTP, the link:servlet-interceptor[servlet interceptor] provides
 the "last ditch" error handlers that log the error and, in development
 mode, emit a stack trace as the response body.
