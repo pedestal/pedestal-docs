@@ -13,7 +13,7 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 * link:architecture-overview[Overview]
 * link:interceptors[Interceptors]
 * link:chain-providers[Chain Providers]
-* Key Protocols
+* link:important-protocols[Important Protocols]
 * link:handlers[Handlers]
 * link:error-handling[Error Handling]
 
