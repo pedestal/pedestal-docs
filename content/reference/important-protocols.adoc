@@ -43,8 +43,8 @@ application could use a built-in syntax with a new algorithm!
 === link:../api/pedestal.route/io.pedestal.http.route.router.html#var-Router[`Router`]
 
 This protocol defines one function: `find-route`. It takes the router
-itself and a link:request-map[request map]. It must return a
-link:route-map[route map] for the route that was matched.
+itself and a link:request-map[request map]. It must return the
+route map for the route that it matched.
 
 An instance of `Router` is returned by the router constructor
 identified by the application's link:service-map[service map] in the key `:io.pedestal.http/router`.
@@ -53,7 +53,7 @@ identified by the application's link:service-map[service map] in the key `:io.pe
 | Key            | Constructor
 | :linear-search | link:../api/pedestal.route/io.pedestal.http.route.linear-search.html#var-router[`linear-search/router`]
 | :prefix-tree   | link:../api/pedestal.route/io.pedestal.http.route.prefix-tree.html#var-router[`prefix-tree/router`]
-| :map-tree      | link:../api/pedestal.route/io.pedestal.http.route.map-tree.thml#var-map-tree[`map-tree/router`]
+| :map-tree      | link:../api/pedestal.route/io.pedestal.http.route.map-tree.html#var-map-tree[`map-tree/router`]
 | application-supplied function | The function itself, called with sequence of routes as returned by `RouterSpecification`'s `router-spec` function.
 |===
 
