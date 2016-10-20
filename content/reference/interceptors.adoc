@@ -18,22 +18,38 @@ An interceptor is a pair of unary functions. Each function is called
 with a link:context-map[context map] and must return either a context
 map or a channel that will deliver a context map.
 
-The `:enter` function is called when executing "into" the queue of
-interceptors. As each interceptor executes, it is pushed onto a stack
-for the `:leave` calls. The `:leave` function is called when stepping
-back "out". This is shown here for a single interceptor:
+Pedestal calls the `:enter` function on the way "in" to handling a
+request. It calls the `:leave` function on the way back "out". This is
+shown here for a single interceptor:
 
 image::../images/guides/interceptors.png[]
 
-Either the enter or leave function may be omitted without harm.
+Either the `:enter` or `:leave` function may be omitted without harm.
 
-There is a "queue" of interceptors that still need to have their
+Logically speaking, interceptors form a stack. All the `:enter`
+functions are called in order. Each one receives the content map and
+returns a (possibly modified) context map. Once all the interceptors
+have been called, the resulting context map gets passed through the
+interceptors' `:leave` functions, but in reverse order, as shown here:
+
+image::../images/guides/interceptor-stack.png[]
+
+This isn't implemented as a regular Clojure or Java call stack. That
+would not allow interceptors to return asynchronously. Pedestal
+creates a kind of "virtual call stack" out of the interceptors' data
+structures.
+
+Pedestal keeps a "queue" of interceptors that still need to have their
 `:enter` functions called. There is also a stack of interceptors whose
 `:enter` functions have been called, but their `:leave` functions have
 not. As such, the `:leave` functions are called in reverse order to
-the `:enter` functions, as shown here:
+the `:enter` functions.
 
-image::../images/guides/interceptor-stack.png[]
+Both the queue and the stack reside in the context map. Since
+interceptors can modify the context map, that means they can change
+the plan of execution for the rest of the request! Interceptors are
+allowed to enqueue more interceptors to be called, or they can
+terminate the request.
 
 === Example
 
