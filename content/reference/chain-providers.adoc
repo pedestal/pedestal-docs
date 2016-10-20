@@ -13,10 +13,10 @@ applications. The link:interceptors[interceptor] concept is very
 general and can be used in message-processing or dataflow applications
 just as well as request/reply web services.
 
-A _chain provider_ invokes a stack of interceptors in response to some
+A _chain provider_ invokes a queue of interceptors in response to some
 stimulus. The job of a chain provider is to accept incoming stimuli
 (requests, messages, events, commands, etc.) set up the
-link:context-map[context map] and execute a stack of interceptors via
+link:context-map[context map] and execute a queue of interceptors via
 link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-execute[`execute`].
 
 For HTTP, the link:servlet-interceptor[servlet interceptor] is the

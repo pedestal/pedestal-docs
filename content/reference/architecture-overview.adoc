@@ -112,7 +112,7 @@ Along with moving core logic into interceptors, we have move the HTTP
 connection handling out of interceptor processing to create an
 interface for the _chain provider_.
 
-The chain provider sets up the initial context and stack of
+The chain provider sets up the initial context and queue of
 interceptors. It starts execution.
 
 Pedestal includes a servlet chain provider out of the box. It connects

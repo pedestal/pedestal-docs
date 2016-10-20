@@ -388,7 +388,7 @@ There are a couple of things to notice about this updated route
 definition. First, instead of using `echo` here, we have a vector with
 our `db-interceptor` and `list-create` interceptors. Recall from
 link:hello-world-content-types#_interceptors[the introduction to
-interceptors] that interceptors work like a stack. The `:enter`
+interceptors] that interceptors have two functions. The `:enter`
 functions get called from left to right, then the `:leave` functions
 get called from right to left. That means calls to the
 `db-interceptor` bracket the call to the `list-create` interceptor.
@@ -399,7 +399,7 @@ must have a unique name. When we used the `echo` interceptor
 everywhere, there was no way for Pedestal to create unique, meaningful
 names for the routes so we had to help it out. Now, `list-create` has
 it's own name so we can let Pedestal do it's default behavior: use the
-name of the last interceptor in the stack.
+name of the last interceptor in the vector.
 
 (Incidentally, when you use a function in a route, Pedestal also can't
 pick a good name for you. A function value doesn't carry any reference

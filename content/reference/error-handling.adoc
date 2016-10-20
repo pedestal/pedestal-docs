@@ -14,7 +14,7 @@ Pedestal must do something useful when an interceptor throws an
 exception. It would not be useful to bubble up the runtime call stack,
 because that call stack only includes the Pedestal machinery
 itself. Interceptors are data structures that conceptually represent
-stack frames on a call stack, but they are not present in the usual
+frames on a call stack, but they are not present in the usual
 nested fashion on the Java call stack.
 
 Pedestal addresses this by catching all exceptions thrown from an
@@ -39,7 +39,7 @@ For HTTP, the link:servlet-interceptor[servlet interceptor] provides
 the "last ditch" error handlers that log the error and, in development
 mode, emit a stack trace as the response body.
 
-You can supply your own `:error` interceptor anywhere in the stack.
+You can supply your own `:error` interceptor anywhere in the interceptor queue.
 
 === Error Function
 
@@ -77,7 +77,7 @@ one of the following things:
 
 1. Return the context map. This is "catching" the error. Because the
 context map has no error bound to it, Pedestal will return to normal
-execution after this interceptor in the stack.
+execution after this interceptor.
 2. Return the context map with the exception re-attached at
 `:io.pedestal.interceptor.chain/error`. This indicates that the
 handler doesn't recognize that exception and declines to handle

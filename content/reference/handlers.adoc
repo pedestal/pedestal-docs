@@ -24,7 +24,7 @@ Map] and returns a link:response-map[Response Map].
 == Additional Information
 
 Because the handler exchanges a request for a response, it will be the
-last thing to execute in a stack of interceptors.
+last interceptor to execute.
 
 Handler functions are wrapped into Interceptors when expanding
 routes. This happens because the

@@ -154,7 +154,7 @@ is added. The default is `nil`. The allowed values are:
 
 === CSRF
 
-When a value for `::http/enable-csrf` is present, the CSRF interceptor is added to the stack. This implies sessions are enabled. The value must be a map with the following keys:
+When a value for `::http/enable-csrf` is present, the CSRF interceptor is added to the queue. This implies sessions are enabled. The value must be a map with the following keys:
 
 |===
 | Key | Value type | Description

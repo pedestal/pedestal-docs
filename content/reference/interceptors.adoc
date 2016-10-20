@@ -18,17 +18,20 @@ An interceptor is a pair of unary functions. Each function is called
 with a link:context-map[context map] and must return either a context
 map or a channel that will deliver a context map.
 
-The `:enter` function is called when executing "into" the stack of
-interceptors. The `:leave` function is called when stepping back "out
-of" the stack of interceptors. This is shown here for a single interceptor:
+The `:enter` function is called when executing "into" the queue of
+interceptors. As each interceptor executes, it is pushed onto a stack
+for the `:leave` calls. The `:leave` function is called when stepping
+back "out". This is shown here for a single interceptor:
 
 image::../images/guides/interceptors.png[]
 
 Either the enter or leave function may be omitted without harm.
 
-The stack of interceptors represents the call stack of functions to
-handle processing. As such, the `:leave` functions are called in
-reverse order to the `:enter` functions, as shown here:
+There is a "queue" of interceptors that still need to have their
+`:enter` functions called. There is also a stack of interceptors whose
+`:enter` functions have been called, but their `:leave` functions have
+not. As such, the `:leave` functions are called in reverse order to
+the `:enter` functions, as shown here:
 
 image::../images/guides/interceptor-stack.png[]
 
@@ -117,9 +120,9 @@ expect an asynchronous response.
                 (assoc context :auth-response (call-auth-system context))))})
 ----
 
-=== Manipulating the interceptor stack
+=== Manipulating the interceptor queue
 
-The stack of interceptors remaining to execute is held in the
+The queue of interceptors remaining to execute is held in the
 link:context-map[context map]. This means that an interceptor can
 enqueue other interceptors to be executed. In fact, this is how
 routing works. The router is an interceptor that matches requests and
@@ -127,7 +130,7 @@ enqueues the desired interceptors when a route matches.
 
 Use
 link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-enqueue[`enqueue`]
-to push more interceptors onto the stack.
+to push more interceptors onto the queue.
 
 Use
 link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate[`terminate`]
@@ -175,7 +178,7 @@ treats the handler as a function that takes a link:request-map[request
 map] and returns a link:response-map[response map].
 
 A handler does _not_ have access to the full execution
-context. Therefore, it cannot manipulate the interceptor stack.
+context. Therefore, it cannot manipulate the interceptor queue or stack.
 
 Because a handler takes one kind of thing (request) and returns a
 different kind of thing (response), it can only be used in the last
