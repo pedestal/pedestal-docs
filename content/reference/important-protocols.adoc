@@ -25,7 +25,7 @@ Routers use this when building routes: anything that satisfies
 route.
 
 Pedestal extends `IntoInterceptor` onto a variety of Clojure and Java
-types. See the link:interceptors#_IntoInterceptor[interceptors
+types. See the link:interceptors#_intointerceptor[interceptors
 reference] for details of their behaviors.
 
 == Routing Protocols
