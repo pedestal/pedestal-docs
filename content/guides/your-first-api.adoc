@@ -417,8 +417,9 @@ include::todo-api/src/main.clj[tag=test_request]
 ----
 
 With this new helper we can try out a lot of requests from the REPL.
-Don't forget to reload the main namespace in the REPL (`(require main :reload)`)
-and restart the server (`(main/restart)`) before you do.
+Don't forget to reload the main namespace in the REPL with `(require
+:reload 'main)` and restart the server with `(main/restart)` before
+you do.
 
 ----
 boot.user> (main/test-request :post "/todo?name=A-List")
