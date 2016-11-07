@@ -158,7 +158,8 @@ according to the request's `Content-Type` header:
 |===
 
 If the request has any other content type, the body will not be
-altered and the request map will not be changed.
+altered and the request map will not be changed. That includes a `nil`
+content type if the request just doesn't have a `Content-Type` header.
 
 If you need to customize the way `body-params` handles content types,
 or provide options to the built-in parsers, call it with a parser-map
