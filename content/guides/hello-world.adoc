@@ -20,7 +20,7 @@ with some basics.
 
 After reading this guide, you will be able to:
 
-- Create a Pedestal project from a template using Leiningen.
+- Create a Pedestal project from scratch.
 - Define a route.
 - Return a page on that route.
 - Return plain text in your response.
