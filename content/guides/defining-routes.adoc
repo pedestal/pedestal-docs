@@ -216,6 +216,18 @@ parameters. They are automatically parsed and passed in the request
 map, under the :query-params key. Like path parameters, query
 parameters are always delivered as HTTP-decoded strings.
 
+For example, an HTTP request with for the URL:
+
+`/search?q=blog`
+
+will have this in the request map:
+
+[source,clojure]
+----
+{:query-params {:q "blog"}}
+----
+
+
 == Verbs
 
 So far, all our examples have used :get as the HTTP verb. Pedestal
