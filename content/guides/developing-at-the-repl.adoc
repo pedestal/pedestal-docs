@@ -245,7 +245,7 @@ This call produces the following output:
 
 [source,clojure]
 ----
- [:get / :repl.service/home-page]
+ [:get / :pedrepl.service/home-page]
  --------------------------------
  :io.pedestal.http.body-params/body-params (:enter)
  :io.pedestal.http/html-body (:leave)
@@ -309,7 +309,7 @@ With this function in place, we can test for route recognition from the REPL:
 
 [source,clojure]
 ----
-repl.server> (recognize-route :get "/about")
+pedrepl.server> (recognize-route :get "/about")
 
 =>
 {:path "/about",
@@ -326,7 +326,7 @@ repl.server> (recognize-route :get "/about")
    :leave #function[io.pedestal.interceptor.helpers/on-response/fn--8311],
    :error nil}
   {:name nil, :enter #function[io.pedestal.interceptor/eval155/fn--156/fn--157], :leave nil, :error nil}],
- :route-name :repl.service/about-page,
+ :route-name :pedrepl.service/about-page,
  :path-params {},
  :io.pedestal.http.route.prefix-tree/satisfies-constraints? #function[clojure.core/constantly/fn--4614]}
 ----
@@ -355,11 +355,11 @@ Let's generate the URL for the about page:
 
 [source,clojure]
 ----
-repl.server> (dev-url-for ::service/about-page)
+pedrepl.server> (dev-url-for ::service/about-page)
 
 => "/about"
 
-repl.server> (dev-url-for ::service/about-page :absolute? true)
+pedrepl.server> (dev-url-for ::service/about-page :absolute? true)
 
 => "http://localhost:8080/about"
 ----
