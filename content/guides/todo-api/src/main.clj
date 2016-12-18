@@ -108,7 +108,7 @@
    (fn [context]
      (if-let [db-id (get-in context [:request :params :list-id])]                       ;; <2>
        (if-let [the-list (find-list-by-id (get-in context [:request :database]) db-id)] ;; <3>
-         (assoc context :result the-list)                                               ;; <3>
+         (assoc context :result the-list)                                               ;; <4>
          context)
        context))})
                                                                                         ;; end::list_view[]
