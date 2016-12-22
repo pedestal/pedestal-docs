@@ -229,7 +229,7 @@ The whole query string appears under the `:query-string` key. That's
 the portion of the URL after, but not including, the '?'
 character. The query string can be a pain to deal with. It is
 URL-encoded and may have multiple parameters with delimiters. Pedestal
-ginsus that up into a map of parameters for you, which is attached to
+slices that up into a map of parameters for you, which is attached to
 the `:query-params` key. Each parameter name gets turned into a
 keyword. Parameter values are always strings, though, so you may still
 have to parse them a bit.
