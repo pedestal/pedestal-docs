@@ -26,7 +26,7 @@ mailing list]
 
 * https://speakerdeck.com/rkneufeld/web-apps-on-a-pedestal[Web Apps on a Pedestal] by Ryan Neufeld.
 ** https://github.com/rkneufeld/pedestal-workshop[Source]
-
+* http://docs.arachne-framework.org/tutorials/http-requests/[Arachne HTTP Requests with Pedestal]
 
 == Projects with Pedestal
 
