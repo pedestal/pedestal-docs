@@ -71,7 +71,7 @@ We're going to make a REST style API. Our API will have the following
 routes:
 
 |===
-| Route | Verb | Action | Repsonse
+| Route | Verb | Action | Response
 
 | /todo | POST | Create a new list | 201 with URL of new list
 | /todo | GET  | Return query form | 200 with static page
