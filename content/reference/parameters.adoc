@@ -166,6 +166,12 @@ or provide options to the built-in parsers, call it with a parser-map
 as an argument. You can get a good starting point by calling
 link:../api/pedestal.service/io.pedestal.http.body-params.html#var-default-parser-map[`default-parser-map`].
 
+One catch to note has to do with form parameters from an HTTP POST
+request. Because form fields can be named just about anything, the
+keys in these maps aren't automatically converted to keywords. If you
+want them to be keywordized, you should make sure to have the
+`keyword-params` interceptor on the applicable route.
+
 ==== File Upload
 
 File upload is a special case of a request body. The request will have

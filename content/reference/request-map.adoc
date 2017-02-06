@@ -70,7 +70,7 @@ a new one. Interceptors may add arbitrary keys to the request map.
 
 | :params
 | Y
-| Map of keyword -> String
+| Map of keyword or String -> String
 | Merged map of path, query, and request parameters.
 
 | :path-info
