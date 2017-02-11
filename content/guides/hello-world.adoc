@@ -411,19 +411,22 @@ include::hello/src/hello.clj[tags=server]
 <1> `io.pedestal.http/create-server` is a convenience function that builds everything in one step.
 <2> This is where we tell Pedestal which routes to use for this service.
 <3> We tell Pedestal that we want to use Jetty as our HTTP responder.
-<4> Port 8080 is so boring. We'll use somthing different, but not _too_ different.
-<5> Start the server. This will not return.
+<4> Port 8080 is so boring. We'll use something different, but not _too_ different.
+<5> Let's not block the thread that starts the web server.
+<6> Start the server. This will return an initialized service map for the started service.
 
 All we need to do now is run it.
 
 ----
 boot.user=> (require :reload 'hello)
 nil
-boot.user=> (hello/start)
+boot.user=> (def hello-service (hello/start))
 ----
 
-Yep, it didn't return. Jetty is running and listening for connections,
-though. Flip to a different window and try curl or use a browser to hit
+Jetty is now running and listening for connections. We've started the
+service and bound the started service map to the `hello-service`
+var which allows us to gracefully stop it later. Flip to a
+different window and try curl or use a browser to hit
 http://127.0.0.1:8890/greet.
 
 ----
@@ -442,8 +445,8 @@ Hello, world!
 ----
 
 It's alive! Treat yourself to a hot beverage and a high five. Whenever
-you get tired of poking it, just hit Control-C in the terminal that is
-running the server to kill it.
+you get tired of poking it, just run `(hello/stop hello-service)` in
+the terminal that is running the server to kill it.
 
 == The Whole Shebang
 
