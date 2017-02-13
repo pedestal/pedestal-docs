@@ -162,8 +162,7 @@ matching paren.
 
 The first thing in an expression is the function or a macro to call.
 In this case `ns` is a macro that is built in to Clojure. It sets up a
-namespace and makes the stuff we `:require` available. `:require` is
-kind of like an import in Java.
+namespace and makes the stuff we `:require` available.
 
 Speaking of the stuff we require, what is `io.pedestal.http` and
 `io.pedestal.http.route`? Those are each namespaces from Pedestal
