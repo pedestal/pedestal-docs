@@ -162,7 +162,8 @@ matching paren.
 
 The first thing in an expression is the function or a macro to call.
 In this case `ns` is a macro that is built in to Clojure. It sets up a
-namespace and makes the stuff we `require` available.
+namespace and makes the stuff we `:require` available. `:require` is
+kind of like an import in Java.
 
 Speaking of the stuff we require, what is `io.pedestal.http` and
 `io.pedestal.http.route`? Those are each namespaces from Pedestal
@@ -173,6 +174,12 @@ requests, and send responses. The
 link:../api/pedestal.route/io.pedestal.http.route.html[`io.pedestal.http.route`]
 namespace actually comes from a library dedicated to routing
 (ingeniously named `pedestal.route`.)
+
+Where the `:require` says `:as something` it means we're making an
+alias inside our namespace. So `io.pedestal.http` will be available as
+just `http` and `io.pedestal.http.route` will be available as
+`route`. Aliases don't change anything about the semantics of the
+namespace we're bringing in. They just save us some typing.
 
 Routing is split off into its own library because you can use it by
 itself, or you can use the HTTP library with a different routing
