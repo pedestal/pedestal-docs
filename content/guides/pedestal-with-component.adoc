@@ -463,17 +463,17 @@ There are a number of implementations of Pedestal components in the
 wild. Here are some examples. Be sure to check them out!
 
 1. Stuart Sierra's
-link::https://github.com/stuartsierra/component.pedestal[component.pedestal] repository
+link:https://github.com/stuartsierra/component.pedestal[component.pedestal] repository
 explores using Pedestal with Component and provides some great ideas
 on how to make your component dependencies visible to Pedestal
 interceptors and handlers.
 2. Point Slope's
-link::https://github.com/pointslope/elements[Elements] library
+link:https://github.com/pointslope/elements[Elements] library
 contains a Pedestal component based on some of the ideas implemented
 in this guide. The implementation borrows the core ideas from 'component.pedestal'.
 3. Michael Glaesemann's
-link::https://github.com/grzm/component.pedestal[component.pedestal library], is a fork of
+link:https://github.com/grzm/component.pedestal[component.pedestal library], is a fork of
 Stuart's
-link::https://github.com/stuartsierra/component.pedestal[component.pedestal]
+link:https://github.com/stuartsierra/component.pedestal[component.pedestal]
 repository extended with helpers and separate components for the
 Pedestal Server and Servlet.
