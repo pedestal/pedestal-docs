@@ -145,7 +145,7 @@ and their behaviour will remain unspecified.
 
 === CORS
 
-If the ::http/allowed-interceptors key is non-`nil`, this interceptor
+If the ::http/allowed-origins key is non-`nil`, this interceptor
 is added. The default is `nil`. The allowed values are:
 
 - a function of one argument that returns a truthy value when an origin is allowed;
