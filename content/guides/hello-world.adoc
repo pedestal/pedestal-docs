@@ -417,7 +417,7 @@ include::hello/src/hello.clj[tags=server]
 <1> `io.pedestal.http/create-server` is a convenience function that builds everything in one step.
 <2> This is where we tell Pedestal which routes to use for this service.
 <3> We tell Pedestal that we want to use Jetty as our HTTP responder.
-<4> Port 8080 is so boring. We'll use somthing different, but not _too_ different.
+<4> Port 8080 is so boring. We'll use something different, but not _too_ different.
 <5> Start the server. This will not return.
 
 All we need to do now is run it.
