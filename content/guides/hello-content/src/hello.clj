@@ -42,7 +42,7 @@
   {:name ::echo                                                                       ;; <1>
    :enter (fn [context]                                                               ;; <2>
             (let [request (:request context)                                          ;; <3>
-                  response (ok context)]                                              ;; <4>
+                  response (ok request)]                                              ;; <4>
               (assoc context :response response)))})                                  ;; <5>
                                                                                       ;; end::echo[]
 
