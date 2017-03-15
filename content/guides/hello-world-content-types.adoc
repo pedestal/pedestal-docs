@@ -74,7 +74,7 @@ If you worked through link:hello-world-query-parameters[Hello World,
 With Parameters], then you already have all the files you need. If
 not, take a moment to grab the sources from the
 link:hello-world-query-parameters#_the_whole_shebang[whole shebang] in
-that guide.  Feel free to browse the complete sources in the
+that guide.  Feel free to browse the complete sources in
 https://github.com/pedestal/docs/tree/master/content/guides[the
 repository], but be warned that the file contains all the versions
 that we built up through the previous guide. You'll need to navigate
