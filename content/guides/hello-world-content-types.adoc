@@ -88,7 +88,8 @@ the handy built-in features that Pedestal offers. Don't worry, this
 won't hurt too much. It'll also let us introduce the most important
 concept in Pedestal: Interceptors.
 
-Back in link:hello-world[Hello World], we echoed an HTTP request back
+Back in link:hello-world-query-parameters[Hello World, With Parameters],
+we echoed an HTTP request back
 as the response. That was pretty useful for debugging, and it will
 come in handy for our next step. Since our `/greet` route is working
 so nicely, let's make a general route to just echo requests back. Pop
