@@ -88,8 +88,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-*~
-
 # temporary files which can be created if a process still has a handle open of a deleted file
 .fuse_hidden*
 
@@ -106,7 +104,9 @@ Temporary Items
 Session.vim
 # temporary
 .netrwhist
-*~
+
 # auto-generated tag files
 tags
 .nrepl-history
+
+/.idea/
