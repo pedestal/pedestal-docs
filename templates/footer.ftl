@@ -15,5 +15,8 @@
   <script type="text/javascript" src="<#if (content.rootpath)??>${content.rootpath}<#else></#if>js/highlight.pack.js"></script>
   <script>hljs.initHighlightingOnLoad();</script>
   <!--[if lte IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/placeholders/3.0.2/placeholders.min.js"></script><![endif]-->
+  <script type="text/javascript">
+    anchors.add();
+  </script>
 </body>
 </html>

@@ -18,6 +18,7 @@
     });
   </script>
   <script type="text/javascript" src="<#if (content.rootpath)??>${content.rootpath}<#else></#if>js/modernizr.js"></script>
+  <script type="text/javascript" src="<#if (content.rootpath)??>${content.rootpath}<#else></#if>js/anchor.min.js"</script>
   <link rel="shortcut icon" type="image/x-icon" href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>images/pedestal-icon-32.png">
   <link rel="apple-touch-icon" href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>images/pedestal-icon-256.png">
   <script>
