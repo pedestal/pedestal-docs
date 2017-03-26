@@ -188,19 +188,19 @@ If the key is simply not present in the service map, then a set of default secur
 |===
 | Key | HTTP Header | Content
 
-| :hsts-settings
+| `:hsts-settings`
 | Strict-Transport-Security
 | "max-age=31536000; includeSubdomains"
 
-| :frame-options-settings
+| `:frame-options-settings`
 | X-Frame-Options
 | "DENY"
 
-| :content-type-settings
+| `:content-type-settings`
 | X-Content-Type-Options
 | "nosniff"
 
-| :xss-protection-settings
+| `:xss-protection-settings`
 | X-XSS-Protection
 | "1; mode=block"
 
