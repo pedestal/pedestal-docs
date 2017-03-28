@@ -5,7 +5,7 @@ This is an open-source repository of documentation for the
 
 ## Get Started with Pedestal
 
-[Read Pedestal Docs](https://pedestal.io)
+[Read Pedestal Docs](http://pedestal.io)
 
 ##  Contributing
 
