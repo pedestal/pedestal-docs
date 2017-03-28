@@ -3,6 +3,10 @@
 This is an open-source repository of documentation for the
 [Pedestal](https://github.com/pedestal/pedestal) libraries.
 
+## Get Started with Pedestal
+
+[Read Pedestal Docs](https://pedestal.io)
+
 ##  Contributing
 
 If you wish to point out an issue in the site or propose a new page,
