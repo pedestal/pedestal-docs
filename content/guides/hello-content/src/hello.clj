@@ -24,7 +24,7 @@
 
 (defn greeting-for [nm]
   (cond
-    (unmentionables nm) nm
+    (unmentionables nm) nil
     (empty? nm)         "Hello, world!\n"
     :else               (str "Hello, " nm "\n")))
 
