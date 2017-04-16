@@ -215,7 +215,7 @@ return in the response body. This table shows the type mapping:
 
 .Content Type Mapping
 |===
-| Object in ;body                        | Content Type
+| Object in :body                        | Content Type
 
 | Byte array                             | application/octet-stream
 | String                                 | text/plain
