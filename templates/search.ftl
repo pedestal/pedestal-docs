@@ -2,12 +2,11 @@
 
 <script>
   (function() {
-    var cx = '009096741365917377818:o1atlv3oj20';
+    var cx = '004438906124835441594:8ruebryjydg';
     var gcse = document.createElement('script');
     gcse.type = 'text/javascript';
     gcse.async = true;
-    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
-        '//cse.google.com/cse.js?cx=' + cx;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
     var s = document.getElementsByTagName('script')[0];
     s.parentNode.insertBefore(gcse, s);
   })();
