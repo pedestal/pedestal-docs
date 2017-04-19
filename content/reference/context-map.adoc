@@ -36,6 +36,10 @@ should be regarded as an implementation detail subject to change.
 | Stack of interceptors
 | These are the interceptors left to execute. You can inspect this for debugging purposes, but to manipulate it you should call link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-enqueue[`enqueue`], link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate[`terminate`], or link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate-when[`terminate-when`].
 
+| :io.pedestal.interceptor.chain/terminators
+| Collection of predicates
+| After executing each `:enter` function, Pedestal checks every predicate in this collection, passing the context map to each one. If any of them returns true-ish, Pedestal begins executing the `:leave` stack.
+
 |===
 
 == As Applied to HTTP
