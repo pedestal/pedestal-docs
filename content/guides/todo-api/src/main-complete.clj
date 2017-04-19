@@ -43,7 +43,6 @@
 ;;;
 ;;; Domain functions
 ;;;
-
 (defn make-list [nm]
   {:name  nm
    :items {}})
@@ -55,6 +54,14 @@
 ;;;
 ;;; API Interceptors
 ;;;
+(def echo
+  {:name :echo
+   :enter
+   (fn [context]
+     (let [request (:request context)
+           response (ok context)]
+       (assoc context :response response)))})
+
 (def entity-render
   {:name :entity-render
    :leave
