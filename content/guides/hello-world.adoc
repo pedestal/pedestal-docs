@@ -228,7 +228,8 @@ The map has two keys and their values:
 That's the whole thing. When our function returns that map, Pedestal
 will translate that into a full HTTP response complete with content
 type header and everything. (Later on, we'll see how to take control
-of the whole response. For now we're just taking the easy road.)
+of the link:hello-world-content-types[whole response]. For now we're
+just taking the easy road.)
 
 There's absolutely nothing special about this map. It's a plain old
 Clojure map. The _keys_ on the other hand, do mean something. They are
@@ -450,6 +451,10 @@ Hello, world!
 It's alive! Treat yourself to a hot beverage and a high five. Whenever
 you get tired of poking it, just hit Control-C in the terminal that is
 running the server to kill it.
+
+Later on, we'll see how to make Jetty
+link:your-first-api#_interactive_development[run on its own thread] so
+you can get your REPL prompt back.
 
 == The Whole Shebang
 
