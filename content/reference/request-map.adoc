@@ -105,7 +105,7 @@ a new one. Interceptors may add arbitrary keys to the request map.
 
 | :request-method
 | Y
-| String
+| Keyword
 | The HTTP verb used to make this request, lowercased and in keyword form. For example, :get or :post. For :put and :delete request methods, this may be "smuggled" in via a query parameter :_method. (Performed by the link:../api/pedestal.route/io.pedestal.http.route.html#var-method-param[method-param] interceptor.
 
 | :server-name
