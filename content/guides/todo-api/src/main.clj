@@ -163,7 +163,7 @@
      ["/todo"                    :get    echo :route-name :list-query-form]
      ["/todo/:list-id"           :get    [entity-render db-interceptor list-view]]
      ["/todo/:list-id"           :post   [entity-render list-item-view db-interceptor list-item-create]]
-     ["/todo/:list-id/:item-id"  :get    [entity-render list-item-view]]
+     ["/todo/:list-id/:item-id"  :get    [entity-render list-item-view db-interceptor]]
      ["/todo/:list-id/:item-id"  :put    echo :route-name :list-item-update]
      ["/todo/:list-id/:item-id"  :delete echo :route-name :list-item-delete]}))
                                                                                         ;; end::list_item_create[]
