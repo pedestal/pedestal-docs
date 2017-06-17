@@ -86,7 +86,7 @@
   {:name :list-view
    :enter
    (fn [context]
-     (if-let [db-id (get-in context [:request :params :list-id])]
+     (if-let [db-id (get-in context [:request :path-params :list-id])]
        (if-let [the-list (find-list-by-id (get-in context [:request :database]) db-id)]
          (assoc context :result the-list)
          context)
