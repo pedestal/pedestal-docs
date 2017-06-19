@@ -241,6 +241,24 @@ routes for the path "/order/:id"
 read. The metadata with constraints and interceptors will be attached
 to the verb map.)
 
+If multiple routes have the same handler, you will need to distinguish
+them by providing route names. (This is necessary so URL generation
+knows which route to use.) A route name is a keyword that goes in the
+first position of an interceptor vector in the verb map. In the
+following example, both POST routes have the same handler. We provide
+the keywords `:post-without-id` and `:post-by-id` to distinguish the
+routes.
+
+[source,clojure]
+.example.clj
+----
+[[:hello-world :http "example.com"
+ ["/order" {:get  list-orders
+            :post [:post-without-id create-order]}
+   ["/:id" {:get  query-order
+            :post [:post-by-id create-order]}]]]
+----
+
 == Routers
 
 When your application starts a Pedestal service with link:../api/pedestal.service/io.pedestal.http.html#var-create-servlet[`create-servlet`] or link:../api/pedestal.service/io.pedestal.http.html#var-create-server[`create-server`], Pedestal creates a router, using the following keys from the service map:
