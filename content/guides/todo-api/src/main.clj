@@ -63,13 +63,13 @@
 
 (def routes
   (route/expand-routes
-   #{["/todo"                 :post   echo :route-name :list-create]
-     ["/todo"                 :get    echo :route-name :list-query-form]
-     ["/todo/:list-id"        :get    echo :route-name :list-view]
-     ["/todo/:list-id"        :post   echo :route-name :list-item-create]
-     ["/todo/:list-id/:item"  :get    echo :route-name :list-item-view]
-     ["/todo/:list-id/:item"  :put    echo :route-name :list-item-update]
-     ["/todo/:list-id/:item"  :delete echo :route-name :list-item-delete]}))
+   #{["/todo"                    :post   echo :route-name :list-create]
+     ["/todo"                    :get    echo :route-name :list-query-form]
+     ["/todo/:list-id"           :get    echo :route-name :list-view]
+     ["/todo/:list-id"           :post   echo :route-name :list-item-create]
+     ["/todo/:list-id/:item-id"  :get    echo :route-name :list-item-view]
+     ["/todo/:list-id/:item-id"  :put    echo :route-name :list-item-update]
+     ["/todo/:list-id/:item-id"  :delete echo :route-name :list-item-delete]}))
                                                                                         ;; end::routes[]
 
                                                                                         ;; tag::list_create_with_response[]
@@ -89,13 +89,13 @@
                                                                                         ;; tag::routes_with_list_create[]
 (def routes
   (route/expand-routes
-   #{["/todo"                 :post   [db-interceptor list-create]]                     ;; <4>
-     ["/todo"                 :get    echo :route-name :list-query-form]
-     ["/todo/:list-id"        :get    echo :route-name :list-view]
-     ["/todo/:list-id"        :post   echo :route-name :list-item-create]
-     ["/todo/:list-id/:item"  :get    echo :route-name :list-item-view]
-     ["/todo/:list-id/:item"  :put    echo :route-name :list-item-update]
-     ["/todo/:list-id/:item"  :delete echo :route-name :list-item-delete]}))
+   #{["/todo"                    :post   [db-interceptor list-create]]                  ;; <4>
+     ["/todo"                    :get    echo :route-name :list-query-form]
+     ["/todo/:list-id"           :get    echo :route-name :list-view]
+     ["/todo/:list-id"           :post   echo :route-name :list-item-create]
+     ["/todo/:list-id/:item-id"  :get    echo :route-name :list-item-view]
+     ["/todo/:list-id/:item-id"  :put    echo :route-name :list-item-update]
+     ["/todo/:list-id/:item-id"  :delete echo :route-name :list-item-delete]}))
                                                                                         ;; end::routes_with_list_create[]
 
                                                                                         ;; tag::list_view[]
@@ -106,7 +106,7 @@
   {:name :list-view
    :enter
    (fn [context]
-     (if-let [db-id (get-in context [:request :params :list-id])]                       ;; <2>
+     (if-let [db-id (get-in context [:request :path-params :list-id])]                  ;; <2>
        (if-let [the-list (find-list-by-id (get-in context [:request :database]) db-id)] ;; <3>
          (assoc context :result the-list)                                               ;; <4>
          context)
@@ -159,13 +159,13 @@
 
 (def routes
   (route/expand-routes
-   #{["/todo"                 :post   [db-interceptor list-create]]
-     ["/todo"                 :get    echo :route-name :list-query-form]
-     ["/todo/:list-id"        :get    [entity-render db-interceptor list-view]]
-     ["/todo/:list-id"        :post   [entity-render list-item-view db-interceptor list-item-create]]
-     ["/todo/:list-id/:item"  :get    [entity-render list-item-view]]
-     ["/todo/:list-id/:item"  :put    echo :route-name :list-item-update]
-     ["/todo/:list-id/:item"  :delete echo :route-name :list-item-delete]}))
+   #{["/todo"                    :post   [db-interceptor list-create]]
+     ["/todo"                    :get    echo :route-name :list-query-form]
+     ["/todo/:list-id"           :get    [entity-render db-interceptor list-view]]
+     ["/todo/:list-id"           :post   [entity-render list-item-view db-interceptor list-item-create]]
+     ["/todo/:list-id/:item-id"  :get    [entity-render list-item-view db-interceptor]]
+     ["/todo/:list-id/:item-id"  :put    echo :route-name :list-item-update]
+     ["/todo/:list-id/:item-id"  :delete echo :route-name :list-item-delete]}))
                                                                                         ;; end::list_item_create[]
 
                                                                                         ;; tag::server[]
