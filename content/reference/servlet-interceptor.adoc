@@ -15,6 +15,66 @@ interceptor. It is created when an application calls
 The servlet interceptor is a link:chain-providers[chain provider] that
 invokes interceptors when an HTTP request arrives.
 
-The servlet interceptor sets up the link:context-map[context map] and
-the link:request-map[request map]. It looks for the
-link:response-map[response map] after all interceptors have finished.
+The servlet interceptor performs the following tasks:
+
+   1. It sets up the link:context-map[context map] and the
+   link:request-map[request map].
+   2. Invokes the `:enter` function of the global interceptors. (This
+   includes the router, which typically enqueues more interceptors for
+   whatever route was matched.)
+   3. Invokes the `:leave` function of the interceptor stack. The
+   stack has all the interceptors that were actually invoked, in
+   reverse order.
+   4. Catches any exceptions that aren't handled by
+   link:error-handling[error handling] within the interceptors.
+   5. Writes the final link:response-map[response map] to the servlet
+   response.
+
+There are a couple of special cases to note.
+
+## Manipulating the Queue and Stack
+
+Interceptors may rewrite the interceptor queue by calling functions
+like
+link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-enqueue[`enqueue`]
+and
+link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate[`terminate`]. They
+may also change the interceptor queue by directly changing the values
+of the `:io.pedestal.interceptor.chain/stack` and
+`:io.pedestal.interceptor.chain/queue` in the link:context-map[context map].
+
+The queue contains the interceptors to be executed next. The first
+item in the queue will be the next interceptor considered.
+
+The stack contains the ones that need their `:leave` functions
+called. The top of the stack will be considered first.
+
+## Early Termination
+
+Before invoking the `:enter` functions, the servlet interceptor sets
+up a "terminator" predicate on the context. It terminates the
+interceptor chain when the link:context-map[context map] returned by
+an interceptor has a link:response-map[response-map] attached.
+
+At that point, Pedestal will start calling the `:leave` functions on
+whatever interceptors are already on the stack.
+
+This means that interceptors short-circuit. As soon as _any_
+interceptor defines a response, the remaining interceptors in the
+queue will _not_ be called. That also means the `:leave` function
+won't be called on any interceptor whose `:enter` function hasn't been
+called.
+
+You can think of the interceptor stack like a data structure that
+represents a call stack. If you write ordinary code with an
+early-exit, the remaining code doesn't get called. Same thing here.
+
+If you want interceptors that can iteratively construct a response
+piece by piece, you have two options.
+
+   1. Put the initial value into the response map in the last `:enter`
+   function, then use the `:leave` functions to refine that value.
+   2. Put the initial value into the context under a different key and
+   refine that value in either `:enter` or `:leave` functions. WHen
+   it's complete, transfer it to the `:response` key.
+   value is complete.

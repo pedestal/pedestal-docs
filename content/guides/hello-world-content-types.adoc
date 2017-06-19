@@ -156,6 +156,17 @@ it to the function, and uses the return value of the function as the
 response map. (That actually takes more words to explain in English
 than it does in code!)
 
+One important note here: As soon as _any_ interceptor attaches a
+response to the context map, Pedestal considers the request
+handled. Remaining interceptors won't be called, and only the ones
+that are already on the stack will have their `:leave` functions
+called. This is a "short-circuit" behavior like an early-exit in code.
+
+My advice is to build your value in the context with `:enter`
+functions, turn it into a response at the tail end of the interceptor
+queue, and then refine the response map with defaults, headers, cookies,
+and so on in `:leave` functions.
+
 Every interceptor can also have an `error` function, but we don't need
 to deal with those just yet.
 
