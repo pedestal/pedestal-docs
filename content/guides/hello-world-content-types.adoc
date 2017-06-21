@@ -437,18 +437,51 @@ It is common style in Pedestal applications to make heavy use of the
 core functions like `update` and `update-in`. They are good at taking
 out a part of a nested data structure, applying a function to it, then
 reattaching the updated part. Let's see how this interceptor would
-change if we refactor it that way. We'll also use the slightly tricky
-`cond->` macro. (That's read out loud as "cond arrow." Once you master
-it, you will really level up in Clojure skills.)
+change if we refactor it that way.
 
 [[app-listing]]
 [source,clojure]
 .src/hello.clj
 ----
-include::hello-content/src/hello.clj[tags=coerce_refactored]
+include::hello-content/src/hello.clj[tags=coerce_refactored_comm;coerce_body_1;routes_refactored]
 ----
 
-This would be a fairly typical style for Pedestal code.
+We're going to take one more step toward Clojure mastery. Do you see
+the `coerce-body` function? It looks inside the context. If there's
+already a "Content-Type" header on the response, then it does nothing
+and returns the context without modification. On the other hand, if
+there is no content type assigned yet, it modifies the context by
+updating the response.
+
+This is a really common pattern in functional languages. You want to
+make a series of changes to a data structure, where each change is
+conditional on some other logic. In an imperative language, this would
+look like a series of `if` statements whose bodies each mutate the
+object being built. In Clojure, they would look like a deeply nested
+`if` special form, where each `if` returns either a modified or
+unmodified version of the input. The trouble with deeply nested `if`s
+is that it's too easy to get lost in the nesting.
+
+Fortunately, since Clojure 1.5, we've had some macros to help with
+that. The slightly tricky `cond->` macro is what we need here.
+(That's read out loud as "cond arrow." Once you master it, you will
+really level up in Clojure skills.) It is similar to the usual
+threading macro `->`, but it applies conditions before threading the
+expression. It expands to nested `if`s and `let`s that test the first
+clause in each pair. If it evaluates to true, then it threads the
+expression in the second clause. It looks like this:
+
+[[app-listing]]
+[source,clojure]
+.src/hello.clj
+----
+include::hello-content/src/hello.clj[tags=coerce_body_2]
+----
+<1> This is the test clause. It says "if there is no Content-Type header"
+<2> When the test is true, `cond->` puts `context` in the second position here, right after the `update-in`
+
+If there were more clauses in the `cond->`, each clause would receive
+the value returned from the previous clauses.
 
 == The Whole Shebang
 
@@ -462,9 +495,7 @@ understand how and when each line of code gets invoked.
 [source,clojure,subs="-callouts"]
 .src/hello.clj
 ----
-include::hello-content/src/hello.clj[tags=ns;continuo;coerce_refactored]
-
-include::hello-content/src/hello.clj[tags=server]
+include::hello-content/src/hello.clj[tags=ns;continuo;coerce_refactored_comm;coerce_body_2;routes_refactored;server]
 ----
 
 

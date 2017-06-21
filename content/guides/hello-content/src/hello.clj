@@ -14,7 +14,7 @@
    :headers {"Content-Type" "text/html"}})                                            ;; <1>
                                                                                       ;; end::ok_html[]
 
-;; tag::continuo[]
+                                                                                      ;; tag::continuo[]
 
 (defn ok [body]
   {:status 200 :body body})
@@ -35,7 +35,7 @@
       (ok resp)
       (not-found))))
 
-;; end::continuo[]
+                                                                                      ;; end::continuo[]
                                                                                       ;; tag::echo[]
 
 (def echo
@@ -88,7 +88,7 @@
      ["/echo"  :get echo]}))
                                                                                       ;; end::coerce_entangled[]
 
-                                                                                      ;; tag::coerce_refactored[]
+                                                                                      ;; tag::coerce_refactored_comm[]
 (def echo
   {:name ::echo
    :enter #(assoc % :response (ok (:request %)))})
@@ -114,20 +114,32 @@
   (-> response
       (update :body transform-content content-type)
       (assoc-in [:headers "Content-Type"] content-type)))
+                                                                                      ;; end::coerce_refactored_comm[]
+                                                                                      ;; tag::coerce_body_1[]
+(def coerce-body
+  {:name ::coerce-body
+   :leave
+   (fn [context]
+     (if (get-in context [:response :headers "Content-Type"])
+       context
+       (update-in context [:response] coerce-to (accepted-type context))))})
+                                                                                      ;; end::coerce_body_1[]
+                                                                                      ;; tag::routes_refactored[]
+(def routes
+  (route/expand-routes
+   #{["/greet" :get [coerce-body content-neg-intc respond-hello] :route-name :greet]
+                                                                                      ;; end::routes_refactored[]
 
+                                                                                      ;; tag::coerce_body_2[]
 (def coerce-body
   {:name ::coerce-body
    :leave
    (fn [context]
      (cond-> context
-       (nil? (get-in context [:response :body :headers "Content-Type"]))
-       (update-in [:response] coerce-to (accepted-type context))))})
+       (nil? (get-in context [:response :body :headers "Content-Type"]))              ;; <1>
+       (update-in [:response] coerce-to (accepted-type context))))})                  ;; <2>
 
-(def routes
-  (route/expand-routes
-   #{["/greet" :get [coerce-body content-neg-intc respond-hello] :route-name :greet]
-     ["/echo"  :get echo]}))
-                                                                                      ;; end::coerce_refactored[]
+                                                                                      ;; end::coerce_body_2[]
 
                                                                                       ;; tag::server[]
 (defn create-server []
