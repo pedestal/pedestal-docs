@@ -54,7 +54,7 @@ called. The top of the stack will be considered first.
 Before invoking the `:enter` functions, the servlet interceptor sets
 up a "terminator" predicate on the context. It terminates the
 interceptor chain when the link:context-map[context map] returned by
-an interceptor has a link:response-map[response-map] attached.
+an interceptor has a link:response-map[response map] attached.
 
 At that point, Pedestal will start calling the `:leave` functions on
 whatever interceptors are already on the stack.
