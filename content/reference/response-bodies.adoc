@@ -8,7 +8,7 @@ Michael Nygard
 
 ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 
-This reference describes how the link:servlet-interceptor handles
+This reference describes how the link:servlet-interceptor[servlet interceptor] handles
 response bodies of various types. Much of this behavior depends on the
 protocols `WritableBody` and `WritableBodyAsync`. See
 link:important-protocols[Important Protocols] for details about those.
