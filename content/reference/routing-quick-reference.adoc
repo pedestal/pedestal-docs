@@ -112,7 +112,7 @@ In table syntax, each route is a vector of:
 [source,clojure]
 .example.clj
 ----
-  ["/user/:id/*blah"  :post  [...] :route-name :new-user :constraints {:user-id #"[0-9]+"}]
+  ["/user/:id/*blah"  :post  [...] :route-name :new-user :constraints {:id #"[0-9]+"}]
 ----
 
 The `:host`, `:port`, `:app-name`, and `:scheme` are provided in a map that applies to all routes in the list.
@@ -122,7 +122,7 @@ The `:host`, `:port`, `:app-name`, and `:scheme` are provided in a map that appl
 ----
 (route/expand-routes
   #{{:host "example.com" :scheme :https}
-    ["/user/:id/*blah"  :post  [...] :route-name :new-user :constraints {:user-id #"[0-9]+"}]})
+    ["/user/:id/*blah"  :post  [...] :route-name :new-user :constraints {:id #"[0-9]+"}]})
 ----
 
 When multiple routes use the same path, they must differ by both verb and route name.
@@ -130,8 +130,8 @@ When multiple routes use the same path, they must differ by both verb and route 
 [source,clojure]
 .example.clj
 ----
-    ["/user/:id"  :post new-user  :route-name :new-user  :constraints {:user-id #"[0-9]+"}]
-    ["/user/:id"  :get  view-user :route-name :view-user :constraints {:user-id #"[0-9]+"}]
+    ["/user/:id"  :post new-user  :route-name :new-user  :constraints {:id #"[0-9]+"}]
+    ["/user/:id"  :get  view-user :route-name :view-user :constraints {:id #"[0-9]+"}]
 ----
 
 If the last interceptor in the chain has a name, or you supply a
@@ -146,16 +146,16 @@ route name will be derived from that.
     (defn view-user [request] ,,,)
 
     (route/expand-routes
-      #{["/user/:id"  :post [,,, `new-user]  :constraints {:user-id #"[0-9]+"}]
-        ["/user/:id"  :get  [,,, `view-user] :constraints {:user-id #"[0-9]+"}]})
+      #{["/user/:id"  :post [,,, `new-user]  :constraints {:id #"[0-9]+"}]
+        ["/user/:id"  :get  [,,, `view-user] :constraints {:id #"[0-9]+"}]})
 
     ;; Route names will be taken from the interceptors
     (def new-user-intc {:name :new-user :enter (fn [context] ,,,)})
     (def view-user-intc {:name :view-user :enter (fn [context] ,,,)})
 
     (route/expand-routes
-      #{["/user/:id"  :post [,,, new-user-intc]  :constraints {:user-id #"[0-9]+"}]
-        ["/user/:id"  :get  [,,, view-user-intc] :constraints {:user-id #"[0-9]+"}]})
+      #{["/user/:id"  :post [,,, new-user-intc]  :constraints {:id #"[0-9]+"}]
+        ["/user/:id"  :get  [,,, view-user-intc] :constraints {:id #"[0-9]+"}]})
 ----
 
 === Terse Syntax
