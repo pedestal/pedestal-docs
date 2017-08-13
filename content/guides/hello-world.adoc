@@ -146,7 +146,7 @@ include::hello/src/hello.clj[tags=ns]
 ----
 <1> This namespace is called 'hello'. This almost always matches the filename.
 <2> We need to use the 'io.pedestal.http' namespace, but would like to only type 'http' later in the file.
-<3> We need to use the 'io.pedestal.http.route.definition' namespace, but would like to spell it as 'route' later in the file.
+<3> We need to use the 'io.pedestal.http.route' namespace, but would like to spell it as 'route' later in the file.
 
 This is very similar to using "import" in Java or "require" in
 Ruby. It just makes some names from other namespaces available to us
