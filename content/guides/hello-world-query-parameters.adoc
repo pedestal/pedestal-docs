@@ -85,7 +85,7 @@ using them on other request types.
 
 .URL with Query Parameter
 ====
-http://localhost:8890/hello?name=Michael
+http://localhost:8890/greet?name=Michael
 ====
 
 Because query parameters are so common, Pedestal handles them
