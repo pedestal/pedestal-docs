@@ -384,6 +384,6 @@ complete interceptor chain for a given route and much more.
 
 Alternatively, you may want to learn to manage your applications stateful
 components (like the HTTP server) more effectively. Check out the guide
-on link:pedestal-component[Integrating Pedestal with Component] to learn
+on link:pedestal-with-component[Integrating Pedestal with Component] to learn
 how easy it can be to incorporate Stuart Sierra's Reloaded worflow into
 your Pedestal development.
