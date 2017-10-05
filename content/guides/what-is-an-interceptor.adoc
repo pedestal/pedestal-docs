@@ -19,7 +19,7 @@ of the things that would normally be built in to a framework.
 
 == What You Will Learn
 
-After reading this guide, you will be able to :
+After reading this guide, you will be able to:
 
 - Explain the role of interceptors in Pedestal
 - Compare interceptors to middleware
@@ -50,19 +50,11 @@ channel of the https://clojurians.slack.com[Clojurians Slack team.]
 
 We're going to start with a fresh, empty project in this guide, with
 just one interceptor. It will help illustrate the concepts we dive
-into next. Then we look at the `IntoInterceptor` protocol to see how
-we can create interceptors. After that, it's time to talk about the
-execution model and see how we can make interceptors that change the
-request-handling process dynamically.
-
-We'll talk about the contract for an interceptor function and what it
-can return. That leads us to asynchronous return.
+into next.  After that, it's time to talk about the execution model
+and see how we can make interceptors that change the request-handling
+process dynamically.
 
 Finally, we have to talk about error handling.
-
-We'll wrap it all up by looking at a project created from the Pedestal
-service template. We should be able to blow away the fog of mystery
-and make the whole thing clear.
 
 == Before We Begin
 
@@ -88,7 +80,7 @@ Make a directory for your project and drop this into `project.clj`:
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/project.clj
+include::what-is-an-interceptor/project.clj[]
 ----
 
 This is as basic as it gets, but it's enough to run `lein repl` and
@@ -103,7 +95,9 @@ Make a file under `src/service.clj` with the following contents:
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/service.clj
+include::what-is-an-interceptor/src/intc/service.clj[tags=start]
+
+include::what-is-an-interceptor/src/intc/service.clj[tags=run_service]
 ----
 <1> We will fill in a route shortly
 <2> Run on port 8820
@@ -134,7 +128,7 @@ request with "Hello, world!".
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/service.clj[tags=hello]
+include::what-is-an-interceptor/src/intc/service.clj[tags=hello]
 ----
 
 There are a couple of things to point out here. First, this is
@@ -146,7 +140,7 @@ keys, but if it exists, Pedestal will print it in some debug messages
 and logs. It can help you narrow down a problem later.
 
 The `:enter` key is where things get a little more interesting. (A
-little, but not much. It's just a hello world after all.) Note that it
+little, but not much. It's just "hello world" after all.) Note that it
 has a function that assocs a value onto the context under the
 `:response` key. That value happens to be shaped in a way that the
 link:../reference/servlet-interceptor[Servlet Interceptor] looks for.
@@ -190,13 +184,13 @@ exception, then Pedestal starts looking for an interceptor with an
 `:error` function to handle it. This goes from right-to-left like the `:leave`
 functions. The main difference is that an error-handling interceptor
 may indicate that the error is totally resolved and Pedestal will
-resume looking for `:leave` functions. See link:error-handling[Error
-Handling] below for all the gory details.
+resume looking for `:leave` functions. See <<Error
+Handling>> below for all the gory details.
 
 == The Queue and the Stack
 
-Pedestal starts running interceptors when you call the 
-link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-execute[io.pedestal.interceptor.chain/execute] function. You can call `execute` with an empty context and a collection of interceptors, or you can call it with a context that already has interceptors enqueued. (In the former case, Pedestal just enqueues the interceptors on the context then calls the second form.) 
+Pedestal starts running interceptors when you call the
+link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-execute[io.pedestal.interceptor.chain/execute] function. You can call `execute` with an empty context and a collection of interceptors, or you can call it with a context that already has interceptors enqueued. (In the former case, Pedestal just enqueues the interceptors on the context then calls the second form.)
 
 Suppose we start with three interceptors in the queue, like this.
 
@@ -223,7 +217,7 @@ First we'll change `service.clj` to add two new claims beyond "Hello World."
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/service.clj[tags=new_players]
+include::what-is-an-interceptor/src/intc/service.clj[tags=new_players]
 ----
 
 These interceptors aren't very interesting, but there are two of them. Here's how we are going to choose which one to run.
@@ -231,7 +225,7 @@ These interceptors aren't very interesting, but there are two of them. Here's ho
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/service.clj[tags=chooser]
+include::what-is-an-interceptor/src/intc/service.clj[tags=chooser]
 ----
 <1> Look at the `n` query parameter from the URL.
 <2> Enqueue one or the other of our interceptors.
@@ -239,7 +233,7 @@ include::what-is-an-interceptor/src/service.clj[tags=chooser]
 
 Be careful with the call to `enqueue`. It's meant to add many interceptors at once, so it takes a collection as the second argument.
 
-Restart your server (since we're not running in dev mode, we don't get automatic reloading) and try it out with cURL. You should be able to get any of the three responses. If you get an internal server error, it means there's something wrong in the code. 
+Restart your server (since we're not running in dev mode, we don't get automatic reloading) and try it out with cURL. You should be able to get any of the three responses. If you get an internal server error, it means there's something wrong in the code.
 
 === Interceptors or Middleware
 
@@ -277,7 +271,7 @@ Our data "science" interceptor is pretty small, but it still does just a bit too
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/service.clj[tags=chooser2]
+include::what-is-an-interceptor/src/intc/service.clj[tags=chooser2]
 ----
 
 We get the dreaded "Internal server error." We can do much better if we create an error handler. Any interceptor with an `:error` function gets asked (very politely) if it can handle the exception. Pedestal does this by calling the `:error` function with the  context map and an ex-info that wraps the original exception. (See the link:../reference/error-handling[error handling reference] for all the gory details.)
@@ -287,23 +281,23 @@ We can make an interceptor that handles NumberFormatException like this:
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/service.clj[tags=error-i]
+include::what-is-an-interceptor/src/intc/service.clj[tags=error-i]
 ----
 <1> Check what type of exception was originally thrown.
 <2> Create a response for our specific error of interest.
 <3> Tell Pedestal to keep looking for an error handler for anything else. (I.e., "rethrow" the exception.)
 
-This works, but it's still a bit noisy. Let's rewrite it using link:../api/pedestal.interceptor/io.pedestal.interceptor.error.html#var-error-dispatch[error-dispatch] to create the interceptor for us. 
+This works, but it's still a bit noisy. Let's rewrite it using link:../api/pedestal.interceptor/io.pedestal.interceptor.error.html#var-error-dispatch[error-dispatch] to create the interceptor for us.
 
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/service.clj[tags=error-dispatch]
+include::what-is-an-interceptor/src/intc/service.clj[tags=error-dispatch]
 ----
 <1> Use pattern matching to select which exceptions we handle.
 <2> Generate a response. Any exceptions that don't match a pattern automatically get rethrown.
 
-Much nicer! 
+Much nicer!
 
 == The Path So Far
 
@@ -312,7 +306,7 @@ In this guide, we've gotten into some of the deep inner workings of Pedestal. Yo
 * How Pedestal invokes interceptors.
 * How to manipulate the interceptor queue and stack.
 * How to split your application logic into smaller pieces using interceptors.
-* How to handle errors 
+* How to handle errors
 
 == Where To Next?
 
