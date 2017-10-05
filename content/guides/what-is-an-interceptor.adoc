@@ -23,7 +23,6 @@ After reading this guide, you will be able to :
 
 - Explain the role of interceptors in Pedestal
 - Compare interceptors to middleware
-- Create interceptors that return asynchronously
 - Create interceptors that affect execution of remaining interceptors
 - Handle errors
 
@@ -44,7 +43,7 @@ If you get stuck at any point in this guide, please submit an
 https://github.com/pedestal/docs/issues[issue] about this guide or hop
 over to the
 https://groups.google.com/forum/#!forum/pedestal-users[mailing list]
-and raise your hand there. You can often find help in the #pedestal
+and raise your hand there. You can often find help in the "pedestal"
 channel of the https://clojurians.slack.com[Clojurians Slack team.]
 
 == Where We Are Going
@@ -161,12 +160,14 @@ module. Interceptor invocation and handling comes from
 link:../api/pedestal.interceptor/index.html[pedestal.interceptor]
 which doesn't depend at all on pedestal.service.
 
-For example, we have a project that lets you invoke a chain of
-interceptors when a message arrives on a Kafka topic. You could invoke
-interceptors to do batch processing. They are an implementation of the
-general "pipes and filters" architecture pattern.
+For example, there is a project that lets you invoke a chain of
+interceptors when a message arrives on a link:https://github.com/cognitect-labs/pedestal.kafka[Kafka topic]. You could invoke
+interceptors to do batch processing. Generally speaking, interceptors are an implementation of the
+"pipes and filters" architecture pattern.
 
-=== Enter
+Pedestal arranges to call interceptors on one of three functions at different times:
+
+=== 1. Enter
 
 The `:enter` function is called on the "way in" to a bunch of
 interceptors. If you look at a route with a collection of
@@ -174,7 +175,7 @@ interceptors, they'll have their `:enter` functions invoked from
 left-to-right. Each on receives the new value of the context returned
 by the previous one.
 
-=== Leave
+=== 2. Leave
 
 The `:leave` function is called on the "way out" of a bunch of
 interceptors. That same collection of interceptors on a route will be
@@ -182,11 +183,11 @@ called from right-to-left. Like the enter functions, each leave
 function receives the context and returns a (possibly modified)
 context.
 
-=== Error
+=== 3. Error
 
-The `:error` functions are a bit special. If an interceptor throws an
+The `:error` function is a bit special. If an interceptor throws an
 exception, then Pedestal starts looking for an interceptor with an
-`:error` function. This goes from right-to-left like the "leave"
+`:error` function to handle it. This goes from right-to-left like the `:leave`
 functions. The main difference is that an error-handling interceptor
 may indicate that the error is totally resolved and Pedestal will
 resume looking for `:leave` functions. See link:error-handling[Error
@@ -194,8 +195,130 @@ Handling] below for all the gory details.
 
 == The Queue and the Stack
 
-To be continued...
+Pedestal starts running interceptors when you call the 
+link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-execute[io.pedestal.interceptor.chain/execute] function. You can call `execute` with an empty context and a collection of interceptors, or you can call it with a context that already has interceptors enqueued. (In the former case, Pedestal just enqueues the interceptors on the context then calls the second form.) 
+
+Suppose we start with three interceptors in the queue, like this.
+
+image::../images/guides/what-is-an-interceptor/interceptor-queue-and-stack-in-context-1.png[]
+
+Pedestal needs to call the `:enter` function on "Intc 1". So it pops that interceptor from the queue and moves it to the stack. Then it calls the interceptor, passing the context map itself. This is the context as it appears to "Intc 1".
+
+image::../images/guides/what-is-an-interceptor/interceptor-queue-and-stack-in-context-2.png[]
+
+When that's done, the next thing is to call "Intc 2". Same thing happens, Pedestal pops that interceptor from the queue and pushes it on the stack.
+
+image::../images/guides/what-is-an-interceptor/interceptor-queue-and-stack-in-context-3.png[]
+
+Repeat the process for "Intc 3" and we're left with this context map.
+
+image::../images/guides/what-is-an-interceptor/interceptor-queue-and-stack-in-context-4.png[]
+
+== Manipulating the Queue
+
+When Pedestal calls an interceptor, the queue and stack aren't just there for informational use. Interceptors are totally allowed to change things up. Let's work through an example where we dynamically decide which interceptor to add, depending on a query parameter.
+
+First we'll change `service.clj` to add two new claims beyond "Hello World."
+
+[[app-listing]]
+[source,clojure]
+----
+include::what-is-an-interceptor/src/service.clj[tags=new_players]
+----
+
+These interceptors aren't very interesting, but there are two of them. Here's how we are going to choose which one to run.
+
+[[app-listing]]
+[source,clojure]
+----
+include::what-is-an-interceptor/src/service.clj[tags=chooser]
+----
+<1> Look at the `n` query parameter from the URL.
+<2> Enqueue one or the other of our interceptors.
+<3> Generate a response if neither of the interceptors apply.
+
+Be careful with the call to `enqueue`. It's meant to add many interceptors at once, so it takes a collection as the second argument.
+
+Restart your server (since we're not running in dev mode, we don't get automatic reloading) and try it out with cURL. You should be able to get any of the three responses. If you get an internal server error, it means there's something wrong in the code. 
+
+=== Interceptors or Middleware
+
+The very first motivation for Pedestal was the ability to make on-the-fly decisions about how to handle requests. Middleware models wrap up the whole processing chain in function closures. Not only are they opaque, but the decisions are all made at compile time. In contrast, Pedestal treats the processing chain like a virtual call stack, or a malleable program to execute.
+
+=== Some Practical Applications
+
+Pedestal routers are just an interceptors. A router inspects the incoming request and decides what interceptors to enqueue. That's it! There's no magic at all in the router. You can build your own replacement router. For that matter, you can build a secondary router that uses something other than the request path to dispatch on.
+
+Suppose you need to add entity-level access control to an API. You can create an interceptor that looks at the entity to decide if authorization is needed. If so, enqueue an interceptor that does the auth check or redirects.
+
+Most controller logic takes this form:
+
+1. Get information from the request.
+1. If the request can't be done, generate an error response.
+1. Fetch some data.
+1. Decide what operation to perform on the data.
+1. Decide if the operation can be done on the data.
+1. If so, attempt an operation on the data.
+1. If not, generate an error response.
+1. Attempt to store some data.
+1. If it fails, generate an error response.
+1. Otherwise, generate a response.
+
+Every place the words "decide" or "if" appear here, you could enqueue different interceptors. This breaks the controller logic down into a handful of very small pieces that each consume and produce context maps. They are easily tested in isolation from a database or external service.
+
+You can create a state machine, where one interceptor examines the current state, then enqueues an interceptor appropriate to handle that state.
+
+Once you start looking at the interceptor queue like a program and the stack like a program stack, you'll find many ways to use dynamic dispatching.
+
+== Error Handling
+
+Our data "science" interceptor is pretty small, but it still does just a bit too much work. We'd like to separate error handling from the main flow of logic. What happens if we just let `chooser` throw an exception?
+
+[[app-listing]]
+[source,clojure]
+----
+include::what-is-an-interceptor/src/service.clj[tags=chooser2]
+----
+
+We get the dreaded "Internal server error." We can do much better if we create an error handler. Any interceptor with an `:error` function gets asked (very politely) if it can handle the exception. Pedestal does this by calling the `:error` function with the  context map and an ex-info that wraps the original exception. (See the link:../reference/error-handling[error handling reference] for all the gory details.)
+
+We can make an interceptor that handles NumberFormatException like this:
+
+[[app-listing]]
+[source,clojure]
+----
+include::what-is-an-interceptor/src/service.clj[tags=error-i]
+----
+<1> Check what type of exception was originally thrown.
+<2> Create a response for our specific error of interest.
+<3> Tell Pedestal to keep looking for an error handler for anything else. (I.e., "rethrow" the exception.)
+
+This works, but it's still a bit noisy. Let's rewrite it using link:../api/pedestal.interceptor/io.pedestal.interceptor.error.html#var-error-dispatch[error-dispatch] to create the interceptor for us. 
+
+[[app-listing]]
+[source,clojure]
+----
+include::what-is-an-interceptor/src/service.clj[tags=error-dispatch]
+----
+<1> Use pattern matching to select which exceptions we handle.
+<2> Generate a response. Any exceptions that don't match a pattern automatically get rethrown.
+
+Much nicer! 
 
 == The Path So Far
 
+In this guide, we've gotten into some of the deep inner workings of Pedestal. You've learned:
+
+* How Pedestal invokes interceptors.
+* How to manipulate the interceptor queue and stack.
+* How to split your application logic into smaller pieces using interceptors.
+* How to handle errors 
+
 == Where To Next?
+
+You may want to head over to some of the references for full details:
+
+* link:../reference/interceptors[Interceptors]
+* link:../reference/default-interceptors[Default Interceptors]
+* link:../reference/context-map[Context Map]
+* link:../reference/error-handling[Error handling]
