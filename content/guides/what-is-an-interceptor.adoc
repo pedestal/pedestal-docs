@@ -86,7 +86,7 @@ include::what-is-an-interceptor/project.clj[]
 This is as basic as it gets, but it's enough to run `lein repl` and
 get to work. Go ahead and start a REPL.
 
-Do take note of the two depedencies about logging. If you leave these
+Do take note of the two dependencies about logging. If you leave these
 out, then you won't get any kind of logging, because slf4j will use
 its "no-op" logger.
 
@@ -166,7 +166,7 @@ Pedestal arranges to call interceptors on one of three functions at different ti
 The `:enter` function is called on the "way in" to a bunch of
 interceptors. If you look at a route with a collection of
 interceptors, they'll have their `:enter` functions invoked from
-left-to-right. Each on receives the new value of the context returned
+left-to-right. Each one receives the new value of the context returned
 by the previous one.
 
 === 2. Leave
