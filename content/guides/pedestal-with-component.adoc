@@ -161,7 +161,7 @@ handlers.
 include::component/src/routes.clj[tags=response]
 ----
 The `respond-hello` handler returns a simple static response. It may
-look familiar since it made its first appearance in the in
+look familiar since it made its first appearance in
 the link:hello-world[Hello World] guide.
 
 Finally, let's implement the routes.
@@ -205,7 +205,7 @@ a Pedestal service map.
 <4> We'll configure the service map with our app-specific routes.
 <5> The system map will contain a `:pedestal` key who's value is an
 uninitialized Pedestal component.
-<6> The Pedestal component depends on a service map, so will capture
+<6> The Pedestal component depends on a service map, so we will capture
 that dependency with `component/using`.
 
 == Running It
@@ -305,7 +305,7 @@ route, `/greet`. We'd like to verify that it returns the proper
 greeting. Before we can jump in and do that, though, we need to create
 some helpers. Some are just useful in general, while others are
 specific to our component implementation. Don't worry, you won't have
-to write to much code. Let's do it!
+to write too much code. Let's do it!
 
 First create a `system_test.clj` file in the `src` directory.
 
@@ -330,7 +330,7 @@ We need to expand the routes before invoking Pedestal's
 `route/url-for-routes` function.
 
 The `service-fn` helper extracts the Pedestal `::http/service-fn` from
-the started system. This helper keeps allows us to keep focus on our
+the started system. This helper allows us to keep focus on our
 tests rather than test initialization.
 ----
 include::component/src/system_test.clj[tags=service-fn]

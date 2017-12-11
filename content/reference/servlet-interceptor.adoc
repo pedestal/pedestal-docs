@@ -70,11 +70,11 @@ represents a call stack. If you write ordinary code with an
 early-exit, the remaining code doesn't get called. Same thing here.
 
 If you want interceptors that can iteratively construct a response
-piece by piece, you have two options.
+piece by piece, you have two options:
 
    1. Put the initial value into the response map in the last `:enter`
    function, then use the `:leave` functions to refine that value.
    2. Put the initial value into the context under a different key and
-   refine that value in either `:enter` or `:leave` functions. WHen
+   refine that value in either `:enter` or `:leave` functions. When
    it's complete, transfer it to the `:response` key.
    value is complete.
