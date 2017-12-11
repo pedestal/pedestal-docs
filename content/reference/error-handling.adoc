@@ -48,7 +48,7 @@ Pedestal will call the function bound to `:error` on an interceptor with two arg
 - The link:context-map[context map]
 - An ex-info exception
 
-Pedestal wraps *all* exceptions in ex-info. The folowing keys are defined:
+Pedestal wraps *all* exceptions in ex-info. The following keys are defined:
 
 |===
 | Key | Type | Description

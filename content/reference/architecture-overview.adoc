@@ -108,7 +108,7 @@ provider and interceptors.
 
 === Chain Provider
 
-Along with moving core logic into interceptors, we moved the HTTP
+Along with moving core logic into interceptors, we have moved the HTTP
 connection handling out of interceptor processing to create an
 interface for the _chain provider_.
 
