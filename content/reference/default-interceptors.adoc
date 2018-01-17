@@ -51,8 +51,8 @@ configuration.)
   [service-map authn-config authz-config]
   (-> service-map
       (http/default-interceptors)                                                 ;; <1>
-      (update ::http/interceptors (auth/authentication-interceptor authn-config)) ;; <2>
-      (update ::http/interceptors (auth/authorization-interceptor authz-config))  ;; <3>
+      (update ::http/interceptors conj (auth/authentication-interceptor authn-config)) ;; <2>
+      (update ::http/interceptors conj (auth/authorization-interceptor authz-config))  ;; <3>
       (http/create-server)))                                                      ;; <4>
 ----
 <1> Attach the default interceptors to our service map
