@@ -133,8 +133,20 @@ expect an asynchronous response.
             (if (:session context)
               context
               (go
-                (assoc context :auth-response (call-auth-system context))))})
+                (assoc context :auth-response (<! (call-auth-system context)))))})
 ----
+
+In this hypothetical example, the `go` block will invoke the
+authentication system and park, waiting for a response from the auth system.
+
+Pedestal will see that the interceptor returned a channel, and not a context map,
+and will free up the web server thread to handle other incoming requests
+while the `go` block is operating.
+
+Eventually, the auth system will convey a response, and the `go` block will
+complete, conveying the updated context through its channel.
+Pedestal will resume processing of the request, passing this updated
+context to the next interceptor in the interceptor chain.
 
 === Manipulating the interceptor queue
 
