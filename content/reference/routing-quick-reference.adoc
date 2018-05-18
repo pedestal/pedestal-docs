@@ -10,7 +10,7 @@ toc::[]
 
 == Library
 
-The library link:../api/pedestal.route/index.html[`pedestal-route`]
+The library link:../api/pedestal.route/index.html[`pedestal.route`]
 provides the core components to express routes and construct
 routers. It can be used independently of the pedestal-service library.
 
