@@ -270,7 +270,7 @@ Hello, world!
 As expected. But, something about that doesn't seem quite right. We're
 completely ignoring HTTP content negotiation. The client might want
 JSON instead of HTML. Or it might _want_ plain text. Or EDN. The
-trouble is that the HTTP content negotiation spec is a royally
+trouble is that the HTTP content negotiation spec is a royal
 pain. Fortunately, Pedestal provides an interceptor to help.
 
 link:../api/pedestal.service/io.pedestal.http.content-negotiation.html#var-negotiate-content[`io.pedestal.http.content-negotiation/negotiate-content`]
