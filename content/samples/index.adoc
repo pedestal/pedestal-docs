@@ -5,6 +5,13 @@ Document Writer
 :toc: macro
 :icons: font
 
+* https://github.com/pedestal/pedestal/tree/master/samples/aws-codestar-lambda[aws-codestar-lambda] - This is an example on running a Pedestal Service on AWS Lambda via API Gateway.
+It's designed to be a [CodeStar](https://aws.amazon.com/codestar/) project and ships with CodePipeline and CloudFormation support.
+* https://github.com/pedestal/pedestal/tree/master/samples/buddy-auth[buddy-auth] - This sample demonstrates integration with
+the [buddy-auth](https://funcool.github.io/buddy-auth/latest/) library
+using a Basic Authentication backend. In the process, it demonstrates
+how to port buddy-auth's `wrap-authentication` and
+`wrap-authorization` middleware functions to interceptors.
 * https://github.com/pedestal/pedestal/tree/master/samples/chain-providers[chain-providers] - This sample demonstrates using Pedestal with a custom backend server.
 Interceptor Chain Providers allow Pedestal to be used on top of any HTTP Server that's supported on the JVM.
 * https://github.com/pedestal/pedestal/tree/master/samples/cors[cors] - Here we demonstrate an implementation 
@@ -19,6 +26,7 @@ The value of the setting should be a namespaced symbol
 that resolves to a 0-arity function or nil.
 That function should return something that satisfies the MetricRecorder protocol.
 * https://github.com/pedestal/pedestal/tree/master/samples/http2[http2] - This very simple app demonstrates using Jetty's HTTP2 capabilties.
+* https://github.com/pedestal/pedestal/tree/master/samples/http2-conscrypt[http2-conscrypt] - This very simple app demonstrates using Jetty's HTTP2 capabilties.
 * https://github.com/pedestal/pedestal/tree/master/samples/immutant[immutant] - This is the `hello-world` example, adpted to illustrate using [Immutant](http://immutant.org).
 * https://github.com/pedestal/pedestal/tree/master/samples/jetty-web-sockets[jetty-web-sockets] - This sample illustrates how to use WebSockets with Pedestal and Jetty.
 * https://github.com/pedestal/pedestal/tree/master/samples/nio[nio] - This sample demonstrates using a ByteBuffer as a response body. For large response
@@ -39,5 +47,11 @@ The sample specifically applies a gzip filter to the service configuration
 of Jetty. To check on the encoding of the server's response,
 hit with curl, requesting compression:
 * https://github.com/pedestal/pedestal/tree/master/samples/template-server[template-server] - Included (in no particular order):
+* https://github.com/pedestal/pedestal/tree/master/samples/tracing[tracing] - 
+# Working with Distributed Tracing
+* https://github.com/pedestal/pedestal/tree/master/samples/tracing-interceptor[tracing-interceptor] - 
+# Working with Distributed Tracing using Pedestal's Trace Interceptor
+* https://github.com/pedestal/pedestal/tree/master/samples/tracing-interceptor-aws[tracing-interceptor-aws] - 
+# Working with Distributed Tracing using Pedestal's Trace Interceptor
 * https://github.com/pedestal/pedestal/tree/master/samples/war-example[war-example] - This sample shows the necessary tooling and options for building a deployable
 WAR file.
