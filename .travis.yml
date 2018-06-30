@@ -5,3 +5,7 @@ before_script:
   - export PATH=$PATH:$PWD/jbake-2.5.0-SNAPSHOT/bin
 
 script: ./script/deploy-prod.sh
+
+branches:
+  only:
+  - master
