@@ -35,7 +35,7 @@ Retrieve Pedestal and switch to a publicly-available version:
 
     git clone https://github.com/pedestal/pedestal.git pedestal
     cd pedestal
-    git checkout 0.5.3
+    git checkout 0.5.4
     cd .. # back out to the parent directory
 
 To build the site:

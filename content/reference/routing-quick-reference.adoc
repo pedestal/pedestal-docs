@@ -210,7 +210,7 @@ The allowed keys in a verb map are:
 - :delete
 - :any
 
-The value of each key is either:
+The value of each key is one of:
 
 * A fully qualified symbol for a handler function
 * An interceptor
