@@ -136,7 +136,7 @@
    :leave
    (fn [context]
      (cond-> context
-       (nil? (get-in context [:response :body :headers "Content-Type"]))              ;; <1>
+       (nil? (get-in context [:response :headers "Content-Type"]))              ;; <1>
        (update-in [:response] coerce-to (accepted-type context))))})                  ;; <2>
 
                                                                                       ;; end::coerce_body_2[]
