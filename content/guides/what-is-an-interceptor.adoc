@@ -100,7 +100,7 @@ include::what-is-an-interceptor/src/intc/service.clj[tags=start]
 include::what-is-an-interceptor/src/intc/service.clj[tags=run_service]
 ----
 <1> We will fill in a route shortly
-<2> Run on port 8820
+<2> Run on port 8822
 <3> Give back our REPL thread after starting
 <4> Use Jetty
 <5> Use the routes from <1>
