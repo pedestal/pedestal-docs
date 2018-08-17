@@ -241,7 +241,10 @@ The very first motivation for Pedestal was the ability to make on-the-fly decisi
 
 === Some Practical Applications
 
-Pedestal routers are just an interceptors. A router inspects the incoming request and decides what interceptors to enqueue. That's it! There's no magic at all in the router. You can build your own replacement router. For that matter, you can build a secondary router that uses something other than the request path to dispatch on.
+Pedestal routers are just interceptors! A router inspects the incoming request and decides which
+interceptors to enqueue. That's it! There's no magic at all in the router. You can build your own
+replacement router. For that matter, you can build a secondary router that uses something other than
+the request path to dispatch on.
 
 Suppose you need to add entity-level access control to an API. You can create an interceptor that looks at the entity to decide if authorization is needed. If so, enqueue an interceptor that does the auth check or redirects.
 
