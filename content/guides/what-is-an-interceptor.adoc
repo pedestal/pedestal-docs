@@ -146,7 +146,7 @@ has a function that assocs a value onto the context under the
 link:../reference/servlet-interceptor[Servlet Interceptor] looks for.
 
 This is where we have to start being precise about the difference
-between an interceptor how it gets invoked. "Interceptor" is a very
+between an interceptor and how it gets invoked. "Interceptor" is a very
 general concept. It can be used in a lot of different ways, not just
 for HTTP handling in a web framework. In fact, HTTP handling comes
 from the link:../api/pedestal.service/index.html[pedestal.service]
