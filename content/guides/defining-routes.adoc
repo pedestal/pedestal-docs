@@ -202,7 +202,8 @@ path parameter, except it has an asterisk instead of a colon:
 ["/users/:user-id/profile/*subpage" :get view-user-profile]
 ----
 
-This is still delivered as a path parameter in the request map:
+If you match this route against a URI such as `/users/miken/profile/photos/blue-wig.jpg`, 
+the result is still delivered as a path parameter in the request map:
 
 [source,clojure]
 ----
