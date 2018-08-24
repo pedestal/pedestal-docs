@@ -46,7 +46,7 @@ Retrieve the content:
 
 Generate the pages:
 
-* `jbake` - this will create the static site in the output directory
+* `jbake -b` - this will create the static site in the output directory
 * Run `jbake -s` to serve these pages at http://localhost:8820/index
 
 To autogenerate the pages on change, we can use `entr`.
