@@ -182,6 +182,18 @@ map like this:
 The path parameters are always delivered as strings. The strings are
 HTTP decoded for you, but are not otherwise converted.
 
+[WARNING]
+.Path parameter decoding issue
+=====================================================================
+Path parameter decoding is delegated to a pluggable interceptor
+(`io.pedestal.http.route/path-params-decoder` by default) as of
+version `0.5.4`. However, it is being called too early in the request
+processing lifecycle. If you need this capability, add it to your
+common interceptor collection. Refer to issue
+link:https://github.com/pedestal/pedestal/issues/588[588] for more
+info.
+=====================================================================
+
 A single path parameter only matches one segment of a URL. One segment
 is just the part between '/' characters. So the route above will _not_
 match `/users/miken/profile/photos/blue-wig.jpg`.
@@ -194,7 +206,7 @@ parameters. That's the job of <<constraints>>, discussed below.
 == Catch-all Parameters
 
 What if you actually do want to match any number of segments after a
-path? In that case, you use a "catch-all" parameter. It looks like a
+path? In that case, you use a _catch-all_ parameter. It looks like a
 path parameter, except it has an asterisk instead of a colon:
 
 [source,clojure]
@@ -202,13 +214,17 @@ path parameter, except it has an asterisk instead of a colon:
 ["/users/:user-id/profile/*subpage" :get view-user-profile]
 ----
 
-This route does match `/users/miken/profile/photos/blue-wig.jpg` and
-the path parameters are delivered in the request map as follows:
+Now this route _does_ match the URL
+`/users/miken/profile/photos/blue-wig.jpg` and, as you might have guessed, the
+matching segments are still delivered as path parameters in the
+request map:
 
 [source,clojure]
 ----
 {:path-params {:user-id "miken" :subpage "photos/blue-wig.jpg"}}
 ----
+
+As the `subpage` path parameter demonstrates, catch-all parameters are strings containing the remaining path segments.
 
 == Query Parameters
 
