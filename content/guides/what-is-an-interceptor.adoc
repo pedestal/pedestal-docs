@@ -95,12 +95,10 @@ Make a file under `src/service.clj` with the following contents:
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/intc/service.clj[tags=start]
-
-include::what-is-an-interceptor/src/intc/service.clj[tags=run_service]
+include::what-is-an-interceptor/src/intc/service.clj[tags=start;run_service]
 ----
 <1> We will fill in a route shortly
-<2> Run on port 8820
+<2> Run on port 8822
 <3> Give back our REPL thread after starting
 <4> Use Jetty
 <5> Use the routes from <1>
@@ -146,7 +144,7 @@ has a function that assocs a value onto the context under the
 link:../reference/servlet-interceptor[Servlet Interceptor] looks for.
 
 This is where we have to start being precise about the difference
-between an interceptor how it gets invoked. "Interceptor" is a very
+between an interceptor and how it gets invoked. "Interceptor" is a very
 general concept. It can be used in a lot of different ways, not just
 for HTTP handling in a web framework. In fact, HTTP handling comes
 from the link:../api/pedestal.service/index.html[pedestal.service]
@@ -241,7 +239,7 @@ The very first motivation for Pedestal was the ability to make on-the-fly decisi
 
 === Some Practical Applications
 
-Pedestal routers are just an interceptors. A router inspects the incoming request and decides what interceptors to enqueue. That's it! There's no magic at all in the router. You can build your own replacement router. For that matter, you can build a secondary router that uses something other than the request path to dispatch on.
+Pedestal routers are just interceptors. A router inspects the incoming request and decides what interceptors to enqueue. That's it! There's no magic at all in the router. You can build your own replacement router. For that matter, you can build a secondary router that uses something other than the request path to dispatch on.
 
 Suppose you need to add entity-level access control to an API. You can create an interceptor that looks at the entity to decide if authorization is needed. If so, enqueue an interceptor that does the auth check or redirects.
 
