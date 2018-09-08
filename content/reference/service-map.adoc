@@ -63,7 +63,7 @@ and their behaviour will remain unspecified.
 | `::http/host`
 | N
 | String
-| Hostname, e.g., "localhost". Passed to the container.
+| Hostname, e.g., "localhost". Passed to the container. Defaults to `localhost`.
 
 | `::http/interceptors`
 | N
