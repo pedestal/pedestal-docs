@@ -34,7 +34,7 @@ should be regarded as an implementation detail subject to change.
 
 | :io.pedestal.interceptor.chain/queue
 | Stack of interceptors
-| These are the interceptors left to execute. You can inspect this for debugging purposes, but to manipulate it you should call link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-enqueue[`enqueue`], link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate[`terminate`], or link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate-when[`terminate-when`].
+| These are the interceptors left to execute. You can inspect this for debugging purposes, but to manipulate it you should call link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-enqueue[`enqueue`], link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate[`terminate`], or link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate-when[`terminate-when`]. *Note*: This key is removed from the context map once an interceptor chain begins processing the `leave` stage.
 
 | :io.pedestal.interceptor.chain/terminators
 | Collection of predicates
