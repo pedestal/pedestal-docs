@@ -194,7 +194,7 @@ Each route vector contains the following:
 
 1. A path segment. This must begin with a slash.
 2. A verb map
-3. (Optional) An interceptor vector with `^:interceptor` metadata
+3. (Optional) An interceptor vector with `^:interceptors` metadata
 4. (Optional) A constraints map with `^:constraints` metadata
 5. Zero or more child route vectors
 
@@ -216,7 +216,7 @@ The value of each key is one of:
 * An interceptor
 * A vector containing (in the following order):
 ** A keyword representing the unique route name
-** An optional interceptor vector with `^:interceptor` metadata
+** An optional interceptor vector with `^:interceptors` metadata
 ** An interceptor or fully qualified symbol for a handler function
 
 Each verb in the verb map defines a route on the path. This example
