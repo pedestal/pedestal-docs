@@ -8,9 +8,6 @@
 
 set -e
 
-# Variables
-content_branch=master
-
 echo "Cleaning build area in ./output"
 rm -rf ./output
 
