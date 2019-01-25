@@ -24,6 +24,13 @@ Routers use this when building routes: anything that satisfies
 `IntoInterceptor` is legal to use in the interceptor vector of a
 route.
 
+As covered in the
+link:interceptors#_manipulating_the_interceptor_queue[Interceptors]
+reference, interceptors that are explicitely enqueued by the
+application must be defined using the
+`io.pedestal.interceptor/interceptor` function. Queue processing is
+optimized for runtime and does not construct `Interceptor` records.
+
 Pedestal extends `IntoInterceptor` onto a variety of Clojure and Java
 types. See the link:interceptors#_intointerceptor[interceptors
 reference] for details of their behaviors.
