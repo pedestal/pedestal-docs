@@ -81,7 +81,13 @@
       slurp
       (str/split #"\n\n")))
 
-(defn heading? [s] (str/starts-with? s "#"))
+(defn setext-heading-underline?
+  "True if s is a Github markdown-flavored setext-heading-underline."
+  [s]
+  (boolean (re-find #"\s{0,3}(={2,}|--{2,})\s*" s)))
+
+(defn heading? [s] (or (str/starts-with? s "#")
+                       (setext-heading-underline? s)))
 
 (defn headline
   [f]

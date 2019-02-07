@@ -39,3 +39,10 @@ mailing list]
 
 * Ryan Neufeld's link:https://github.com/rkneufeld/pedestal-micro[Pedestal-micro] template for microservices.
 * Paul deGrandis' link:https://github.com/ohpauleez/pedestal-micro[Fork of Ryan's] microservice template
+
+== Support libraries
+
+* link:https://github.com/metosin/reitit/tree/master/examples/pedestal-swagger[reitit]: alternative router with built-in coercion and swagger-support 
+* link:https://github.com/metosin/muuntaja[muuntaja]: Clojure library for fast http api format negotiation, encoding and decoding.
+* link:https://github.com/oliyh/pedestal-api[pedestal-api]: Batteries-included API for Pedestal using Swagger
+* link:https://github.com/oliyh/angel-interceptor[angel-interceptor]: Express relations between Pedestal interceptors and decouple scope from execution order

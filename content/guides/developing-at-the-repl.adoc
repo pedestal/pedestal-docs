@@ -19,7 +19,8 @@ link:unit-testing[Unit Testing Your Pedestal API] guide.
 
 == What You Will Learn
 
-After reading this guide, you will be able to perform the following tasks at the REPL:
+After reading this guide, you will be able to perform the following tasks at
+the REPL:
 
 - Start and stop the HTTP server.
 - Reload your routes without restarting the server.
@@ -185,7 +186,7 @@ the `:path` and `:method` keys, we're given access to
 the list of `:interceptors` that will be invoked when
 this route is requested. It's not uncommon for Pedestal
 services to have quite a few interceptors, so the raw
-output from named-route can get a little unweildy. Let's
+output from named-route can get a little unwieldy. Let's
 see if we can produce some friendlier output.
 
 == Interceptors and Handlers
@@ -379,11 +380,11 @@ documentation] for full details.
 
 In this guide we learned how to explore our Pedestal application from
 the REPL. Some of these explorations may serve as the basis for unit
-tests. Head over to the unit testing guide to learn how to test the
-complete interceptor chain for a given route and much more.
+tests. Head over to the link:unit-testing[Unit Testing] guide to learn how to
+test the complete interceptor chain for a given route and much more.
 
 Alternatively, you may want to learn to manage your applications stateful
 components (like the HTTP server) more effectively. Check out the guide
-on link:pedestal-component[Integrating Pedestal with Component] to learn
-how easy it can be to incorporate Stuart Sierra's Reloaded worflow into
+on link:pedestal-with-component[Integrating Pedestal with Component] to learn
+how easy it can be to incorporate Stuart Sierra's Reloaded workflow into
 your Pedestal development.

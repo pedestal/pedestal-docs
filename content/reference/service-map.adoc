@@ -23,7 +23,7 @@ not call `create-server`, but instead assemble a service function,
 chain provider, etc. directly. See the chain provider link:../samples/index[sample].
 
 Pedestal may add other keys to this map for its own use. Other applications
-should treay any such keys and their values as implementation values details
+should treat any such keys and their values as implementation values details
 and their behaviour will remain unspecified.
 
 [cols="s,d,d,d", options="header", grid="rows"]
@@ -63,7 +63,7 @@ and their behaviour will remain unspecified.
 | `::http/host`
 | N
 | String
-| Hostname, e.g., "localhost". Passed to the container.
+| Hostname, e.g., "localhost". Passed to the container. Defaults to `localhost`.
 
 | `::http/interceptors`
 | N

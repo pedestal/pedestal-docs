@@ -21,7 +21,7 @@ concepts in Pedestal.
 
 After reading this guide, you will be able to:
 
-- Accept query paramters.
+- Accept query parameters.
 - Use the request map.
 - Apply logic in your handler.
 - Conditionally return an error.
@@ -85,7 +85,7 @@ using them on other request types.
 
 .URL with Query Parameter
 ====
-http://localhost:8890/hello?name=Michael
+http://localhost:8890/greet?name=Michael
 ====
 
 Because query parameters are so common, Pedestal handles them

@@ -28,7 +28,7 @@ and let us know what you're working on.
 While working on documentation we encourage you to ping the mailing
 list frequently for feedback.
 
-All substantial pull requests will required a signed [CA](http://pedestal.io/#contribute).
+All substantial pull requests will require a signed [Contributor's Agreement](#contributors-agreement).
 
 ### Typos and other minor changes
 

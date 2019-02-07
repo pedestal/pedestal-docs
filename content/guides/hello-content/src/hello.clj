@@ -116,6 +116,7 @@
       (assoc-in [:headers "Content-Type"] content-type)))
                                                                                       ;; end::coerce_refactored_comm[]
                                                                                       ;; tag::coerce_body_1[]
+
 (def coerce-body
   {:name ::coerce-body
    :leave
@@ -125,9 +126,12 @@
        (update-in context [:response] coerce-to (accepted-type context))))})
                                                                                       ;; end::coerce_body_1[]
                                                                                       ;; tag::routes_refactored[]
+
 (def routes
   (route/expand-routes
    #{["/greet" :get [coerce-body content-neg-intc respond-hello] :route-name :greet]
+     ["/echo"  :get echo]}))
+
                                                                                       ;; end::routes_refactored[]
 
                                                                                       ;; tag::coerce_body_2[]
@@ -136,7 +140,7 @@
    :leave
    (fn [context]
      (cond-> context
-       (nil? (get-in context [:response :body :headers "Content-Type"]))              ;; <1>
+       (nil? (get-in context [:response :headers "Content-Type"]))              ;; <1>
        (update-in [:response] coerce-to (accepted-type context))))})                  ;; <2>
 
                                                                                       ;; end::coerce_body_2[]

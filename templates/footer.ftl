@@ -2,7 +2,7 @@
     <div class="w-container clj-footer-legal-container">
       <div class="w-clearfix clj-footer-legal">
         <div class="clj-footer-legal-links">
-          <div class="clj-footer-copyright">Copyright 2013-2016 <a class="clj-footer-sub-link" href="https://www.cognitect.com">Cognitect, Inc.</a> | <a class="clj-footer-sub-link" href="/privacy">Privacy Policy</a><br/>Published ${published_date?string("yyyy-MM-dd")}
+          <div class="clj-footer-copyright">Copyright 2013-2018 <a class="clj-footer-sub-link" href="https://www.cognitect.com">Cognitect, Inc.</a> | <a class="clj-footer-sub-link" href="/privacy">Privacy Policy</a><br/>Published ${published_date?string("yyyy-MM-dd")}
           </div>
           <div class="clj-footer-designed-by">Site design by <a class="clj-footer-sub-link" href="http://tomhickey.com/">Tom Hickey</a>
           </div>
