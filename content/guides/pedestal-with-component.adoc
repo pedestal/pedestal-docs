@@ -55,7 +55,7 @@ service - routes, interceptors and configuration is kept separate from
 service plumbing.
 
 Finally, Pedestal service configuration, captured via a
-link::service-map[Service Map], will be a component dependency.
+link:/reference/service-map[Service Map], will be a component dependency.
 
 Now that we have a better idea of what we want our component to do,
 let's go build it!
