@@ -105,7 +105,7 @@ use that to create the relative url for your tests.
 (def url-for (http.routes/url-for-routes (http.routes/expand-routes routes))))
 
 (is (= 200 (:status (response-for service
-                                  :post (url-for ::user-items
+                                  :get (url-for ::user-items
                                                  :path-params {:id 1}
                                                  :query-params {:sort "ASC"})))))
 ----
