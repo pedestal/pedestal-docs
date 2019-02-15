@@ -13,9 +13,10 @@ and more generally, interceptor code. This separation of concerns has
 many benefits, including facilitating testing. However, there is still
 value in exercising the end-to-end operation of your service endpoints
 since, at minimum, it provides quick feedback that you've wired things
-up correctly. Pedestal provides the test helper `response-for` utility
-function to facilitate testing of services without having to spin up
-an http server.
+up correctly. Pedestal provides the test helper
+link:../api/pedestal.service/io.pedestal.test.html#var-response-for[`response-for`]
+utility function to facilitate testing of services without having to
+spin up an http server.
 
 == Testing your service with `response-for`
 
@@ -73,10 +74,11 @@ this:
 
 POST'ing to a service endpoint can be tested by using the `:post` verb
 and specifying a request `:body`. The route under test typically
-includes the `io.pedestal.http.body-params/body-params` interceptor to
-support request payload parsing. Therefore, you will need to set the
-`Content-Type` header of the test request to the appropriate value
-based on the payload format of the request body.
+includes the
+link:../api/pedestal.service/io.pedestal.http.body-params.html#var-body-params[`body-params`]
+interceptor to support request payload parsing. Therefore, you will
+need to set the `Content-Type` header of the test request to the
+appropriate value based on the payload format of the request body.
 
 [source,clojure]
 ----
