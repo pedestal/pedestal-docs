@@ -55,7 +55,7 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 * Pedestal and Datomic
 * JSON APIs
 * Interactive development
-* Unit testing
+* link:unit-testing[Unit testing]
 
 == Advanced HTTP
 
