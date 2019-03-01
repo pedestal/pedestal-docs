@@ -43,9 +43,10 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 ** link:terse-syntax[Terse Syntax]
 ** link:verbose-syntax[Verbose Syntax]
 ** link:debugging-routes[Debugging Routes]
-* Using the Built-in Routers
-** Prefix Tree Router
-** Linear Search Router
+* link:using-the-builtin-routers[Using the Built-in Routers]
+** link:map-tree-router[Map Tree Router]
+** link:prefix-tree-router[Prefix Tree Router]
+** link:linear-search-router[Linear Search Router]
 * Writing Your Own Router
 * Generating Links
 * Routing Constraints
