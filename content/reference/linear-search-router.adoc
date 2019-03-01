@@ -15,8 +15,8 @@ implementing a custom router.
 
 == Why use it?
 
-You require precise control over routing and the performance the
-routing performance tradeoff is acceptable to your service.
+You require precise control over routing and the routing performance
+tradeoff is acceptable to your service.
 
 == How to use it?
 
