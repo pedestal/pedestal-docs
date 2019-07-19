@@ -80,7 +80,7 @@ Make a directory for your project and drop this into `project.clj`:
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/project.clj[]
+include::what-is-an-interceptor-src/project.clj[]
 ----
 
 This is as basic as it gets, but it's enough to run `lein repl` and
@@ -95,7 +95,7 @@ Make a file under `src/service.clj` with the following contents:
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/intc/service.clj[tags=start;run_service]
+include::what-is-an-interceptor-src/src/intc/service.clj[tags=start;run_service]
 ----
 <1> We will fill in a route shortly
 <2> Run on port 8822
@@ -126,7 +126,7 @@ request with "Hello, world!".
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/intc/service.clj[tags=hello]
+include::what-is-an-interceptor-src/src/intc/service.clj[tags=hello]
 ----
 
 There are a couple of things to point out here. First, this is
@@ -215,7 +215,7 @@ First we'll change `service.clj` to add two new claims beyond "Hello World."
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/intc/service.clj[tags=new_players]
+include::what-is-an-interceptor-src/src/intc/service.clj[tags=new_players]
 ----
 
 These interceptors aren't very interesting, but there are two of them. Here's how we are going to choose which one to run.
@@ -223,7 +223,7 @@ These interceptors aren't very interesting, but there are two of them. Here's ho
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/intc/service.clj[tags=chooser]
+include::what-is-an-interceptor-src/src/intc/service.clj[tags=chooser]
 ----
 <1> Look at the `n` query parameter from the URL.
 <2> Enqueue one or the other of our interceptors.
@@ -269,7 +269,7 @@ Our data "science" interceptor is pretty small, but it still does just a bit too
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/intc/service.clj[tags=chooser2]
+include::what-is-an-interceptor-src/src/intc/service.clj[tags=chooser2]
 ----
 
 We get the dreaded "Internal server error." We can do much better if we create an error handler. Any interceptor with an `:error` function gets asked (very politely) if it can handle the exception. Pedestal does this by calling the `:error` function with the  context map and an ex-info that wraps the original exception. (See the link:../reference/error-handling[error handling reference] for all the gory details.)
@@ -279,7 +279,7 @@ We can make an interceptor that handles NumberFormatException like this:
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/intc/service.clj[tags=error-i]
+include::what-is-an-interceptor-src/src/intc/service.clj[tags=error-i]
 ----
 <1> Check what type of exception was originally thrown.
 <2> Create a response for our specific error of interest.
@@ -290,7 +290,7 @@ This works, but it's still a bit noisy. Let's rewrite it using link:../api/pedes
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/intc/service.clj[tags=error-dispatch]
+include::what-is-an-interceptor-src/src/intc/service.clj[tags=error-dispatch]
 ----
 <1> Use pattern matching to select which exceptions we handle.
 <2> Generate a response. Any exceptions that don't match a pattern automatically get rethrown.

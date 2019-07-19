@@ -12,7 +12,7 @@ echo "Cleaning build area in ./output"
 rm -rf ./output
 
 echo "Building pages in ./output"
-jbake
+jbake -b
 
 echo "Copying API docs to ./output/api"
 cp -r ./api ./output/
