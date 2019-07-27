@@ -140,7 +140,7 @@ image::../images/guides/interceptors.png[]
 That context map contains the request map, the response map, and a
 queue of interceptors that still need to be invoked.
 
-An interceptors `enter` function is called on the way "down" the
+An interceptor's `enter` function is called on the way "down" the
 queue. Each `enter` function will be called in order. As interceptors
 are entered, they get pushed on to a stack to be called in reverse on
 the way back "up". Once the interceptor queue is empty, the `leave`
