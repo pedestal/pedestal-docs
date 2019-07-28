@@ -150,6 +150,10 @@ expect an asynchronous response.
                 (assoc context :auth-response (call-auth-system context))))})
 ----
 
+[IMPORTANT]
+.*Chaining With Async Interceptors*
+Any interceptor downstream of an asynchronous interceptor will be executed in the `core.async` thread pool.
+
 === IntoInterceptor
 
 The protocol
