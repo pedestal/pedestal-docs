@@ -38,7 +38,7 @@ Cognitect
 
 == Fun with Interceptors
 
-* An Interceptors that adds Interceptors
+* An Interceptor that adds Interceptors
 * Writing a Custom Router
 
 == Security
