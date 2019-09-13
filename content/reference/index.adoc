@@ -82,8 +82,8 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 
 * link:logging[Logging]
 * link:jetty[Jetty]
-* Immutant/Wildfly
-* Tomcat
+* link:immutant[Immutant/Wildfly]
+* link:tomcat[Tomcat]
 * BlueMix
 * Nginx
 * Netty
