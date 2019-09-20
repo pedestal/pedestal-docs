@@ -90,11 +90,15 @@ appropriate value based on the payload format of the request body.
 
 Notice how `Content-Type` is a string.
 
-==== Testing with Query and path parameters
+==== Constructing urls
 
-When testing routes which take path and/or query parameters, it is
-recommended to create a `url-for` test helper based on your routes and
-use that to create the relative url for your tests.
+It is recommended to create a `url-for` test helper based on your routes and
+use that to create the relative urls for your tests. This allows you to
+refer to routes by name as opposed to hard-coded paths. Route names
+are typically more stable. Aside from that, it makes it easy to test
+routes which use query or path parameters.
+
+Here's an example:
 
 [source,clojure]
 ----
