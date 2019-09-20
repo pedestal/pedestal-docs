@@ -108,3 +108,5 @@ tags
 .nrepl-history
 
 /.idea/
+
+.cpcache

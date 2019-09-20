@@ -140,25 +140,27 @@
    :leave
    (fn [context]
      (cond-> context
-       (nil? (get-in context [:response :headers "Content-Type"]))              ;; <1>
+       (nil? (get-in context [:response :headers "Content-Type"]))                    ;; <1>
        (update-in [:response] coerce-to (accepted-type context))))})                  ;; <2>
 
                                                                                       ;; end::coerce_body_2[]
 
                                                                                       ;; tag::server[]
+(def server (atom nil))                                                               ;; <1>
+
 (defn create-server []
-  (http/create-server                                                                 ;; <1>
-   {::http/routes routes                                                              ;; <2>
-    ::http/type   :jetty                                                              ;; <3>
-    ::http/port   8890}))                                                             ;; <4>
+  (http/create-server
+   {::http/routes routes
+    ::http/type   :jetty
+    ::http/port   8890
+    ::http/join?  false}))                                                            ;; <2>
 
 (defn start []
-  (http/start (create-server)))                                                       ;; <5>
-                                                                                      ;; end::server[]
+  (swap! server
+         (constantly (http/start (create-server))))                                   ;; <3>
+  nil)
 
-(defn start-dev []
-  (http/start (http/create-server
-               {::http/routes routes
-                ::http/type   :jetty
-                ::http/port   8890
-                ::http/join? false})))
+(defn stop []
+  (swap! server http/stop)                                                            ;; <4>
+  nil)
+                                                                                      ;; end::server[]

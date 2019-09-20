@@ -255,14 +255,16 @@ Let's see the result:
 ----
 $ curl -i http://localhost:8890/greet
 HTTP/1.1 200 OK
-Date: Wed, 24 Aug 2016 15:02:08 GMT
+Date: Fri, 20 Sep 2019 17:48:23 GMT
 Strict-Transport-Security: max-age=31536000; includeSubdomains
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff
 X-XSS-Protection: 1; mode=block
+X-Download-Options: noopen
+X-Permitted-Cross-Domain-Policies: none
+Content-Security-Policy: object-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:;
 Content-Type: text/html
 Transfer-Encoding: chunked
-Server: Jetty(9.3.8.v20160314)
 
 Hello, world!
 ----
@@ -305,13 +307,13 @@ We are using a new namespace here, which will eventually let us write JSON data.
 That is how Clojure tells you it is missing a library. By looking at
 the library's https://github.com/clojure/data.json[project page], we see that the latest stable release is
 "0.2.6" (at least, it is when this guide is being written!). We can
-add the library in the dependencies part of our `build.boot` file:
+add the library in the dependencies part of our `deps.edn` file:
 
 [[app-listing]]
 [source,clojure]
-.build.boot
+.deps.edn
 ----
-include::hello-content/build.boot[]
+include::hello-content/deps.edn[]
 ----
 
 Any time you change the dependencies, you will definitely need to
@@ -356,16 +358,20 @@ Let's try this out with curl. Restart your service and try sending in some curl 
 
 [source,bash]
 ----
-$ curl -i http://localhost:8890/greet   # Don't specify any Accept header
+$ curl -i http://localhost:8890/greet
 HTTP/1.1 200 OK
-Date: Thu, 25 Aug 2016 02:28:44 GMT
+Date: Fri, 20 Sep 2019 17:59:41 GMT
 Strict-Transport-Security: max-age=31536000; includeSubdomains
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff
 X-XSS-Protection: 1; mode=block
-Content-Type: text/plain
+X-Download-Options: noopen
+X-Permitted-Cross-Domain-Policies: none
+Content-Security-Policy: object-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:;
+Content-Type: text/html
 Transfer-Encoding: chunked
-Server: Jetty(9.3.8.v20160314)
+
+Hello, world!
 
 Hello, world!
 ----
@@ -376,42 +382,48 @@ Notice the content type returned by our service was "text/plain." Let's try some
 ----
 $ curl -i -H "Accept: text/html" http://localhost:8890/greet
 HTTP/1.1 200 OK
-Date: Thu, 25 Aug 2016 02:30:02 GMT
+Date: Fri, 20 Sep 2019 18:00:18 GMT
 Strict-Transport-Security: max-age=31536000; includeSubdomains
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff
 X-XSS-Protection: 1; mode=block
+X-Download-Options: noopen
+X-Permitted-Cross-Domain-Policies: none
+Content-Security-Policy: object-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:;
 Content-Type: text/html
 Transfer-Encoding: chunked
-Server: Jetty(9.3.8.v20160314)
 
 Hello, world!
 
 $ curl -i -H "Accept: application/edn" http://localhost:8890/greet
 HTTP/1.1 200 OK
-Date: Thu, 25 Aug 2016 02:30:24 GMT
+Date: Fri, 20 Sep 2019 18:00:44 GMT
 Strict-Transport-Security: max-age=31536000; includeSubdomains
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff
 X-XSS-Protection: 1; mode=block
+X-Download-Options: noopen
+X-Permitted-Cross-Domain-Policies: none
+Content-Security-Policy: object-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:;
 Content-Type: application/edn
 Transfer-Encoding: chunked
-Server: Jetty(9.3.8.v20160314)
 
-"Hello, world!\n"
+"Hello, world!\n"%
 
 $ curl -i -H "Accept: application/xml, application/json" http://localhost:8890/greet
 HTTP/1.1 200 OK
-Date: Thu, 25 Aug 2016 02:30:58 GMT
+Date: Fri, 20 Sep 2019 18:00:59 GMT
 Strict-Transport-Security: max-age=31536000; includeSubdomains
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff
 X-XSS-Protection: 1; mode=block
+X-Download-Options: noopen
+X-Permitted-Cross-Domain-Policies: none
+Content-Security-Policy: object-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:;
 Content-Type: application/json
 Transfer-Encoding: chunked
-Server: Jetty(9.3.8.v20160314)
 
-"Hello, world!\n"
+"Hello, world!\n"%
 ----
 
 Very nice.

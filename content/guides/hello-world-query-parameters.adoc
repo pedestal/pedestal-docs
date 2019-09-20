@@ -92,48 +92,87 @@ Because query parameters are so common, Pedestal handles them
 automatically. You can try that URL with your service right now.
 
 As a reminder, we're running the server by using
-http://boot-clj.com[Boot] to start an interactive session (called a
-REPL, rhymes with ripple) then starting the service in that session:
+the https://clojure.org/guides/deps_and_cli[clj] tool to start an
+interactive session (called a REPL, rhymes with ripple) then starting
+the service in that session. Before we do that, though, let's discuss
+interactive development.
+
+== Interactive Development
+
+It's really not optimal to be restarting your REPL in order to restart
+the service every time you need to make a change. In real Clojure
+development, we rarely restart the REPL. Instead, we make our system
+friendly to interactive development. The main problem so far is that
+starting the HTTP service doesn't return. We can fix that by adding a
+key to the map that says "return instead of waiting for the server to
+stop."
+
+[source,clojure]
+.src/hello.clj
+----
+include::hello-query/src/hello.clj[tags=server]
+----
+<1> `defonce` here means we can recompile this file in the same REPL
+without overwriting the value in this atom.
+<2> `reset!` replaces the current value in the atom with the new value.
+<3> Tell Pedestal not to wait for the server to exit. You set `join?`
+to true when running "for real" so that your main function does exit
+and terminate the process.
+<4> This is a quick way to bounce the server.
+
+
+The key `::http/join?` does the trick. We can now run `start-dev` in
+our REPL sessions. Instead of waiting forever, the REPL thread now
+returns, prints the value of the server (an ugly mess!) and lets us
+continue interacting. This is how we are going to start things in dev
+from now on. Let's try it out.
+
+First, let's start the service.
 
 ----
-$ boot repl
-nREPL server started on port 37569 on host 127.0.0.1 - nrepl://127.0.0.1:37569
-REPL-y 0.3.7, nREPL 0.2.12
-Clojure 1.9.0-alpha10
-OpenJDK 64-Bit Server VM 1.8.0_91-8u91-b14-3ubuntu1~16.04.1-b14
-        Exit: Control+D or (exit) or (quit)
-    Commands: (user/help)
-        Docs: (doc function-name-here)
-              (find-doc "part-of-name-here")
-Find by Name: (find-name "part-of-name-here")
-      Source: (source function-name-here)
-     Javadoc: (javadoc java-object-or-class-here)
-    Examples from clojuredocs.org: [clojuredocs or cdoc]
-              (user/clojuredocs name-here)
-              (user/clojuredocs "ns-here" "name-here")
-boot.user=> (require 'hello)
-SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
-SLF4J: Defaulting to no-operation (NOP) logger implementation
-SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+$ clj
+Clojure 1.10.1
+user=>
+user=> (require 'hello)
 nil
-boot.user=> (hello/start)
+user=> (hello/start-dev)
+[main] INFO org.eclipse.jetty.util.log - Logging initialized @14152ms to org.eclipse.jetty.util.log.Slf4jLog
+[main] INFO org.eclipse.jetty.server.Server - jetty-9.4.18.v20190429; built: 2019-04-29T20:42:08.989Z; git: e1bc35120a6617ee3df052294e433f3a25ce7097; jvm 1.8.0_222-b10
+[main] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@7dc155b3{/,null,AVAILABLE}
+[main] INFO org.eclipse.jetty.server.AbstractConnector - Started ServerConnector@71b3c2a7{HTTP/1.1,[http/1.1, h2c]}{localhost:8890}
+[main] INFO org.eclipse.jetty.server.Server - Started @14337ms
+#:io.pedestal.http{:routes ({:path "/greet", :method :get, :path-re #"/\Qgreet\E", :path-parts ["greet"], :interceptors [#Interceptor{:name }], :route-name :greet, :path-params []}), :server #object[org.eclipse.jetty.server.Server 0x5c8d22de "Server@5c8d22de{STARTED}[9.4.18.v20190429]"], :stop-fn #object[io.pedestal.http.jetty$server$fn__16012 0x17bda3 "io.pedestal.http.jetty$server$fn__16012@17bda3"], :type :jetty, :port 8890, :servlet #object[io.pedestal.http.servlet.FnServlet 0x465b16bb "io.pedestal.http.servlet.FnServlet@465b16bb"], :host "localhost", :join? false, :service-fn #object[io.pedestal.http.impl.servlet_interceptor$interceptor_service_fn$fn__15761 0x60df0131 "io.pedestal.http.impl.servlet_interceptor$interceptor_service_fn$fn__15761@60df0131"], :interceptors [#Interceptor{:name :io.pedestal.http/log-request} #Interceptor{:name :io.pedestal.http/not-found} #Interceptor{:name :io.pedestal.http.ring-middlewares/content-type-interceptor} #Interceptor{:name :io.pedestal.http.route/query-params} #Interceptor{:name :io.pedestal.http.route/path-params-decoder} #Interceptor{:name :io.pedestal.http.route/method-param} #Interceptor{:name :io.pedestal.http.secure-headers/secure-headers} #Interceptor{:name :io.pedestal.http.route/router}], :start-fn #object[io.pedestal.http.jetty$server$fn__16010 0x43e869ea "io.pedestal.http.jetty$server$fn__16010@43e869ea"]}
 ----
 
-Then from another window, we can send a request
+
+Whatever happened to "no news is good news?" Believe it or not, that
+is all successful output. The big glob at the end is the value of the
+server. It's a big map with all the state in it. The most important
+thing to do with it is _hang on to it_ so we can stop the server
+later. We do that by putting it in an
+http://clojure.org/reference/atoms[atom].
+
+Now we can use `start-dev`, `stop-dev`, and `restart` as we make changes.
+
+== Moving along
+
+From another window, let's send a request with a query parameter.
 
 ----
-$ curl -i http://localhost:8890/greet?name=Michael
+$ curl -i http://localhost:8890/greet\?name=Michael
 HTTP/1.1 200 OK
-Date: Mon, 22 Aug 2016 14:23:41 GMT
+Date: Fri, 20 Sep 2019 15:51:27 GMT
 Strict-Transport-Security: max-age=31536000; includeSubdomains
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff
 X-XSS-Protection: 1; mode=block
+X-Download-Options: noopen
+X-Permitted-Cross-Domain-Policies: none
+Content-Security-Policy: object-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:;
 Content-Type: text/plain
 Transfer-Encoding: chunked
-Server: Jetty(9.3.8.v20160314)
 
-Hello, world!
+Hello, world!%
 ----
 
 Even though we added a query parameter to our request, Pedestal still
@@ -172,18 +211,20 @@ Restart your service with that new definition and use curl. You'll see
 something like this:
 
 ----
-$ curl -i http://localhost:8890/greet?name=Michael
+$ curl -i http://localhost:8890/greet\?name=Michael
 HTTP/1.1 200 OK
-Date: Mon, 22 Aug 2016 14:35:11 GMT
+Date: Fri, 20 Sep 2019 16:04:03 GMT
 Strict-Transport-Security: max-age=31536000; includeSubdomains
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff
 X-XSS-Protection: 1; mode=block
+X-Download-Options: noopen
+X-Permitted-Cross-Domain-Policies: none
+Content-Security-Policy: object-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:;
 Content-Type: application/edn
 Transfer-Encoding: chunked
-Server: Jetty(9.3.8.v20160314)
 
-{:protocol "HTTP/1.1", :async-supported? true, :remote-addr "127.0.0.1", :params {:name "Michael"}, :servlet-response #object[org.eclipse.jetty.server.Response 0x49955795 "HTTP/1.1 200 \nDate: Mon, 22 Aug 2016 14:35:11 GMT\r\nStrict-Transport-Security: max-age=31536000; includeSubdomains\r\nX-Frame-Options: DENY\r\nX-Content-Type-Options: nosniff\r\nX-XSS-Protection: 1; mode=block\r\nContent-Type: application/edn\r\n\r\n"], :servlet #object[io.pedestal.http.servlet.FnServlet 0x185fced4 "io.pedestal.http.servlet.FnServlet@185fced4"], :headers {"user-agent" "curl/7.47.0", "accept" "*/*", "host" "localhost:8890"}, :server-port 8890, :servlet-request #object[org.eclipse.jetty.server.Request 0x4b0f012d "Request(GET //localhost:8890/greet?name=Michael)@4b0f012d"], :query-params {:name "Michael"}, :path-info "/greet", :url-for #object[io.pedestal.http.route$url_for_routes$fn__11094 0x5d327c71 "io.pedestal.http.route$url_for_routes$fn__11094@5d327c71"], :uri "/greet", :server-name "localhost", :query-string "name=Michael", :path-params {}, :body #object[org.eclipse.jetty.server.HttpInputOverHTTP 0x150ca6ce "HttpInputOverHTTP@150ca6ce[c=0,s=STREAM]"], :scheme :http, :request-method :get}
+{:protocol "HTTP/1.1", :async-supported? true, :remote-addr "127.0.0.1", :params {:name "Michael"}, :servlet-response #object[org.eclipse.jetty.server.Response 0x619acc59 "HTTP/1.1 200 \nDate: Fri, 20 Sep 2019 16:04:03 GMT\r\nStrict-Transport-Security: max-age=31536000; includeSubdomains\r\nX-Frame-Options: DENY\r\nX-Content-Type-Options: nosniff\r\nX-XSS-Protection: 1; mode=block\r\nX-Download-Options: noopen\r\nX-Permitted-Cross-Domain-Policies: none\r\nContent-Security-Policy: object-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:;\r\nContent-Type: application/edn\r\n\r\n"], :servlet #object[io.pedestal.http.servlet.FnServlet 0x6253df71 "io.pedestal.http.servlet.FnServlet@6253df71"], :headers {"user-agent" "curl/7.54.0", "accept" "*/*", "host" "localhost:8890"}, :server-port 8890, :servlet-request #object[org.eclipse.jetty.server.Request 0x70be4d24 "Request(GET //localhost:8890/greet?name=Michael)@70be4d24"], :query-params {:name "Michael"}, :path-info "/greet", :url-for #object[clojure.lang.Delay 0x13e17f7f {:status :pending, :val nil}], :uri "/greet", :server-name "localhost", :query-string "name=Michael", :path-params [], :body #object[org.eclipse.jetty.server.HttpInputOverHTTP 0x273006ca "HttpInputOverHTTP@273006ca[c=0,q=0,[0]=null,s=STREAM]"], :scheme :http, :request-method :get, :context-path ""}
 ----
 
 Yikes!
@@ -214,7 +255,7 @@ Here's what we are left with.
  :headers          {"user-agent" "curl/7.47.0", "accept" "*/*", "host" "localhost:8890"},
  :server-port      8890,
  :server-name      "localhost",
- :path-params      {},
+ :path-params      [],
  :scheme           :http,
  :request-method   :get
 }
@@ -269,17 +310,17 @@ symbols as a policy.)
 Restart your service and use curl to try a few different requests with parameters.
 
 ----
-$ curl http://localhost:8890/greet?name=Michael
+$ curl http://localhost:8890/greet\?name=Michael
 Hello, Michael
-$ curl http://localhost:8890/greet?name=Pankaj
+$ curl http://localhost:8890/greet\?name=Pankaj
 Hello, Pankaj
-$ curl http://localhost:8890/greet?name=Geeta
+$ curl http://localhost:8890/greet\?name=Geeta
 Hello, Geeta
-$ curl http://localhost:8890/greet?name=ไอรีนซีพีชาไอที
+$ curl http://localhost:8890/greet\?name=ไอรีนซีพีชาไอที
 Hello, ไอรีนซีพีชาไอที
-$ curl http://localhost:8890/greet?name=No%20One%20To%20Be%20Trifled%20With
+$ curl http://localhost:8890/greet\?name=No%20One%20To%20Be%20Trifled%20With
 Hello, No One To Be Trifled With
-$ curl http://localhost:8890/greet?name=
+$ curl http://localhost:8890/greet\?name=
 Hello,
 $ curl http://localhost:8890/greet
 Hello,
@@ -306,9 +347,9 @@ Let's try that again:
 ----
 $ curl http://localhost:8890/greet
 Hello, world!
-$ curl http://localhost:8890/greet?name=
+$ curl http://localhost:8890/greet\?name=
 Hello, world!
-$ curl http://localhost:8890/greet?name=ไอรีนซีพีชาไอที
+$ curl http://localhost:8890/greet\?name=ไอรีนซีพีชาไอที
 Hello, ไอรีนซีพีชาไอที
 ----
 
@@ -399,15 +440,15 @@ as simple as it gets.
 Restart your service and give it a try:
 
 ----
-$ curl http://localhost:8890/greet?name=Michael
+$ curl http://localhost:8890/greet\?name=Michael
 Hello, Michael
-$ curl http://localhost:8890/greet?name=Rumplestiltskin
+$ curl http://localhost:8890/greet\?name=Rumplestiltskin
 Not found
-$ curl http://localhost:8890/greet?name=曹操
+$ curl http://localhost:8890/greet\?name=曹操
 Not found
-$ curl http://localhost:8890/greet?name=voldemort
+$ curl http://localhost:8890/greet\?name=voldemort
 Hello, voldemort
-$ curl http://localhost:8890/greet?name=He%20who%20must%20not%20be%20named
+$ curl http://localhost:8890/greet\?name=He%20who%20must%20not%20be%20named
 Hello, He who must not be named
 ----
 
@@ -438,9 +479,9 @@ include::hello-query/src/hello.clj[tags=server]
 
 [[app-listing]]
 [source,clojure,subs="-callouts"]
-.build.boot
+.deps.edn
 ----
-include::hello-query/build.boot[]
+include::hello-query/deps.edn[]
 ----
 
 == The Path So Far

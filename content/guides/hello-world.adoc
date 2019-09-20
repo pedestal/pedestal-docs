@@ -42,10 +42,10 @@ Linux (any flavor) with great results. We haven't yet tried it on the
 Windows Subsystem for Linux, but would love to hear from you if you've
 succeeded with it there.
 
-We will be installing a tool to help manage dependencies and download
-libraries. The one this guide uses is http://boot-clj.com[Boot]. Feel
-free to take a look and install it now. We'll discuss it at the
-appropriate time, so you can also wait until then.
+We will be using the Clojure CLI tools to manage dependencies and download
+libraries. Refer to the Clojure
+link:https://clojure.org/guides/getting_started[Getting Started] page
+for installation instructions and details.
 
 == Getting Help If You're Stuck
 
@@ -251,22 +251,23 @@ together a classpath, but it's a huge pain. I just made a minimal
 project and found 57 entries on the classpath.
 
 This is why we _can_ have nice things, but it means we need some help
-managing those dependencies. We're going to use help in the form of
-http://boot-clj.com/[boot-clj]. Please take a few minutes to go follow
-their https://github.com/boot-clj/boot#install[installation
-instructions], then come back and we'll continue.
+managing those dependencies. Fortunately, Clojure provides tooling for
+dependency management. We'll be using the `clj` tool to run our
+examples. Please take a few minutes to
+link:https://clojure.org/guides/deps_and_cli[learn more], then come
+back and we'll continue.
 
-Now we can make a build file that tells boot what libraries our
+Now we can make a `deps.edn` that tells the `clj` tool what libraries our
 service needs. This goes in the main directory `hello`:
 
 [[app-listing]]
 [source,clojure]
-.build.boot
+.deps.edn
 ----
-include::hello/build.boot[]
+include::hello/deps.edn[]
 ----
-<1> Tell Boot where our source code lives
-<2> Tell Boot we need three Pedestal libraries
+<1> Tell `clj` we need three Pedestal libraries and a logging library.
+<2> Tell `clj` where our source code lives.
 
 We talked about `pedestal.service` and `pedestal.route` before, but we
 have a new one here. Pedestal works with many different HTTP servers,
@@ -281,33 +282,20 @@ service. That makes our service more self-contained and portable.
 Let's try out our response function.
 
 ----
-$ boot repl
-nREPL server started on port 37569 on host 127.0.0.1 - nrepl://127.0.0.1:37569
-REPL-y 0.3.7, nREPL 0.2.12
-Clojure 1.9.0-alpha10
-OpenJDK 64-Bit Server VM 1.8.0_91-8u91-b14-3ubuntu1~16.04.1-b14
-        Exit: Control+D or (exit) or (quit)
-    Commands: (user/help)
-        Docs: (doc function-name-here)
-              (find-doc "part-of-name-here")
-Find by Name: (find-name "part-of-name-here")
-      Source: (source function-name-here)
-     Javadoc: (javadoc java-object-or-class-here)
-    Examples from clojuredocs.org: [clojuredocs or cdoc]
-              (user/clojuredocs name-here)
-              (user/clojuredocs "ns-here" "name-here")
-boot.user=>
+$ clj
+Clojure 1.10.1
+user=>
 ----
 
-It's pretty safe to ignore all that output for now. The main thing to
-look for is the prompt that says `boot.user=>`. That shows you can
-input Clojure code to evaluate it (turn it into a value) and that
-you're currently in the `boot.user` namespace. We need to tell Clojure about our `hello` namespace:
+The `clj` tool will download dependencies, add them to the classpath
+and start a repl in the `user` namespace. Now we're able to 
+input Clojure code to evaluate it (turn it into a value). The first
+thing we need to do is tell Clojure about our `hello` namespace:
 
 ----
-boot.user=> (require 'hello)
+user=> (require 'hello)
 nil
-boot.user=>
+user=>
 ----
 
 So Clojure apparently just burped 'nil' at us and came back to the
@@ -324,7 +312,7 @@ It means you missed the single-quote before "hello" in the require.
 You can check to see if your function got loaded:
 
 ----
-boot.user=> hello/respond-hello
+user=> hello/respond-hello
 #object[hello$respond_hello 0x2db5083a "hello$respond_hello@2db5083a"]
 ----
 
@@ -336,7 +324,7 @@ function. Like http://www.smbc-comics.com/?id=2491[Batman], our symbol
 had no parens.
 
 ----
-boot.user=> (hello/respond-hello {})
+user=> (hello/respond-hello {})
 {:status 200, :body "Hello, world!"}
 ----
 
@@ -372,15 +360,15 @@ route, but we'll get to that later.
 We still haven't hooked this up to an HTTP server, but we can still do some testing by hand:
 
 ----
-boot.user=> (require :reload 'hello)
+user=> (require :reload 'hello)
 nil
-boot.user=> (require '[io.pedestal.http.route :as route])
+user=> (require '[io.pedestal.http.route :as route])
 nil
-boot.user=> (route/try-routing-for hello/routes :prefix-tree "/greet" :get)
+user=> (route/try-routing-for hello/routes :prefix-tree "/greet" :get)
 {:path "/greet", :method :get, :path-re #"/\Qgreet\E", :path-parts ["greet"], :interceptors [#Interceptor{:name }], :route-name :greet, :path-params {}, :io.pedestal.http.route.prefix-tree/satisfies-constraints? #object[clojure.core$constantly$fn__6443 0x6182d451 "clojure.core$constantly$fn__6443@6182d451"]}
-boot.user=> (route/try-routing-for hello/routes :prefix-tree "/greet" :post)
+user=> (route/try-routing-for hello/routes :prefix-tree "/greet" :post)
 nil
-boot.user=> (route/try-routing-for hello/routes :prefix-tree "/greet" :put)
+user=> (route/try-routing-for hello/routes :prefix-tree "/greet" :put)
 nil
 ----
 
@@ -424,9 +412,9 @@ include::hello/src/hello.clj[tags=server]
 All we need to do now is run it.
 
 ----
-boot.user=> (require :reload 'hello)
+user=> (require :reload 'hello)
 nil
-boot.user=> (hello/start)
+user=> (hello/start)
 ----
 
 Yep, it didn't return. Jetty is running and listening for connections,
@@ -436,14 +424,16 @@ http://127.0.0.1:8890/greet.
 ----
 $ curl -i http://127.0.0.1:8890/greet
 HTTP/1.1 200 OK
-Date: Fri, 19 Aug 2016 20:27:06 GMT
+Date: Fri, 20 Sep 2019 15:33:53 GMT
 Strict-Transport-Security: max-age=31536000; includeSubdomains
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff
 X-XSS-Protection: 1; mode=block
+X-Download-Options: noopen
+X-Permitted-Cross-Domain-Policies: none
+Content-Security-Policy: object-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:;
 Content-Type: text/plain
 Transfer-Encoding: chunked
-Server: Jetty(9.3.8.v20160314)
 
 Hello, world!
 ----
@@ -478,9 +468,9 @@ include::hello/src/hello.clj[tags=server]
 
 [[app-listing]]
 [source,clojure,subs="-callouts"]
-.build.boot
+.deps.edn
 ----
-include::hello/build.boot[]
+include::hello/deps.edn[]
 ----
 
 You can also see all the code in the Github repository for
