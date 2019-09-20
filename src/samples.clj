@@ -129,3 +129,6 @@
 (defn emit-samples-index
   []
   (spit (File. "content/samples/index.adoc") (index-samples)))
+
+(defn -main [& args]
+  (emit-samples-index))
