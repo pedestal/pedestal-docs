@@ -27,7 +27,7 @@ image::../images/guides/interceptors.png[]
 Either the `:enter` or `:leave` function may be omitted without harm.
 
 Logically speaking, interceptors form a stack. All the `:enter`
-functions are called in order. Each one receives the content map and
+functions are called in order. Each one receives the context map and
 returns a (possibly modified) context map. Once all the interceptors
 have been called, the resulting context map gets passed through the
 interceptors' `:leave` functions, but in reverse order, as shown here:
