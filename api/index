@@ -31,6 +31,7 @@
         <a href="/reference/index" class="w-nav-link clj-nav-link">Reference‍</a>
         <a href="/api/index" class="w-nav-link clj-nav-link">API</a>
         <a href="/guides/index" class="w-nav-link clj-nav-link">Guides</a>
+        <a href="/cookbook/index" class="w-nav-link clj-nav-link">Cookbook</a>
         <a href="/samples/index" class="w-nav-link clj-nav-link">Samples</a>
         <a href="/community/index" class="w-nav-link clj-nav-link">Community</a>
         <a href="#" data-ix="search-click-trigger" class="w-nav-link clj-nav-link clj-nav-search"></a>

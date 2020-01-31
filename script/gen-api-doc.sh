@@ -16,7 +16,7 @@ fi
 
 cd pedestal
 
-for m in service service-tools route interceptor log immutant jetty tomcat
+for m in service service-tools route interceptor log immutant jetty tomcat aws
 do
     if [ ! -d $m ] ; then
         echo "Missing module $m in the pedestal checkout. Aborting."
