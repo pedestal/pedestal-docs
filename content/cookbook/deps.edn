@@ -3,4 +3,4 @@
   io.pedestal/pedestal.route   {:mvn/version "0.5.7"}
   io.pedestal/pedestal.jetty   {:mvn/version "0.5.7"}
   org.slf4j/slf4j-simple       {:mvn/version "1.7.28"}}
- :paths ["src" "test"]}
+ :paths ["src" "test" "resources"]}

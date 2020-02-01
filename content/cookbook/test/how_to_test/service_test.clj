@@ -19,6 +19,7 @@
 (deftest service-test
   ;; test GET'ing a simple response body
   (is (= 200
+         ;; Use the route name with `url-for` to generate the url
          (:status (response-for service :get (url-for ::service/handler1)))))
   ;; test GET with path and query params
   (is (= 200
@@ -29,5 +30,8 @@
   (is (= 200
          (:status (response-for service
                                 :post (url-for ::service/handler3)
+                                ;; Set the `Content-Type` so `body-params`
+                                ;; can parse the body
                                 :headers {"Content-Type" "application/json"}
+                                ;; Encode the payload
                                 :body (json/encode {:foo "bar"}))))))

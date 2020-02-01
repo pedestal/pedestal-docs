@@ -10,6 +10,7 @@
 (def throwing-interceptor
   (interceptor/interceptor {:name ::throwing-interceptor
                             :enter (fn [ctx]
+                                     ;; Simulated processing error
                                      (/ 1 0))
                             :error (fn [ctx ex]
                                      ;; Here's where you'd handle the exception
@@ -19,6 +20,7 @@
 
 (def service-error-handler
   (error/error-dispatch [ctx ex]
+                        ;; Handle `ArithmeticException`s thrown by `::throwing-interceptor`
                         [{:exception-type :java.lang.ArithmeticException :interceptor ::throwing-interceptor}]
                         (assoc ctx :response {:status 500 :body "Exception caught!"})
 
