@@ -38,7 +38,7 @@ include::src/error_handling/service.clj[]
 
 == How to serve static resources
 
-Add the `::http/resource-path` key to the service map and set your project's _resource_ path
+Add the `:io.pedestal.http/resource-path` key to the service map and set your project's _resource_ path
 to the root resource directory.
 
 If your _resources_ directory is `resources` then `:io.pedestal.http/resource-path "/public"` will
