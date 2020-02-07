@@ -88,10 +88,7 @@ handling and execute any remaining `:leave` handlers.
 `:io.pedestal.interceptor.chain/error`. This indicates that the
 handler doesn't recognize that exception and declines to handle
 it. Pedestal will continue looking for a handler.
-3. Re-throw the exception in the second argument. This means the
-interceptor can't handle the exception and Pedestal should continue
-looking for a handler.
-4. Throw a new exception. This indicates that the interceptor _should_
+3. Throw a new exception. This indicates that the interceptor _should_
 have been able to handle the error, but something went wrong. Pedestal
 will start looking for a handler for this new exception.
 

@@ -24,9 +24,11 @@ include::test/how_to_test/service_test.clj[]
 
 == How to Handle Errors
 
-Add an `:error` implementation to your interceptor(s) or create a purpose-built, error handling interceptor.
-If you can't handle the exception in your error handler, throw it so that other interceptors have an opportunity to
-handle it.
+Add an `:error` implementation to your interceptor(s) or create a
+purpose-built, error handling interceptor.  If you can't handle the
+exception in your error handler, re-attach it to the context
+using the `io.pedestal.interceptor.chain/error` key so that other
+interceptors have an opportunity to handle it.
 
 Reference: link:../reference/error-handling[Error Handling]
 
@@ -38,14 +40,17 @@ include::src/error_handling/service.clj[]
 
 == How to serve static resources
 
-Add the `:io.pedestal.http/resource-path` key to the service map and set your project's _resource_ path
-to the root resource directory.
+Add the `:io.pedestal.http/resource-path` key to the service map and
+set your project's _resource_ path to the root resource directory.
 
-If your _resources_ directory is `resources` then `:io.pedestal.http/resource-path "/public"` will
-instruct Pedestal to look for static content in the `resources/public`
-directory.  Thus, `http://localhost:8080/foo.txt` would serve `resources/public/foo.txt`.
+If your _resources_ directory is `resources` then
+`:io.pedestal.http/resource-path "/public"` will instruct Pedestal to
+look for static content in the `resources/public` directory.  Thus,
+`http://localhost:8080/foo.txt` would serve
+`resources/public/foo.txt`.
 
-If a resource is not found and no route matches the url, then a `404` is returned.
+If a resource is not found and no route matches the url, then a `404`
+is returned.
               
 Reference: link:../reference/service-map[Service Map]
 

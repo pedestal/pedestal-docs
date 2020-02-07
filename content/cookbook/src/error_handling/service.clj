@@ -1,7 +1,8 @@
 (ns error-handling.service
   (:require [io.pedestal.http :as http]
-            [io.pedestal.interceptor :as interceptor]
             [io.pedestal.log :as log]
+            [io.pedestal.interceptor :as interceptor]
+            [io.pedestal.interceptor.chain :as chain]
             [io.pedestal.interceptor.error :as error]
             [io.pedestal.http.route :as route]
             [io.pedestal.http.body-params :as body-params]
@@ -14,9 +15,12 @@
                                      (/ 1 0))
                             :error (fn [ctx ex]
                                      ;; Here's where you'd handle the exception
-                                     ;; If you cannot handle the exception, throw it so that
-                                     ;; other interceptors have the opportunity to handle it.
-                                     (throw ex))}))
+                                     ;; Remember to base your handling decision
+                                     ;; on the ex-data of the exception.
+                                     (let [{:keys [exception-type exception]} (ex-data ex)]
+                                       ;; If you cannot handle the exception, re-attach it to the ctx
+                                       ;; using the `:io.pedestal.interceptor.chain/error` key
+                                       (assoc ctx ::chain/error ex)))}))
 
 (def service-error-handler
   (error/error-dispatch [ctx ex]
@@ -24,7 +28,7 @@
                         [{:exception-type :java.lang.ArithmeticException :interceptor ::throwing-interceptor}]
                         (assoc ctx :response {:status 500 :body "Exception caught!"})
 
-                        :else (throw ex)))
+                        :else (assoc ctx ::chain/error ex)))
 
 (def common-interceptors [service-error-handler (body-params/body-params) http/html-body])
 
