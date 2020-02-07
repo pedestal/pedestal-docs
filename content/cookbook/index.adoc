@@ -57,5 +57,5 @@ Reference: link:../reference/service-map[Service Map]
 [[cookbook-listing]]
 [source,clojure]
 ----
-include::src/static_resource/service.clj[]
+include::src/static_resource/service.clj[tags=service]
 ----

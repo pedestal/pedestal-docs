@@ -12,6 +12,7 @@
 
 (def routes #{["/" :get (conj common-interceptors `home-page)]})
 
+;; tag::service[]
 (def service {:env                     :prod
               ::http/routes            routes
               ;; Resources will be served from the resource directory's `public`
@@ -22,3 +23,4 @@
               ::http/container-options {:h2c? true
                                         :h2?  false
                                         :ssl? false}})
+;; end::service[]
