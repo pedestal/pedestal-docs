@@ -34,4 +34,22 @@
                                 ;; can parse the body
                                 :headers {"Content-Type" "application/json"}
                                 ;; Encode the payload
-                                :body (json/encode {:foo "bar"}))))))
+                                :body (json/encode {:foo "bar"})))))
+
+  ;; testing File upload
+  ;; We'll create a form body which simulates uploading two files.
+  ;; NOTE: Consider using a test-friendly store during your testing.
+  ;; See https://github.com/pedestal/pedestal/blob/master/service/test/io/pedestal/http/ring_middlewares_test.clj#L107-L129 for an example.
+  (let [form-body (str "--XXXX\r\n"
+                       "Content-Disposition: form-data; name=\"file1\"; filename=\"foobar1.txt\"\r\n\r\n"
+                       "bar\r\n"
+                       "--XXXX\r\n"
+                       "Content-Disposition: form-data; name=\"file2\"; filename=\"foobar2.txt\"\r\n\r\n"
+                       "baz\r\n"
+                       "--XXXX--")
+        {:keys [status]} (response-for service
+                                       :post (url-for ::service/handler4)
+                                       :body form-body
+                                       :headers {"Content-Type" "multipart/form-data; boundary=XXXX"})]
+    ;; testing file processing
+    (is (= 201 status))))
