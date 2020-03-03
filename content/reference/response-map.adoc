@@ -22,7 +22,7 @@ processing is done, Pedestal generates a 404 response.
 | The HTTP status code
 
 | `:headers`
-| N
+| Y
 | map of String -> String
 | Response headers sent to the client. Header names are all converted to lower case.
 
