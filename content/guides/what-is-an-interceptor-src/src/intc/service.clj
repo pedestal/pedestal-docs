@@ -1,6 +1,7 @@
                                                                                      ;; tag::start[]
 (ns intc.service
   (:require [io.pedestal.http :as http]
+            [io.pedestal.interceptor :as i]
             [io.pedestal.interceptor.chain :as chain]
             [io.pedestal.interceptor.error :as err]))
 
@@ -18,16 +19,18 @@
 
                                                                                      ;; tag::new_players[]
 (def odds
-  {:name ::odds
-   :enter (fn [context]
-            (assoc context :response {:body "I handle odd numbers\n"
-                                      :status 200}))})
+  (i/interceptor
+   {:name  ::odds
+    :enter (fn [context]
+             (assoc context :response {:body   "I handle odd numbers\n"
+                                       :status 200}))}))
 
 (def evens
-  {:name ::evens
-   :enter (fn [context]
-            (assoc context :response {:body "Even numbers are my bag\n"
-                                      :status 200}))})
+  (i/interceptor
+   {:name  ::evens
+    :enter (fn [context]
+             (assoc context :response {:body   "Even numbers are my bag\n"
+                                       :status 200}))}))
                                                                                      ;; end::new_players[]
 
 

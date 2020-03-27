@@ -208,17 +208,42 @@ image::../images/guides/what-is-an-interceptor/interceptor-queue-and-stack-in-co
 
 == Manipulating the Queue
 
-When Pedestal calls an interceptor, the queue and stack aren't just there for informational use. Interceptors are totally allowed to change things up. Let's work through an example where we dynamically decide which interceptor to add, depending on a query parameter.
+When Pedestal calls an interceptor, the queue and stack aren't just
+there for informational use. Interceptors are totally allowed to
+change things up. Before we move on, though, we need to revisit the
+topic of _what_ an interceptor is.
 
-First we'll change `service.clj` to add two new claims beyond "Hello World."
+Remember when I said that any map that has at least one key of
+`:enter`, `:leave`, or `:error` can be used as an interceptor? Well it
+turns out that is not completely true. While an interceptor used in
+routing can be represented as a map, an interceptor enqueued during
+queue manipulation _must_ be an Interceptor record instance, otherwise
+an exception is thrown. While this subtlety is called out the
+link:../reference/interceptors#_manipulating_the_interceptor_queue[Interceptors]
+reference documentation, it's worth reiterating here. When maps are
+used as interceptors in routes, they are expanded to Interceptor
+records during route expansion. For performance reasons, no such
+transformation occurs when interceptors are enqueued. *Enqueued interceptors
+are expected to be Interceptor record instances*.
+
+Now that we've cleared that up, let's work through an example where we
+dynamically decide which interceptor to add, depending on a query
+parameter.
+
+First we'll change `service.clj` to add two new claims beyond "Hello
+World."
 
 [[app-listing]]
 [source,clojure]
 ----
 include::what-is-an-interceptor-src/src/intc/service.clj[tags=new_players]
 ----
+Notice how we use the `io.pedestal.interceptor/interceptor` function
+to create the Interceptor records. This is because we'll be
+enqueue'ing them during request processing.
 
-These interceptors aren't very interesting, but there are two of them. Here's how we are going to choose which one to run.
+Now, these interceptors aren't very interesting, but there are two of
+them. Here's how we are going to choose which one to run.
 
 [[app-listing]]
 [source,clojure]
@@ -305,6 +330,11 @@ In this guide, we've gotten into some of the deep inner workings of Pedestal. Yo
 * How to manipulate the interceptor queue and stack.
 * How to split your application logic into smaller pieces using interceptors.
 * How to handle errors
+
+*For pedagogical purposes this guide represented some interceptors as
+maps and some interceptors as Interceptor records. In practice, it's
+recommended to use `io.pedestal.interceptor/interceptor` when
+constructing interceptors.*
 
 == Where To Next?
 
