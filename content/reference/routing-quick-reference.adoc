@@ -170,7 +170,7 @@ is a *vector*, it will be expanded using the terse syntax.
 
 In the terse format, a route table is a vector of nested vectors. Each
 top-level vector describes an "application". The application vector
-contain the following elements:
+contains the following elements:
 
 - (Optional) A keyword identifying the application by name
 - (Optional) A URL scheme
