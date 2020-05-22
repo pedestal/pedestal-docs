@@ -28,6 +28,10 @@ The following table lists the container options supported by Jetty.
 | Boolean
 | Reuse the socket address. Defaults to `true`.
 
+| `:thread-pool`
+| A link:https://www.eclipse.org/jetty/javadoc/current/org/eclipse/jetty/util/thread/ThreadPool.html[ThreadPool] instance.
+| override the Jetty thread pool (ignores max-threads)
+
 | `:configurator`
 | Function
 | A function called with the `org.eclipse.jetty.server.Server`
