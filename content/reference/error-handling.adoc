@@ -49,7 +49,7 @@ Pedestal will call the function bound to `:error` on an interceptor with two arg
 - An `ExceptionInfo` instance
 
 Pedestal wraps *all* exceptions in ex-info. The following keys are
-defined in it's exception data map:
+defined in its exception data map:
 
 |===
 | Key | Type | Description
