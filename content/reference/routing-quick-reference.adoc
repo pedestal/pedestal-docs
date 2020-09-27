@@ -188,7 +188,7 @@ contains the following elements:
 
 Route vectors can be nested arbitrarily deep. Each vector adds a path
 segment. The nesting structure of the route vectors maps to the
-hierarchic tree structure of the routes.
+hierarchical tree structure of the routes.
 
 Each route vector contains the following:
 
