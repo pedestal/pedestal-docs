@@ -92,9 +92,23 @@ All path parameter values are strings.
 
 === HTTP Verb
 
-The verb must be one of the keywords in `#{:any, :get, :put, :post, :delete, :patch, :options, :head}`.
+By default, The verb must be one of the keywords in `#{:any, :get, :put, :post,
+:delete, :patch, :options, :head}`. However, you can override the verbs by
+including an options map with the keyword `:verb` in your route definition. The
+value of `:verb` is the `set` of verb keywords you wish to support. It is
+through this facility that you can specify custom verbs.
 
-`:any` is a wildcard verb. During request routing, `:any` will match
+==== Syntax for specifying verbs
+
+[source,clojure]
+----
+(def routes #{{:verbs #{:get :stats :version}}
+              ["/" :get (conj common-interceptors `home-page)]
+              ["/" :stats (conj common-interceptors `stats)]
+              ["/" :version (conj common-interceptors `version)]})
+----
+
+NOTE: `:any` is a wildcard verb. During request routing, `:any` will match
 all requests.
 
 === Handler or Interceptors
