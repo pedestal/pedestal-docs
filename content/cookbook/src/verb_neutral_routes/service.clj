@@ -25,8 +25,8 @@
 (def common-interceptors [(body-params/body-params) http/json-body])
 
 ;; tag::routes[]
-(def routes #{;; If a map of :verbs is provided, it
-              ;; replaces the set of default verbs
+(def routes #{;; An options map may be provided as part of your Table Routes definition.
+              ;; The set of verbs specified will replace the set of default verbs.
               {:verbs #{:get :stats :version}}
               ["/" :get (conj common-interceptors `home-page)]
               ["/" :stats (conj common-interceptors `stats)]
