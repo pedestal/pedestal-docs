@@ -65,7 +65,7 @@ a new one. Interceptors may add arbitrary keys to the request map.
 
 | :json-params
 | N
-| Map of String -> String
+| Any
 | Present if the  link:../api/pedestal.service/io.pedestal.http.body-params.html#var-body-params[body-params] interceptor is used _and_ the client sent content type "application/json"
 
 | :params
