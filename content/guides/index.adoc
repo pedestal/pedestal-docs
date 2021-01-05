@@ -13,8 +13,6 @@ Cognitect
 * link:hello-world-content-types[Hello, world! with content types]
 * link:your-first-api[Your First API]
 * link:defining-routes[Defining Routes]
-* Unit Testing Your Pedestal API
-* Serving Static Resources
 * link:server-sent-events[Server-sent events]
 * link:what-is-an-interceptor[What is an Interceptor?]
 * Connecting Pedestal to Datomic
@@ -25,9 +23,6 @@ Cognitect
 
 * link:pedestal-with-component[Component]
 * http://docs.arachne-framework.org/tutorials/http-requests/[Arachne]
-* Figwheel
-* Om
-* Om.next
 * Datomic
 
 == High Performance Pedestal
@@ -50,4 +45,3 @@ Cognitect
 == Interactive Development
 
 * link:developing-at-the-repl[Developing at the REPL]
-* Getting Debug Output

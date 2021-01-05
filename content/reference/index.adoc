@@ -84,14 +84,7 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 * link:jetty[Jetty]
 * link:immutant[Immutant/Wildfly]
 * link:tomcat[Tomcat]
-* BlueMix
-* Nginx
-* Netty
-* Vert.x
 * Docker
-* OSv
-* Elastic Beanstalk
-* CloudFormation
 * Metrics With StatsD
 * Metrics With JMX
 * Metrics With CloudWatch
