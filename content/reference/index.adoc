@@ -27,37 +27,32 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 * link:response-bodies[Response Bodies]
 * link:parameters[Parameters]
 * link:default-interceptors[Default Interceptors]
-* Content Negotiation
-* Session Management
-* Cookie Management
-* HTTP/2
-* TLS, ALPN, Certificates
+// * Content Negotiation
+// * Session Management
+// * Cookie Management
+// * HTTP/2
+// * TLS, ALPN, Certificates
 * link:streaming[Streaming]
 * link:server-sent-events[Server-Sent Events]
 
 == Routing and Linking
 
 * link:routing-quick-reference[Quick Reference]
-* link:about-routes[About Routes]
-** link:table-syntax[Table Syntax]
-** link:terse-syntax[Terse Syntax]
-** link:verbose-syntax[Verbose Syntax]
-** link:debugging-routes[Debugging Routes]
+* link:table-syntax[Table Syntax]
+* link:terse-syntax[Terse Syntax]
+// * link:verbose-syntax[Verbose Syntax]
 * link:using-the-builtin-routers[Using the Built-in Routers]
 ** link:map-tree-router[Map Tree Router]
 ** link:prefix-tree-router[Prefix Tree Router]
 ** link:linear-search-router[Linear Search Router]
-* Writing Your Own Router
-* Generating Links
-* Routing Constraints
+// * Generating Links
+// * Routing Constraints
 
 == Common Scenarios
 
-* Pedestal and Datomic
-* JSON APIs
-* Interactive development
 * link:unit-testing[Unit testing]
 
+////
 == Advanced HTTP
 
 * Fast-Path Resource Handling
@@ -77,6 +72,7 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 * Cross-Origin Resource Sharing (CORS)
 * Authentication and Authorization
 * Secure Headers
+////
 
 == Deployment and Operations
 
@@ -84,8 +80,8 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 * link:jetty[Jetty]
 * link:immutant[Immutant/Wildfly]
 * link:tomcat[Tomcat]
-* Docker
-* Metrics With StatsD
-* Metrics With JMX
-* Metrics With CloudWatch
-* Metrics With Your Own Provider
+// * Docker
+// * Metrics With StatsD
+// * Metrics With JMX
+// * Metrics With CloudWatch
+// * Metrics With Your Own Provider
