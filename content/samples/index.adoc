@@ -32,6 +32,7 @@ with a Basic Authentication backend. Good example of porting middleware function
 
 * https://github.com/pedestal/pedestal/tree/master/samples/aws-codestar-lambda[AWS Lambda] - Demonstrates running a Pedestal Service on AWS Lambda via API Gateway.
 Designed to be a https://aws.amazon.com/codestar/[CodeStar] project and ships with CodePipeline and CloudFormation support.
+* https://github.com/pedestal/pedestal-ions-sample[Datomic Ions] - Demonstrates application deployment using Datomic https://docs.datomic.com/cloud/ions/ions.html[Ions] using the https://github.com/pedestal/pedestal.ions[pedestal.ions] Chain Provider.
 
 == Logging, Tracing, and Metrics
 
