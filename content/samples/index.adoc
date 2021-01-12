@@ -23,9 +23,7 @@ event stream using multiple event source threads.
 
 == Security
 
-* https://github.com/pedestal/pedestal/tree/master/samples/buddy-auth[Authn/z] - Demonstrates authentication and authorization using the https://funcool.github.io/buddy-auth/latest/[buddy-auth] library.
-with a Basic Authentication backend. Good example of porting middleware functions (e.g. `wrap-authentication` and
-`wrap-authorization`) to interceptors.
+* https://github.com/pedestal/pedestal/tree/master/samples/buddy-auth[Authn/z] - Demonstrates authentication and authorization using the https://funcool.github.io/buddy-auth/latest/[buddy-auth] library with a Basic Authentication backend. Good example of porting middleware functions (e.g. `wrap-authentication` and `wrap-authorization`) to interceptors.
 * https://github.com/pedestal/pedestal/tree/master/samples/http2-conscrypt[Google Conscrypt] - Demonstrates use of Google's https://github.com/google/conscrypt[Conscrypt Security Provider] for SSL. Uses HTTP/2.
 
 == Cloud Integration
