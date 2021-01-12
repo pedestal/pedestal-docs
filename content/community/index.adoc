@@ -20,7 +20,6 @@ mailing list]
 
 * https://www.youtube.com/watch?v=_Cf-STRvFy8[Faster Delivery with Pedestal and Vase] by https://github.com/ohpauleez[Paul deGrandis]
 * http://seespotcode.net/2016/08/03/naming-routes-in-pedestal/[Naming Routes in Pedestal] by http://seespotcode.net/[Michael Glaesemann]
-* http://frankiesardo.github.io/posts/2015-03-06-from-pedestal-routes-to-beautiful-documentation.html[From Pedestal routes to beautiful documentation] by http://frankiesardo.github.io/index.html[Frankie Sardo]
 * https://gist.github.com/ohpauleez/15522bc408d8e09cd7657dd768643a5f[Conditional Interceptors that Enqueue New Interceptors] by https://github.com/ohpauleez[Paul deGrandis]
 
 == Tutorials
