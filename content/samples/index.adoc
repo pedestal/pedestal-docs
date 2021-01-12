@@ -1,57 +1,58 @@
-= Guide to Sample Applications
-Document Writer
-2016-08-15
+= Sample Applications
+Christian Romney
+2021-01-12
 :jbake-type: page
 :toc: macro
 :icons: font
 
-* https://github.com/pedestal/pedestal/tree/master/samples/aws-codestar-lambda[aws-codestar-lambda] - This is an example on running a Pedestal Service on AWS Lambda via API Gateway.
-It's designed to be a https://aws.amazon.com/codestar/[CodeStar] project and ships with CodePipeline and CloudFormation support.
-* https://github.com/pedestal/pedestal/tree/master/samples/buddy-auth[buddy-auth] - This sample demonstrates integration with
-the https://funcool.github.io/buddy-auth/latest/[buddy-auth] library
-using a Basic Authentication backend. In the process, it demonstrates
-how to port buddy-auth's `wrap-authentication` and
-`wrap-authorization` middleware functions to interceptors.
-* https://github.com/pedestal/pedestal/tree/master/samples/chain-providers[chain-providers] - This sample demonstrates using Pedestal with a custom backend server.
-Interceptor Chain Providers allow Pedestal to be used on top of any HTTP Server that's supported on the JVM.
-* https://github.com/pedestal/pedestal/tree/master/samples/cors[cors] - Here we demonstrate an implementation 
-of http://en.wikipedia.org/wiki/Cross-origin_resource_sharing[cross-origin resource sharing].
-* https://github.com/pedestal/pedestal/tree/master/samples/fast-pedestal[fast-pedestal] - This sample illustrates various techniques to reduce latency and increase throughput/goodput.
-* https://github.com/pedestal/pedestal/tree/master/samples/hello-world[hello-world] - A bare-minimum Pedestal service that greets visitors.
-* https://github.com/pedestal/pedestal/tree/master/samples/helloworld-metrics[helloworld-metrics] - Pedestal offers metrics logging capabilities starting with Pedestal-0.5.0.
-The default metrics recorder publishes to JMX, but you can override that
-behavior by setting the JVM Property `io.pedestal.log.defaultMetricsRecorder`
-or the environment variable `PEDESTAL_METRICS_RECORDER`.
-The value of the setting should be a namespaced symbol
-that resolves to a 0-arity function or nil.
-That function should return something that satisfies the MetricRecorder protocol.
-* https://github.com/pedestal/pedestal/tree/master/samples/http2[http2] - This very simple app demonstrates using Jetty's HTTP2 capabilties.
-* https://github.com/pedestal/pedestal/tree/master/samples/http2-conscrypt[http2-conscrypt] - This very simple app demonstrates using Jetty's HTTP2 capabilties.
-* https://github.com/pedestal/pedestal/tree/master/samples/immutant[immutant] - This is the `hello-world` example, adpted to illustrate using http://immutant.org[Immutant].
-* https://github.com/pedestal/pedestal/tree/master/samples/jetty-web-sockets[jetty-web-sockets] - This sample illustrates how to use WebSockets with Pedestal and Jetty.
-* https://github.com/pedestal/pedestal/tree/master/samples/nio[nio] - This sample demonstrates using a ByteBuffer as a response body. For large response
-amidst a high number of concurrent connections, using NIO (via a ByteBuffer or
-ReadableByteChannel) can increase your app's performance.
-* https://github.com/pedestal/pedestal/tree/master/samples/ring-middleware[ring-middleware] - Pedestal incorporates existing ring middleware into its
-interceptors functionality. In this example, we implement a service
-that stores your name in the session via setting a session token
-in the cookie store. We are depending on `ring.middleware.session.cookie`
-for this functionality.
-* https://github.com/pedestal/pedestal/tree/master/samples/server-sent-events[server-sent-events] - Demonstrates setting up, using and tearing down a server-sent-events
-event stream. Events are sent from multiple threads.
-* https://github.com/pedestal/pedestal/tree/master/samples/server-with-links[server-with-links] - This very simple app demonstrates generating a link
-based on your application's routing table.
-* https://github.com/pedestal/pedestal/tree/master/samples/servlet-filters-gzip[servlet-filters-gzip] - This sample shows how to use Servlet Filters and new Jetty Handlers
-within your Pedestal services.
-The sample specifically applies a gzip filter to the service configuration
-of Jetty. To check on the encoding of the server's response,
-hit with curl, requesting compression:
-* https://github.com/pedestal/pedestal/tree/master/samples/template-server[template-server] - Included (in no particular order):
-* https://github.com/pedestal/pedestal/tree/master/samples/tracing[tracing] - 
-# Working with Distributed Tracing
-* https://github.com/pedestal/pedestal/tree/master/samples/tracing-interceptor[tracing-interceptor] - 
-# Working with Distributed Tracing using Pedestal's Trace Interceptor
-* https://github.com/pedestal/pedestal/tree/master/samples/tracing-interceptor-aws[tracing-interceptor-aws] - 
-# Working with Distributed Tracing using Pedestal's Trace Interceptor
-* https://github.com/pedestal/pedestal/tree/master/samples/war-example[war-example] - This sample shows the necessary tooling and options for building a deployable
-WAR file.
+== Basic Features
+
+* https://github.com/pedestal/pedestal/tree/master/samples/hello-world[Hello World] - A bare-minimum Pedestal service that greets visitors.
+* https://github.com/pedestal/pedestal/tree/master/samples/ring-middleware[Ring Middleware] - Demonstrates session storage using the cookie store using `ring.middleware.session.cookie`.
+* https://github.com/pedestal/pedestal/tree/master/samples/server-with-links[Route Hyperlinks] - Demonstrates generating a hyperlink from your application's routing table.
+* https://github.com/pedestal/pedestal/tree/master/samples/template-server[HTML Template Rendering] - Demonstrates rendering HTML page templates with various engines (e.g. Hiccup, Enlive, Mustache, String Template and Comb).
+
+== HTTP Features
+
+* https://github.com/pedestal/pedestal/tree/master/samples/http2[HTTP/2] - Demonstrates using Jetty's HTTP/2 capabilties.
+* https://github.com/pedestal/pedestal/tree/master/samples/cors[CORS] - Demonstrates http://en.wikipedia.org/wiki/Cross-origin_resource_sharing[Cross-Origin Resource Sharing] usage.
+* https://github.com/pedestal/pedestal/tree/master/samples/jetty-web-sockets[Web Sockets] - Demonstrates WebSockets usage with Pedestal and Jetty.
+* https://github.com/pedestal/pedestal/tree/master/samples/server-sent-events[Server Sent Events (SSE)] - Demonstrates setup, usage and cleanup of an SSE
+event stream using multiple event source threads.
+* https://github.com/pedestal/pedestal/tree/master/samples/servlet-filters-gzip[Servlet Filters (gzip)] - Demonstrates use of Servlet Filters and Jetty Handlers within Pedestal services.
+
+== Security
+
+* https://github.com/pedestal/pedestal/tree/master/samples/buddy-auth[Authn/z] - Demonstrates authentication and authorization using the https://funcool.github.io/buddy-auth/latest/[buddy-auth] library.
+with a Basic Authentication backend. Good example of porting middleware functions (e.g. `wrap-authentication` and
+`wrap-authorization`) to interceptors.
+* https://github.com/pedestal/pedestal/tree/master/samples/http2-conscrypt[Google Conscrypt] - Demonstrates use of Google's https://github.com/google/conscrypt[Conscrypt Security Provider] for SSL. Uses HTTP/2.
+
+== Cloud Integration
+
+* https://github.com/pedestal/pedestal/tree/master/samples/aws-codestar-lambda[AWS Lambda] - Demonstrates running a Pedestal Service on AWS Lambda via API Gateway.
+Designed to be a https://aws.amazon.com/codestar/[CodeStar] project and ships with CodePipeline and CloudFormation support.
+* https://github.com/pedestal/pedestal-ions-sample[Datomic Ions] - Demonstrates application deployment using Datomic https://docs.datomic.com/cloud/ions/ions.html[Ions] using the https://github.com/pedestal/pedestal.ions[pedestal.ions] Chain Provider.
+
+== Logging, Tracing, and Metrics
+
+* https://github.com/pedestal/pedestal/tree/master/samples/helloworld-metrics[Metrics] - Demonstrates Pedestal's metrics capabilities (available since 0.5.0).
+* https://github.com/pedestal/pedestal/tree/master/samples/tracing[Distributed Tracing (Jaeger)] - Demonstrates https://opentracing.io/[OpenTracing] API with https://github.com/jaegertracing/jaeger[Jaeger]
+* https://github.com/pedestal/pedestal/tree/master/samples/tracing-interceptor[Tracing Interceptor] - Demonstrates distributed tracing with Jaeger using Pedestal's Trace Interceptor.
+* https://github.com/pedestal/pedestal/tree/master/samples/tracing-interceptor-aws[Distributed Tracing (AWS X-Ray)] - Demonstrates distributed tracing with AWS X-Ray.
+
+== Performance
+
+* https://github.com/pedestal/pedestal/tree/master/samples/fast-pedestal[Performance Tweaks] - Demonstrates various techniques to reduce latency and increase throughput/goodput.
+* https://github.com/pedestal/pedestal/tree/master/samples/nio[NIO] - Demonstrates using a ByteBuffer as a response body. For large response
+amidst a high number of concurrent connections, using NIO (via a ByteBuffer or ReadableByteChannel) can increase your app's performance.
+
+== Alternate Servers
+
+* https://github.com/pedestal/pedestal/tree/master/samples/immutant[Immutant] - The `hello-world` example, adapted to use http://immutant.org[Immutant].
+* https://github.com/pedestal/pedestal/tree/master/samples/chain-providers[Chain Providers] - Demonstrates using Pedestal with a custom backend server.
+Interceptor Chain Providers allow Pedestal to be used with any HTTP Server supported by the JVM.
+
+== Packaging and Deployment
+
+* https://github.com/pedestal/pedestal/tree/master/samples/war-example[WAR File] - Demonstrates tooling and options for building a deployable WAR file.
