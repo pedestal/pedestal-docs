@@ -125,32 +125,39 @@ function. Without any arguments, it returns an interceptor that parses
 according to the request's `Content-Type` header:
 
 |===
-| Content type | Parsed as | Coerce keys to keywords? | Bound to in request
+| Content type | Parsed as | Coerce keys to keywords? | Bound to in request | Merged into `:params`
 
 | application/x-www-form-urlencoded
 | HTML form
 | Yes
-| :form-params
+| :form-params footnoteref:[1, `:form-params` keys are automatically converted to keywords.]
+| Yes footnoteref:[2, Form parameter keys are not automatically converted to keywords when merged into the `:params` map.
+                      Use the link:../api/pedestal.service/io.pedestal.http.params.html#keywordize-params[`keywordize-params`] interceptor
+                      to convert `:params` keys to keywords.]
 
 | application/json
 | JSON
 | Yes
 | :json-params
+| No
 
 | application/transit+json
 | Transit JSON encoding
 | No
 | :transit-params
+| No
 
 | application/transit+msgpack
 | Transit Msgpack encoding
 | No
 | :transit-params
+| No
 
 | application/edn
 | EDN data
 | No
 | :edn-params
+| No
 
 |===
 
@@ -162,12 +169,6 @@ If you need to customize the way `body-params` handles content types,
 or provide options to the built-in parsers, call it with a parser-map
 as an argument. You can get a good starting point by calling
 link:../api/pedestal.service/io.pedestal.http.body-params.html#var-default-parser-map[`default-parser-map`].
-
-One catch to note has to do with form parameters from an HTTP POST
-request. Because form fields can be named just about anything, the
-keys in these maps aren't automatically converted to keywords. If you
-want them to be keywordized, you should make sure to have the
-`keyword-params` interceptor on the applicable route.
 
 ==== File Upload
 
