@@ -36,7 +36,7 @@ a new one. Interceptors may add arbitrary keys to the request map.
 | :content-type
 | N
 | String
-| Present if sent by client. Content type of the request body.
+| Present if sent by client footnoteref:[1, May not be set automatically by some chain providers (i.e., such as the AWS API Gateway link:../api/pedestal.aws/io.pedestal.http.aws.lambda.utils.html#direct-apigw-provider[provider]).]. Content type of the request body.
 
 | :content-length
 | N
@@ -70,8 +70,8 @@ a new one. Interceptors may add arbitrary keys to the request map.
 
 | :params
 | N
-| Map of keyword or String -> String
-| Query params. See `:query-params`.
+| Map of keyword or String -> String or Keyword -> String
+| See the Parameters link:parameters[reference].
 
 | :path-info
 | Y
