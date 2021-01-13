@@ -10,15 +10,71 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 
 It is a good practice to separate core business logic from handler,
 and more generally, interceptor code. This separation of concerns has
-many benefits, including facilitating testing. However, there is still
-value in exercising the end-to-end operation of your service endpoints
-since, at minimum, it provides quick feedback that you've wired things
-up correctly. Pedestal provides the test helper
-link:../api/pedestal.service/io.pedestal.test.html#var-response-for[`response-for`]
-utility function to facilitate testing of services without having to
-spin up an http server.
+many benefits, including facilitating testing at the interceptor, interceptor
+chain and end-to-end response generation levels.
+
+== Testing interceptors in isolation
+
+Interceptors can be tested in isolation by either directly invoking the
+`:enter`, `:leave` or `:error` functions with a mock context map in your test
+or by using the interceptor chain
+link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#execute[`execute`]
+function. Both approaches are demonstrated below.
+
+Given the following interceptor:
+
+[source,clojure]
+----
+(def widget-finder
+     (interceptor/interceptor
+      {:enter (fn [ctx]
+                (assoc ctx :widget {:id 1 :title "foobar"} ))}))
+----
+
+We can test it either directly:
+
+[source,clojure]
+----
+(let [test-fn (:enter widget-finder)]
+  (is (= {:id 1 :title "foobar"} (:widget (test-fn {})))))
+----
+
+Or using the interceptor chain link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#execute[`execute`]
+function:
+
+[source,clojure]
+----
+(is (= {:id 1 :title "foobar"} (:widget (chain/execute {} [widget-finder]))))
+----
+
+We can extend this approach to test coordination across multiple interceptors as follows:
+
+[source,clojure]
+----
+(def widget-renderer
+  (interceptor/interceptor
+   {:leave (fn [ctx]
+             (if-let [widget (:widget ctx)]
+               (assoc ctx :response {:status 200
+                                     :body   (format "Widget ID %d, Title '%s'"
+                                                     (:id widget)
+                                                     (:title widget))})
+               (assoc ctx :response {:status 404 :body "Not Found"})))}))
+
+(is (= "Widget ID 1, Title 'foobar'"
+       (get-in (chain/execute {} [widget-renderer widget-finder])
+               [:response :body])))
+----
+
 
 == Testing your service with `response-for`
+
+The value in exercising the end-to-end operation of your service endpoints is
+that it provides quick feedback that you've wired things up correctly. Pedestal
+provides the test helper
+link:../api/pedestal.service/io.pedestal.test.html#var-response-for[`response-for`]
+utility function to facilitate testing of services without having to spin up an
+http server.
 
 The `response-for` helper function is specific to servlet-based
 services and simulates the receipt of a servlet request and creation
