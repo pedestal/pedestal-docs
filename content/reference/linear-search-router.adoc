@@ -1,0 +1,35 @@
+= Linear Search Router
+TBD
+2019-03-01
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: reference
+
+ifdef::env-github,env-browser[:outfilessuffix: .adoc]
+
+== Motivation
+
+Provides the user with the most control over routing outside of
+implementing a custom router.
+
+== Why use it?
+
+You require precise control over routing and the routing performance
+tradeoff is acceptable to your service.
+
+== How to use it?
+
+Add the key `:io.pedestal.http/router` to the service map with the
+value `:linear-search`.
+
+== Caveats
+
+Routes requests in linear time. Slowest of Pedestal's router implementations.
+
+== Additional Notes
+
+Pedestal's first router implementation. 
+
+Query and path contraints are used in routing decisions unlike the
+link:prefix-tree-router[Prefix Tree Router] or link:map-tree-router[Map Tree Router].

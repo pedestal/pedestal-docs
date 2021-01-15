@@ -1,14 +1,15 @@
                                                              ;; tag::ns[]
 (ns system
   (:require [com.stuartsierra.component :as component]       ;; <1>
-            [reloaded.repl :refer[init start stop go reset]] ;; <2>
+            [com.stuartsierra.component.repl
+             :refer [reset set-init start stop system]]      ;; <2>
             [io.pedestal.http :as http]                      ;; <3>
             [pedestal]                                       ;; <4>
             [routes]))                                       ;; <5>
                                                              ;; end::ns[]
 
                                                              ;; tag::app[]
-(defn system
+(defn new-system
   [env]                                                      ;; <1>
   (component/system-map
    :service-map                                              ;; <2>
@@ -25,5 +26,5 @@
                                                              ;; end::app[]
 
                                                              ;; tag::init[]
-(reloaded.repl/set-init! #(system :prod))                    ;; <1>
+(set-init (constantly (new-system :prod)))                   ;; <1>
                                                              ;; end::init[]

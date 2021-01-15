@@ -20,7 +20,7 @@ or
 link:../api/pedestal.service/io.pedestal.http.html#var-create-server[`create-server`].
 
 This document explains which interceptors are added under different
-conditions. Each interceptor has it's own documentation that describes
+conditions. Each interceptor has its own documentation that describes
 its specific behavior.
 
 == Modifying the Default Stack
@@ -51,14 +51,14 @@ configuration.)
   [service-map authn-config authz-config]
   (-> service-map
       (http/default-interceptors)                                                 ;; <1>
-      (update ::http/interceptors (auth/authentication-interceptor authn-config)) ;; <2>
-      (update ::http/interceptors (auth/authorization-interceptor authz-config))  ;; <3>
+      (update ::http/interceptors conj (auth/authentication-interceptor authn-config)) ;; <2>
+      (update ::http/interceptors conj (auth/authorization-interceptor authz-config))  ;; <3>
       (http/create-server)))                                                      ;; <4>
 ----
 <1> Attach the default interceptors to our service map
 <2> Modify the defaults to add authentication.
 <3> Further modify the defaults to add authorization.
-<4> Create the server as normal. This would usually attach the defaults, but will skip it because we've set them up ourselves.
+<4> Create the server as usual. This would normally attach the defaults, but will skip that because we've set them up ourselves.
 
 
 == Default Interceptors

@@ -72,13 +72,28 @@
    #{["/greet" :get respond-hello :route-name :greet]})) ;; <2>
                                                          ;; end::routing[]
 
-                                                         ;; tag::server[]
-(defn create-server []
-  (http/create-server                                    ;; <1>
-   {::http/routes routes                                 ;; <2>
-    ::http/type   :jetty                                 ;; <3>
-    ::http/port   8890}))                                ;; <4>
+;; tag::server[]
+(def service-map
+  {::http/routes routes
+   ::http/type   :jetty
+   ::http/port   8890})
 
 (defn start []
-  (http/start (create-server)))                          ;; <5>
-                                                         ;; end::server[]
+  (http/start (http/create-server service-map)))
+
+                                                                                        ;; For interactive development
+(defonce server (atom nil))                                                             ;; <1>
+
+(defn start-dev []
+  (reset! server                                                                        ;; <2>
+          (http/start (http/create-server
+                       (assoc service-map
+                              ::http/join? false)))))                                   ;; <3>
+
+(defn stop-dev []
+  (http/stop @server))
+
+(defn restart []                                                                        ;; <4>
+  (stop-dev)
+  (start-dev))
+                                                                                        ;; end::server[]

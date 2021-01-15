@@ -63,7 +63,7 @@ and their behaviour will remain unspecified.
 | `::http/host`
 | N
 | String
-| Hostname, e.g., "localhost". Passed to the container.
+| Hostname, e.g., "localhost". Passed to the container. Defaults to `localhost`.
 
 | `::http/interceptors`
 | N
@@ -104,7 +104,7 @@ and their behaviour will remain unspecified.
 | `::http/router`
 | N
 | Keyword or route constructor
-| The router implementation to to use. Can be `:linear-search`, `:map-tree` `:prefix-tree`, or a custom link:../api/pedestal.route/io.pedestal.http.route.router.html#var-Router[`router/Router`] constructor function. Defaults to `:map-tree`, which falls back to `:prefix-tree`.
+| The router implementation to use. Can be `:linear-search`, `:map-tree` `:prefix-tree`, or a custom link:../api/pedestal.route/io.pedestal.http.route.router.html#var-Router[`router/Router`] constructor function. Defaults to `:map-tree`, which falls back to `:prefix-tree`.
 
 | `::http/routes`
 | Y

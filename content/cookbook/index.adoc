@@ -1,0 +1,77 @@
+= Cookbook
+Cognitect
+2020-01-31
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: cookbook
+
+== How to test your servlet-based service
+
+Use the link:../api/pedestal.service/io.pedestal.test.html#var-response-for[`response-for`]
+test helper to facilitate testing servlet-based services. It is
+recommended to create a `url-for` test helper in order to construct
+test requests, particularly when query or path parameters are
+involved.
+
+Reference: link:../reference/unit-testing[Unit Testing]
+
+[[cookbook-listing]]
+[source,clojure]
+----
+include::test/how_to_test/service_test.clj[]
+----
+
+== How to Handle Errors
+
+Add an `:error` implementation to your interceptor(s) or create a
+purpose-built, error handling interceptor.  If you can't handle the
+exception in your error handler, re-attach it to the context
+using the `io.pedestal.interceptor.chain/error` key so that other
+interceptors have an opportunity to handle it.
+
+Reference: link:../reference/error-handling[Error Handling]
+
+[[cookbook-listing]]
+[source,clojure]
+----
+include::src/error_handling/service.clj[]
+----
+
+== How to serve static resources
+
+Add the `:io.pedestal.http/resource-path` key to the service map and
+set your project's _resource_ path to the root resource directory.
+
+If your _resources_ directory is `resources` then
+`:io.pedestal.http/resource-path "/public"` will instruct Pedestal to
+look for static content in the `resources/public` directory.  Thus,
+`http://localhost:8080/foo.txt` would serve
+`resources/public/foo.txt`.
+
+If a resource is not found and no route matches the url, then a `404`
+is returned.
+              
+Reference: link:../reference/service-map[Service Map]
+
+[[cookbook-listing]]
+[source,clojure]
+----
+include::src/static_resource/service.clj[tags=service]
+----
+
+== How to specify custom verbs
+
+You can specify custom verbs when creating routes. This can be done with
+the Table Routes syntax, for example, by including a map with the key `:verbs`
+in your route definition. The value of `:verbs` is a `set` containg the verbs you
+wish to support. This set will replace the default set of verbs supported by
+Pedestal.
+
+Reference: link:../reference/table-syntax#_http_verb[Table Syntax Http Verb]
+
+[[cookbook-listing]]
+[source,clojure]
+----
+include::src/verb_neutral_routes/service.clj[tags=routes]
+----

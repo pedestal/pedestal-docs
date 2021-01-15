@@ -19,7 +19,7 @@ After reading this guide you will be able to:
 
 == Guide Assumptions
 This guide is for users who are familiar with Clojure, Pedestal,
-Component and Boot. If you are new to Pedestal, you may want to go back to the
+Clojure's CLI tooling and Component. If you are new to Pedestal, you may want to go back to the
 link:hello-world[Hello World guide]. If you're new to Component, you
 should definitely https://github.com/stuartsierra/component[check it
 out] first.
@@ -55,7 +55,7 @@ service - routes, interceptors and configuration is kept separate from
 service plumbing.
 
 Finally, Pedestal service configuration, captured via a
-link::service-map[Service Map], will be a component dependency.
+link:/reference/service-map[Service Map], will be a component dependency.
 
 Now that we have a better idea of what we want our component to do,
 let's go build it!
@@ -161,7 +161,7 @@ handlers.
 include::component/src/routes.clj[tags=response]
 ----
 The `respond-hello` handler returns a simple static response. It may
-look familiar since it made its first appearance in the in
+look familiar since it made its first appearance in
 the link:hello-world[Hello World] guide.
 
 Finally, let's implement the routes.
@@ -188,7 +188,8 @@ include::component/src/system.clj[tags=ns]
 ----
 <1> Require `com.stuartsierra.component`. It will be used to  to
 create the Component system map.
-<2> Require `reloaded.repl` for its system management functions.
+<2> Require `component.repl` for its system management functions. You would
+normally do this in a `dev` namespace.
 <3> Require `io.pedestal.http` for the server _start_ and _stop_ functions.
 <4> Require `pedestal` for the Pedestal component.
 <5> Require `routes` for the application routes.
@@ -205,91 +206,95 @@ a Pedestal service map.
 <4> We'll configure the service map with our app-specific routes.
 <5> The system map will contain a `:pedestal` key who's value is an
 uninitialized Pedestal component.
-<6> The Pedestal component depends on a service map, so will capture
+<6> The Pedestal component depends on a service map, so we will capture
 that dependency with `component/using`.
 
 == Running It
-We'll use link:http://boot-clj.com/:[boot-clj] to run our
+We'll use `clj` tool to run our
 example. This should be familiar to you if you read through the
 link:hello-world[Hello World] guide.
 
-Let's create a `build.boot` file so that we can fire up a boot repl.
+Let's create a `deps.edn` file so that we can fire up the `clj` tool.
 
 [[app-listing]]
 [source,clojure]
-.build.boot
+.deps.edn
 ----
-include::component/build.boot[]
+include::component/deps.edn[]
 ----
 
 From the project's root directory, fire up a repl, and start the system.
 ----
-$ boot repl
-...
-boot.user=> (require 'system)
-...
-boot.user=> (reloaded.repl/go)
-[nREPL-worker-2] INFO org.eclipse.jetty.util.log - Logging initialized @281159ms
-[nREPL-worker-2] INFO org.eclipse.jetty.server.Server - jetty-9.3.8.v20160314
-[nREPL-worker-2] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@3017154a{/,null,AVAILABLE}
-[nREPL-worker-2] INFO org.eclipse.jetty.server.ServerConnector - Started ServerConnector@2ce2b722{HTTP/1.1,[http/1.1, h2c, h2c-17, h2c-16, h2c-15, h2c-14]}{0.0.0.0:8890}
-[nREPL-worker-2] INFO org.eclipse.jetty.server.Server - Started @281317ms
-:started
+$ clj
+user=> (require 'system)
+nil
+user=> (require '[com.stuartsierra.component.repl :as crepl])
+nil
+user=> (crepl/start)
+[main] INFO org.eclipse.jetty.util.log - Logging initialized @109433ms to org.eclipse.jetty.util.log.Slf4jLog
+[main] INFO org.eclipse.jetty.server.Server - jetty-9.4.18.v20190429; built: 2019-04-29T20:42:08.989Z; git: e1bc35120a6617ee3df052294e433f3a25ce7097; jvm 1.8.0_222-b10
+[main] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@17c4dcc6{/,null,AVAILABLE}
+[main] INFO org.eclipse.jetty.server.AbstractConnector - Started ServerConnector@49b7eb3{HTTP/1.1,[http/1.1, h2c]}{localhost:8890}
+[main] INFO org.eclipse.jetty.server.Server - Started @109612ms
+:ok
 ----
 
 You can now interact with the started service.
 ----
- $ curl -i http://localhost:8890/greet
-
+$ curl -i http://localhost:8890/greet
 HTTP/1.1 200 OK
-Date: Sun, 18 Sep 2016 12:03:05 GMT
+Date: Fri, 20 Sep 2019 19:33:15 GMT
 Strict-Transport-Security: max-age=31536000; includeSubdomains
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff
 X-XSS-Protection: 1; mode=block
+X-Download-Options: noopen
+X-Permitted-Cross-Domain-Policies: none
+Content-Security-Policy: object-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:;
 Content-Type: text/plain
 Transfer-Encoding: chunked
-Server: Jetty(9.3.8.v20160314)
 
-Hello, world!%
+Hello, world!
 ----
 
 Let's stop the system.
 ----
-boot.user=> (reloaded.repl/stop)
-[nREPL-worker-3] INFO org.eclipse.jetty.server.ServerConnector - Stopped ServerConnector@2ce2b722{HTTP/1.1,[http/1.1, h2c, h2c-17, h2c-16, h2c-15, h2c-14]}{0.0.0.0:8890}
-[nREPL-worker-3] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@3017154a{/,null,UNAVAILABLE}
-:stopped
+user=> (crepl/stop)
+[main] INFO org.eclipse.jetty.server.AbstractConnector - Stopped ServerConnector@49b7eb3{HTTP/1.1,[http/1.1, h2c]}{localhost:8890}
+[main] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@17c4dcc6{/,null,UNAVAILABLE}
+:ok
 ----
 
 Our service is no longer available.
 ----
-❯ curl -i http://localhost:8890/greet                                                                                          [08:01:57]
+$ curl -i http://localhost:8890/greet
 curl: (7) Failed to connect to localhost port 8890: Connection refused
 ----
 
 Let's start it again!
 ----
-boot.user=> (reloaded.repl/start)
-[nREPL-worker-5] INFO org.eclipse.jetty.server.Server - jetty-9.3.8.v20160314
-[nREPL-worker-5] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@5938a5ec{/,null,AVAILABLE}
-[nREPL-worker-5] INFO org.eclipse.jetty.server.ServerConnector - Started ServerConnector@626b95fc{HTTP/1.1,[http/1.1, h2c, h2c-17, h2c-16, h2c-15, h2c-14]}{0.0.0.0:8890}
-[nREPL-worker-5] INFO org.eclipse.jetty.server.Server - Started @1297689ms
-:started
+user=> (crepl/start)
+[main] INFO org.eclipse.jetty.server.Server - jetty-9.4.18.v20190429; built: 2019-04-29T20:42:08.989Z; git: e1bc35120a6617ee3df052294e433f3a25ce7097; jvm 1.8.0_222-b10
+[main] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@32d00eea{/,null,AVAILABLE}
+[main] INFO org.eclipse.jetty.server.AbstractConnector - Started ServerConnector@459c7fa1{HTTP/1.1,[http/1.1, h2c]}{localhost:8890}
+[main] INFO org.eclipse.jetty.server.Server - Started @267393ms
+:ok
 ----
 
 It's available again.
 ----
- ❯ curl -i http://localhost:8890/greet                                                                                          [08:04:05]
+$ curl -i http://localhost:8890/greet
 HTTP/1.1 200 OK
-Date: Sun, 18 Sep 2016 12:04:05 GMT
+Date: Fri, 20 Sep 2019 19:34:47 GMT
 Strict-Transport-Security: max-age=31536000; includeSubdomains
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff
 X-XSS-Protection: 1; mode=block
+X-Download-Options: noopen
+X-Permitted-Cross-Domain-Policies: none
+Content-Security-Policy: object-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:;
 Content-Type: text/plain
 Transfer-Encoding: chunked
-Server: Jetty(9.3.8.v20160314)
 
 Hello, world!%
 ----
@@ -305,7 +310,7 @@ route, `/greet`. We'd like to verify that it returns the proper
 greeting. Before we can jump in and do that, though, we need to create
 some helpers. Some are just useful in general, while others are
 specific to our component implementation. Don't worry, you won't have
-to write to much code. Let's do it!
+to write too much code. Let's do it!
 
 First create a `system_test.clj` file in the `src` directory.
 
@@ -330,7 +335,7 @@ We need to expand the routes before invoking Pedestal's
 `route/url-for-routes` function.
 
 The `service-fn` helper extracts the Pedestal `::http/service-fn` from
-the started system. This helper keeps allows us to keep focus on our
+the started system. This helper allows us to keep focus on our
 tests rather than test initialization.
 ----
 include::component/src/system_test.clj[tags=service-fn]
@@ -361,12 +366,12 @@ by name.
 
 Now let's restart the repl and run our tests.
 ----
-boot.user=> (require 'system-test)
+user=> (require 'system-test)
 nil
-boot.user=> (clojure.test/run-tests 'system-test)
+user=> (clojure.test/run-tests 'system-test)
 
 Testing system-test
-[nREPL-worker-4] INFO io.pedestal.http - {:msg "GET /greet", :line 78}
+[main] INFO io.pedestal.http - {:msg "GET /greet", :line 80}
 
 Ran 1 tests containing 2 assertions.
 0 failures, 0 errors.
@@ -436,9 +441,9 @@ include::component/src/system_test.clj[tags=test]
 
 [[app-listing]]
 [source,clojure,subs="-callouts"]
-.build.boot
+.deps.edn
 ----
-include::component/build.boot[]
+include::component/deps.edn[]
 ----
 
 == The Path So Far
@@ -457,23 +462,3 @@ wide variety of Pedestal implementations.
 In a separate guide, link:pedestal-component-handlers-and-dependencies[Pedestal
 Component: Handlers and Dependencies], we'll demonstrate how to introduce
 dependencies and make them accessible to our handlers.
-
-== In the wild
-There are a number of implementations of Pedestal components in the
-wild. Here are some examples. Be sure to check them out!
-
-1. Stuart Sierra's
-link:https://github.com/stuartsierra/component.pedestal[component.pedestal] repository
-explores using Pedestal with Component and provides some great ideas
-on how to make your component dependencies visible to Pedestal
-interceptors and handlers.
-2. Point Slope's
-link:https://github.com/pointslope/elements[Elements] library
-contains a Pedestal component based on some of the ideas implemented
-in this guide. The implementation borrows the core ideas from 'component.pedestal'.
-3. Michael Glaesemann's
-link:https://github.com/grzm/component.pedestal[component.pedestal library], is a fork of
-Stuart's
-link:https://github.com/stuartsierra/component.pedestal[component.pedestal]
-repository extended with helpers and separate components for the
-Pedestal Server and Servlet.

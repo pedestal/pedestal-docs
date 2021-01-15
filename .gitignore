@@ -1,7 +1,5 @@
 # JBake ignores
 output/*
-!output/api
-output/api/index
 
 # Leiningen ignores
 pom.xml
@@ -110,3 +108,5 @@ tags
 .nrepl-history
 
 /.idea/
+
+.cpcache

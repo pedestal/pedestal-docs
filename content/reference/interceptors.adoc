@@ -27,7 +27,7 @@ image::../images/guides/interceptors.png[]
 Either the `:enter` or `:leave` function may be omitted without harm.
 
 Logically speaking, interceptors form a stack. All the `:enter`
-functions are called in order. Each one receives the content map and
+functions are called in order. Each one receives the context map and
 returns a (possibly modified) context map. Once all the interceptors
 have been called, the resulting context map gets passed through the
 interceptors' `:leave` functions, but in reverse order, as shown here:
@@ -66,8 +66,22 @@ This interceptor has only the `:enter` function. Interceptors
 executing after this one would be able to access the `::guid` key on the
 context map.
 
-__NOTE: It is a good practice to use namespaced keywords for data you
-attach to the context map.__
+[IMPORTANT]
+.*Representing interceptors as maps*
+
+--
+Maps are commonly used to represent interceptors. While this is fine
+for interceptors used in routing vectors, it can lead to issues in
+other cases. More on that below.
+--
+
+[TIP]
+.*Namespaced keywords*
+
+--
+It is a good practice to use namespaced keywords for data you attach
+to the context map.
+--
 
 Another common usage of interceptors is to bracket processing of an
 HTTP request with additional functionality. For example:
@@ -136,21 +150,9 @@ expect an asynchronous response.
                 (assoc context :auth-response (call-auth-system context))))})
 ----
 
-=== Manipulating the interceptor queue
-
-The queue of interceptors remaining to execute is held in the
-link:context-map[context map]. This means that an interceptor can
-enqueue other interceptors to be executed. In fact, this is how
-routing works. The router is an interceptor that matches requests and
-enqueues the desired interceptors when a route matches.
-
-Use
-link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-enqueue[`enqueue`]
-to push more interceptors onto the queue.
-
-Use
-link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate[`terminate`]
-if processing should not continue.
+[IMPORTANT]
+.*Chaining With Async Interceptors*
+Any interceptor downstream of an asynchronous interceptor will be executed in the `core.async` thread pool.
 
 === IntoInterceptor
 
@@ -183,8 +185,41 @@ represents anything that can be used as an interceptor. Pedestal extends that pr
 |===
 
 Most of these cases are provided to make routing syntax
-easier. Applications should mainly use the map form shown in the
-earlier examples.
+easier.
+
+Applications should mainly use the map form as shown in the
+earlier examples when defining interceptors for routing
+purposes.
+
+=== Manipulating the interceptor queue
+
+The queue of interceptors remaining to execute is held in the
+link:context-map[context map]. This means that an interceptor can
+enqueue other interceptors to be executed. In fact, this is how
+routing works. The router is an interceptor that matches requests and
+enqueues the desired interceptors when a route matches.
+
+Use
+link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-enqueue[`enqueue`]
+to push more interceptors onto the queue.
+
+Use
+link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate[`terminate`]
+if processing should not continue.
+
+[IMPORTANT]
+.*Interceptor Records*
+
+--
+Interceptors that are explicitely enqueued by the application must
+be defined using the `io.pedestal.interceptor/interceptor`
+function. This function takes a value which extends `IntoInterceptor`
+and returns an `Interceptor` Record.
+
+This is not necessary when constructing interceptors used in routing
+because interceptor representations are transformed to `Interceptor`
+records during route expansion.
+--
 
 === Handlers
 
@@ -199,3 +234,8 @@ context. Therefore, it cannot manipulate the interceptor queue or stack.
 Because a handler takes one kind of thing (request) and returns a
 different kind of thing (response), it can only be used in the last
 position of a stack.
+
+=== Error Handling
+
+Pedestal supports defining interceptor-specific error handlers via the
+`:error` key. Refer to the link:error-handling[Error Handling] reference for more details.

@@ -19,8 +19,7 @@ mailing list]
 == Blog Posts and Conference Talks
 
 * https://www.youtube.com/watch?v=_Cf-STRvFy8[Faster Delivery with Pedestal and Vase] by https://github.com/ohpauleez[Paul deGrandis]
-* http://seespotcode.net/2016/08/03/naming-routes-in-pedestal[Naming Routes in Pedestal] by http://seespotcode.net/[Michael Glaesemann]
-* http://frankiesardo.github.io/posts/2015-03-06-from-pedestal-routes-to-beautiful-documentation.html[From Pedestal routes to beautiful documentation] by http://frankiesardo.github.io/index.html[Frankie Sardo]
+* http://seespotcode.net/2016/08/03/naming-routes-in-pedestal/[Naming Routes in Pedestal] by http://seespotcode.net/[Michael Glaesemann]
 * https://gist.github.com/ohpauleez/15522bc408d8e09cd7657dd768643a5f[Conditional Interceptors that Enqueue New Interceptors] by https://github.com/ohpauleez[Paul deGrandis]
 
 == Tutorials
@@ -39,3 +38,10 @@ mailing list]
 
 * Ryan Neufeld's link:https://github.com/rkneufeld/pedestal-micro[Pedestal-micro] template for microservices.
 * Paul deGrandis' link:https://github.com/ohpauleez/pedestal-micro[Fork of Ryan's] microservice template
+
+== Support libraries
+
+* link:https://github.com/metosin/reitit/tree/master/examples/pedestal-swagger[reitit]: alternative router with built-in coercion and swagger-support 
+* link:https://github.com/metosin/muuntaja[muuntaja]: Clojure library for fast http api format negotiation, encoding and decoding.
+* link:https://github.com/oliyh/pedestal-api[pedestal-api]: Batteries-included API for Pedestal using Swagger
+* link:https://github.com/oliyh/angel-interceptor[angel-interceptor]: Express relations between Pedestal interceptors and decouple scope from execution order

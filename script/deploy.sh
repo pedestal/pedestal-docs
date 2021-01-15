@@ -14,7 +14,9 @@ set -e
 export aws_upload_bucket=${aws_target_bucket}-upload
 
 ./script/build.sh
-./script/upload.sh
-./script/redirects.sh
+if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
+    ./script/upload.sh
+    ./script/redirects.sh
+fi
 
 echo "Success!"

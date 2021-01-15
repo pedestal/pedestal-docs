@@ -18,9 +18,9 @@ frames on a call stack, but they are not present in the usual
 nested fashion on the Java call stack.
 
 Pedestal addresses this by catching all exceptions thrown from an
-interceptor. It binds the exception to the
-`:io.pedestal.interceptor.chain/error` key in the
-link:context-map[context map].
+interceptor. It wraps the exception in an `ExceptionInfo` instance
+which is then bound to the `:io.pedestal.interceptor.chain/error` key
+in the link:context-map[context map].
 
 As long as there is an error attached to that key, Pedestal will not
 invoke the usual `:enter` and `:leave` functions. Instead, it looks
@@ -46,9 +46,10 @@ You can supply your own `:error` interceptor anywhere in the interceptor queue.
 Pedestal will call the function bound to `:error` on an interceptor with two arguments:
 
 - The link:context-map[context map]
-- An ex-info exception
+- An `ExceptionInfo` instance
 
-Pedestal wraps *all* exceptions in ex-info. The folowing keys are defined:
+Pedestal wraps *all* exceptions in ex-info. The following keys are
+defined in its exception data map:
 
 |===
 | Key | Type | Description
@@ -70,22 +71,24 @@ Pedestal wraps *all* exceptions in ex-info. The folowing keys are defined:
 | Keyword
 | Keywordized form of the exception's Java class name
 
+| `:exception`
+| Throwable
+| The caught exception.
+
 |===
 
-The context map _not_ contain the error. The `:error` function can do
+The context map does _not_ contain the
+`:io.pedestal.interceptor.chain/error` key. The `:error` function can do
 one of the following things:
 
 1. Return the context map. This is "catching" the error. Because the
-context map has no error bound to it, Pedestal will return to normal
-execution after this interceptor.
+context map has no error bound to it, Pedestal will exit error
+handling and execute any remaining `:leave` handlers.
 2. Return the context map with the exception re-attached at
 `:io.pedestal.interceptor.chain/error`. This indicates that the
 handler doesn't recognize that exception and declines to handle
 it. Pedestal will continue looking for a handler.
-3. Re-throw the exception in the second argument. This means the
-interceptor can't handle the exception and Pedestal should continue
-looking for a handler.
-4. Throw a new exception. This indicates that the interceptor _should_
+3. Throw a new exception. This indicates that the interceptor _should_
 have been able to handle the error, but something went wrong. Pedestal
 will start looking for a handler for this new exception.
 
@@ -135,3 +138,11 @@ Here is an example from the test suite:
 <5> We use the resulting interceptor like any other.
 
 Pattern matching is a concise way to express conditions for handling an error.
+
+=== Error handling and logging
+
+As stated earlier, for HTTP, the link:servlet-interceptor[servlet interceptor] provides
+the "last ditch" error handlers that log the error and return an
+_error_ response. While having defaults is nice, it is highly
+recommended that services implement their own error
+handling/logging. This gives you full control over how errors are processed.

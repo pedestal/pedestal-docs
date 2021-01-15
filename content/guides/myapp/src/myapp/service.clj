@@ -14,6 +14,14 @@
   [request]
   (ring-resp/response "Hello World!"))
 
+(def echo
+  {:name :echo
+   :enter
+   (fn [context]
+     (let [request  (:request context)
+           response (ok context)]
+       (assoc context :response response)))})
+
 ;; Defines "/" and "/about" routes with their associated :get handlers.
 ;; The interceptors defined after the verb map (e.g., {:get home-page}
 ;; apply to / and its children (/about).

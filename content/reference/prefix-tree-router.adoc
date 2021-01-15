@@ -1,0 +1,41 @@
+= Prefix Tree Router
+TBD
+2019-02-22
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: reference
+
+ifdef::env-github,env-browser[:outfilessuffix: .adoc]
+
+== Motivation
+
+Provide a performant router which is efficient in time and
+space.
+
+It's Modeled after link:https://github.com/julienschmidt/httprouter[httprouter].
+
+== Why use it?
+
+Most performant builtin router when dynamic routes (i.e, path
+parameters, wildcards) are required. Routes requests in logarithmic time.
+
+== How to use it?
+
+Add the key `:io.pedestal.http/router` to the service map with the
+value `:prefix-tree`.
+
+== Caveats
+
+Provides less control over routing. For example, Wild card routes
+always win. The path `/foo/:bar` will always match over `/foo/baz`.
+
+== Additional Notes
+
+Like the link:map-tree-router[Map Tree Router], query and path
+contraints are not used in routing decisions. They are only used to
+invalidate a route match.
+
+== References
+
+- link:https://github.com/pedestal/pedestal/pull/330[Pedestal PR #310]

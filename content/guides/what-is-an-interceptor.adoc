@@ -80,13 +80,13 @@ Make a directory for your project and drop this into `project.clj`:
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/project.clj[]
+include::what-is-an-interceptor-src/project.clj[]
 ----
 
 This is as basic as it gets, but it's enough to run `lein repl` and
 get to work. Go ahead and start a REPL.
 
-Do take note of the two depedencies about logging. If you leave these
+Do take note of the two dependencies about logging. If you leave these
 out, then you won't get any kind of logging, because slf4j will use
 its "no-op" logger.
 
@@ -95,12 +95,10 @@ Make a file under `src/service.clj` with the following contents:
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/intc/service.clj[tags=start]
-
-include::what-is-an-interceptor/src/intc/service.clj[tags=run_service]
+include::what-is-an-interceptor-src/src/intc/service.clj[tags=start;run_service]
 ----
 <1> We will fill in a route shortly
-<2> Run on port 8820
+<2> Run on port 8822
 <3> Give back our REPL thread after starting
 <4> Use Jetty
 <5> Use the routes from <1>
@@ -128,7 +126,7 @@ request with "Hello, world!".
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/intc/service.clj[tags=hello]
+include::what-is-an-interceptor-src/src/intc/service.clj[tags=hello]
 ----
 
 There are a couple of things to point out here. First, this is
@@ -146,7 +144,7 @@ has a function that assocs a value onto the context under the
 link:../reference/servlet-interceptor[Servlet Interceptor] looks for.
 
 This is where we have to start being precise about the difference
-between an interceptor how it gets invoked. "Interceptor" is a very
+between an interceptor and how it gets invoked. "Interceptor" is a very
 general concept. It can be used in a lot of different ways, not just
 for HTTP handling in a web framework. In fact, HTTP handling comes
 from the link:../api/pedestal.service/index.html[pedestal.service]
@@ -166,7 +164,7 @@ Pedestal arranges to call interceptors on one of three functions at different ti
 The `:enter` function is called on the "way in" to a bunch of
 interceptors. If you look at a route with a collection of
 interceptors, they'll have their `:enter` functions invoked from
-left-to-right. Each on receives the new value of the context returned
+left-to-right. Each one receives the new value of the context returned
 by the previous one.
 
 === 2. Leave
@@ -210,22 +208,47 @@ image::../images/guides/what-is-an-interceptor/interceptor-queue-and-stack-in-co
 
 == Manipulating the Queue
 
-When Pedestal calls an interceptor, the queue and stack aren't just there for informational use. Interceptors are totally allowed to change things up. Let's work through an example where we dynamically decide which interceptor to add, depending on a query parameter.
+When Pedestal calls an interceptor, the queue and stack aren't just
+there for informational use. Interceptors are totally allowed to
+change things up. Before we move on, though, we need to revisit the
+topic of _what_ an interceptor is.
 
-First we'll change `service.clj` to add two new claims beyond "Hello World."
+Remember when I said that any map that has at least one key of
+`:enter`, `:leave`, or `:error` can be used as an interceptor? Well it
+turns out that is not completely true. While an interceptor used in
+routing can be represented as a map, an interceptor enqueued during
+queue manipulation _must_ be an Interceptor record instance, otherwise
+an exception is thrown. While this subtlety is called out the
+link:../reference/interceptors#_manipulating_the_interceptor_queue[Interceptors]
+reference documentation, it's worth reiterating here. When maps are
+used as interceptors in routes, they are expanded to Interceptor
+records during route expansion. For performance reasons, no such
+transformation occurs when interceptors are enqueued. *Enqueued interceptors
+are expected to be Interceptor record instances*.
+
+Now that we've cleared that up, let's work through an example where we
+dynamically decide which interceptor to add, depending on a query
+parameter.
+
+First we'll change `service.clj` to add two new claims beyond "Hello
+World."
 
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/intc/service.clj[tags=new_players]
+include::what-is-an-interceptor-src/src/intc/service.clj[tags=new_players]
 ----
+Notice how we use the `io.pedestal.interceptor/interceptor` function
+to create the Interceptor records. This is because we'll be
+enqueue'ing them during request processing.
 
-These interceptors aren't very interesting, but there are two of them. Here's how we are going to choose which one to run.
+Now, these interceptors aren't very interesting, but there are two of
+them. Here's how we are going to choose which one to run.
 
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/intc/service.clj[tags=chooser]
+include::what-is-an-interceptor-src/src/intc/service.clj[tags=chooser]
 ----
 <1> Look at the `n` query parameter from the URL.
 <2> Enqueue one or the other of our interceptors.
@@ -241,7 +264,7 @@ The very first motivation for Pedestal was the ability to make on-the-fly decisi
 
 === Some Practical Applications
 
-Pedestal routers are just an interceptors. A router inspects the incoming request and decides what interceptors to enqueue. That's it! There's no magic at all in the router. You can build your own replacement router. For that matter, you can build a secondary router that uses something other than the request path to dispatch on.
+Pedestal routers are just interceptors. A router inspects the incoming request and decides what interceptors to enqueue. That's it! There's no magic at all in the router. You can build your own replacement router. For that matter, you can build a secondary router that uses something other than the request path to dispatch on.
 
 Suppose you need to add entity-level access control to an API. You can create an interceptor that looks at the entity to decide if authorization is needed. If so, enqueue an interceptor that does the auth check or redirects.
 
@@ -271,7 +294,7 @@ Our data "science" interceptor is pretty small, but it still does just a bit too
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/intc/service.clj[tags=chooser2]
+include::what-is-an-interceptor-src/src/intc/service.clj[tags=chooser2]
 ----
 
 We get the dreaded "Internal server error." We can do much better if we create an error handler. Any interceptor with an `:error` function gets asked (very politely) if it can handle the exception. Pedestal does this by calling the `:error` function with the  context map and an ex-info that wraps the original exception. (See the link:../reference/error-handling[error handling reference] for all the gory details.)
@@ -281,7 +304,7 @@ We can make an interceptor that handles NumberFormatException like this:
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/intc/service.clj[tags=error-i]
+include::what-is-an-interceptor-src/src/intc/service.clj[tags=error-i]
 ----
 <1> Check what type of exception was originally thrown.
 <2> Create a response for our specific error of interest.
@@ -292,7 +315,7 @@ This works, but it's still a bit noisy. Let's rewrite it using link:../api/pedes
 [[app-listing]]
 [source,clojure]
 ----
-include::what-is-an-interceptor/src/intc/service.clj[tags=error-dispatch]
+include::what-is-an-interceptor-src/src/intc/service.clj[tags=error-dispatch]
 ----
 <1> Use pattern matching to select which exceptions we handle.
 <2> Generate a response. Any exceptions that don't match a pattern automatically get rethrown.
@@ -307,6 +330,11 @@ In this guide, we've gotten into some of the deep inner workings of Pedestal. Yo
 * How to manipulate the interceptor queue and stack.
 * How to split your application logic into smaller pieces using interceptors.
 * How to handle errors
+
+*For pedagogical purposes this guide represented some interceptors as
+maps and some interceptors as Interceptor records. In practice, it's
+recommended to use `io.pedestal.interceptor/interceptor` when
+constructing interceptors.*
 
 == Where To Next?
 

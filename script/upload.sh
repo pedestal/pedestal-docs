@@ -22,3 +22,5 @@ echo "Syncing from ${aws_upload_bucket} to ${aws_target_bucket}"
 
 # Sync from upload to target bucket
 aws s3 sync ${aws_upload_bucket} ${aws_target_bucket} --delete
+
+echo "Upload complete"

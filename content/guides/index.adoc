@@ -13,41 +13,14 @@ Cognitect
 * link:hello-world-content-types[Hello, world! with content types]
 * link:your-first-api[Your First API]
 * link:defining-routes[Defining Routes]
-* Unit Testing Your Pedestal API
-* Serving Static Resources
-* link:server-sent-events[Server-sent events]
+// * link:server-sent-events[Server-sent events]
 * link:what-is-an-interceptor[What is an Interceptor?]
-* Connecting Pedestal to Datomic
-* link:uploading-files[Uploading Files]
-* link:crash-course[Crash Course] - Get going fast
 
 == Using Pedestal With ...
 
 * link:pedestal-with-component[Component]
 * http://docs.arachne-framework.org/tutorials/http-requests/[Arachne]
-* Figwheel
-* Om
-* Om.next
-* Datomic
-
-== High Performance Pedestal
-
-* Using HTTP/2 with Pedestal
-* Core.async and NIO for full async deployment
-* Error handling in async applications
-
-== Fun with Interceptors
-
-* An Interceptors that adds Interceptors
-* Writing a Custom Router
-
-== Security
-
-* Anti-CSRF Guide
-* CORS Guide
-* Authentication and Authorization
 
 == Interactive Development
 
 * link:developing-at-the-repl[Developing at the REPL]
-* Getting Debug Output

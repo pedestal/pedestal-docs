@@ -19,3 +19,4 @@ Cognitect
 * link:pedestal.immutant/index.html[pedestal.immutant]
 * link:pedestal.jetty/index.html[pedestal.jetty]
 * link:pedestal.tomcat/index.html[pedestal.tomcat]
+* link:pedestal.aws/index.html[pedestal.aws]

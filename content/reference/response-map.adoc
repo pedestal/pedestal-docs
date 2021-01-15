@@ -11,7 +11,7 @@ Michael Glaesemann
 The response map is attached to the link:context-map[Context Map] by any
 interceptor in the interceptor chain. The response map describes the outgoing
 HTTP response. If no response map is attached to the context by the time
-processing is done, Pedestal generates a 404 response.
+processing is done or the attached response map is not valid footnoteref:[1, Response validity has different semantics depending on the Pedestal layer in question. Pedestal's core http processing layer only requires the `:status` key for a response to be considerd valid. This is the semantic used by the default `not-found` interceptor. Meanwhile, Pedestal's lower-level servlet-specific termination check abide's by the Ring response contract, requiring the `:status` and `:headers` keys.], Pedestal generates a 404 response.
 
 [cols="s,d,d,d", options="header", grid="rows"]
 |===
@@ -22,7 +22,7 @@ processing is done, Pedestal generates a 404 response.
 | The HTTP status code
 
 | `:headers`
-| N
+| N footnoteref:[1]
 | map of String -> String
 | Response headers sent to the client. Header names are all converted to lower case.
 
@@ -30,3 +30,5 @@ processing is done, Pedestal generates a 404 response.
 | N
 | String, ISeq, File, InputStream
 | The body of the response sent to the client.
+|===
+

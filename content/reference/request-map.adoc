@@ -36,7 +36,7 @@ a new one. Interceptors may add arbitrary keys to the request map.
 | :content-type
 | N
 | String
-| Present if sent by client. Content type of the request body.
+| Present if sent by client footnoteref:[1, May not be set automatically by some chain providers (i.e., such as the AWS API Gateway link:../api/pedestal.aws/io.pedestal.http.aws.lambda.utils.html#direct-apigw-provider[provider]).]. Content type of the request body.
 
 | :content-length
 | N
@@ -55,7 +55,7 @@ a new one. Interceptors may add arbitrary keys to the request map.
 
 | :form-params
 | N
-| Map of keyword -> String
+| Map of Keyword -> String
 | Present if the link:../api/pedestal.service/io.pedestal.http.body-params.html#var-body-params[body-params] interceptor is used _and_ the client sent content type "application/x-www-form-urlencoded". Some keys may be left as strings, if they contain characters that would make them invalid as Clojure keywords.
 
 | :headers
@@ -65,13 +65,13 @@ a new one. Interceptors may add arbitrary keys to the request map.
 
 | :json-params
 | N
-| Map of String -> String
+| Map of Keyword -> Any footnoteref:[2, Based on the coercion of any link:https://www.w3schools.com/js/js_json_objects.asp[valid] JSON data type]
 | Present if the  link:../api/pedestal.service/io.pedestal.http.body-params.html#var-body-params[body-params] interceptor is used _and_ the client sent content type "application/json"
 
 | :params
-| Y
-| Map of keyword or String -> String
-| Merged map of path, query, and request parameters.
+| N
+| Map of Keyword or String -> String or Keyword -> String
+| See the Parameters link:parameters[reference].
 
 | :path-info
 | Y
@@ -80,7 +80,7 @@ a new one. Interceptors may add arbitrary keys to the request map.
 
 | :path-params
 | N
-| Map of keyword -> String
+| Map of Keyword -> String
 | Present if the router found any path parameters.
 
 | :protocol
@@ -90,7 +90,7 @@ a new one. Interceptors may add arbitrary keys to the request map.
 
 | :query-params
 | N
-| Map of keyword -> String
+| Map of Keyword -> String
 | Present if the link:../api/pedestal.route/io.pedestal.http.route.html#var-query-params[query-params] interceptor is used. (It is one of the link:default-interceptors[default interceptors].)
 
 | :query-string
@@ -130,7 +130,7 @@ a new one. Interceptors may add arbitrary keys to the request map.
 
 | :transit-params
 | N
-| Any data structure
+| Any
 | Present if the link:../api/pedestal.service/io.pedestal.http.body-params.html#var-body-params[body-params] interceptor is used _and_ the client sent content type "application/transit+json" or "application/transit+msgpack"
 
 | :uri

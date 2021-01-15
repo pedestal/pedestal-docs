@@ -34,7 +34,7 @@
 
                                                                  ;; tag::test[]
 (deftest greeting-test
-  (with-system [sut (system/system :test)]                       ;; <1>
+  (with-system [sut (system/new-system :test)]                   ;; <1>
     (let [service               (service-fn sut)                 ;; <2>
           {:keys [status body]} (response-for service
                                               :get
