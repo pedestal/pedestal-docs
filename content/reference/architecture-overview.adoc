@@ -69,10 +69,6 @@ framework into interceptors:
 
 Application logic is also implemented in interceptors.
 
-Interceptors are called in core.async go blocks, so one interceptor
-may be called on a different thread than the next. All bindings will
-be conveyed to each interceptor.
-
 An interceptor may return a channel instead of the context map. In
 that case, the channel is treated like a promise to deliver the
 context map in the future. Once the channel delivers the context map,

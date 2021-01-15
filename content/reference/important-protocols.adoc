@@ -74,7 +74,7 @@ Whatever is returned from the
 link:../api/pedestal.route/io.pedestal.http.route.html#var-router-spec[`router-spec`]
 function of the protocol must be an interceptor. It must accept a
 link:context-map[context map] and enqueue
-link:interceptors[interceptors] based on whatever criteria is chooses.
+link:interceptors[interceptors] based on whatever criteria it chooses.
 
 === link:../api/pedestal.route/io.pedestal.http.route.html#var-ExpandableRoutes[`ExpandableRoutes`]
 
