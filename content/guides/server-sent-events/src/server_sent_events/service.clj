@@ -123,6 +123,7 @@
             [io.pedestal.http.body-params :as body-params]
             [ring.util.response :as ring-resp]
             [clojure.core.async :as async]
+            [clojure.core.async.impl.protocols :as chan]
             [hiccup.core :as hiccup]))
 
 (def js-string
@@ -150,8 +151,9 @@ eventSource.addEventListener(\"counter\", function(e) {
 
 (defn stream-ready [event-chan context]
   (dotimes [i 10]
-    (async/>!! event-chan {:name "counter" :data i})
-    (Thread/sleep 1000))
+    (when-not (chan/closed? event-chan)
+      (async/>!! event-chan {:name "counter" :data i})
+      (Thread/sleep 1000)))
   (async/close! event-chan))
 
 (def routes
