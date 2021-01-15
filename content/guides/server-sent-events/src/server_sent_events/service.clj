@@ -108,7 +108,8 @@
             [io.pedestal.http.body-params :as body-params]
             [ring.util.response :as ring-resp]
             ;; require core.async
-            [clojure.core.async :as async]))
+            [clojure.core.async :as async]
+            [clojure.core.async.impl.protocols :as chan]))
 ;; end::require-sse[]
 
 (defn home-page
@@ -119,9 +120,11 @@
 (ns server-sent-events.service
   (:require [io.pedestal.http :as http]
             [io.pedestal.http.route :as route]
+            ;; require SSE
             [io.pedestal.http.sse :as sse]
             [io.pedestal.http.body-params :as body-params]
             [ring.util.response :as ring-resp]
+            ;; require core.async
             [clojure.core.async :as async]
             [clojure.core.async.impl.protocols :as chan]
             [hiccup.core :as hiccup]))
