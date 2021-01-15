@@ -13,7 +13,7 @@ Cognitect
 * link:hello-world-content-types[Hello, world! with content types]
 * link:your-first-api[Your First API]
 * link:defining-routes[Defining Routes]
-* link:server-sent-events[Server-Sent Events (SSE)]
+* link:sse[Server-Sent Events (SSE)]
 * link:what-is-an-interceptor[What is an Interceptor?]
 
 == Using Pedestal With ...
