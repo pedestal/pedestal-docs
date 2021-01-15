@@ -171,8 +171,9 @@ eventSource.addEventListener(\"counter\", function(e) {
 ;; tag::counter-route[]
 (defn stream-ready [event-chan context]
   (dotimes [i 10]
-    (async/>!! event-chan {:name "counter" :data i})
-    (Thread/sleep 1000))
+    (when-not (chan/closed? event-chan)
+      (async/>!! event-chan {:name "counter" :data i})
+      (Thread/sleep 1000)))
   (async/close! event-chan))
 
 (def routes
