@@ -183,7 +183,13 @@ after all).
 include::server-sent-events/src/server_sent_events/service.clj[tags=html-home]
 ----
 
-Now we should be able to restart our server and navigate to http://localhost:8080 and watch our counter increment.
+Now we should be able to restart our server and navigate to
+http://localhost:8080 and watch our counter increment.
+
+Coverage of the JavaScript EventSource (SSE) API is beyond the scope of this
+Pedestal guide. If you are unfamiliar with the API, consult this
+https://www.html5rocks.com/en/tutorials/eventsource/basics/[tutorial] for a
+basic introduction.
 
 == Wrapping Up
 
