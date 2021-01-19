@@ -75,3 +75,45 @@ Reference: link:../reference/table-syntax#_http_verb[Table Syntax Http Verb]
 ----
 include::src/verb_neutral_routes/service.clj[tags=routes]
 ----
+
+== How to override request logging
+
+The `log-request` is always added as the first of the link:../reference/default-interceptors[default interceptors].
+This will log requests as they come in (using `io.pedestal.log`), according to how your logging infrastructure
+is configured.
+
+The default logger will output something like:
+
+----
+INFO io.pedestal.log {:msg "GET /status", :line 80}
+----
+
+To disable the log entirely, set the logger to `nil` in the link:../reference/service-map[service map]:
+
+[source,clojure]
+----
+(-> {::http/request-logger nil}
+    http/default-interceptors)
+----
+
+=== Custom log format
+
+To modify the log message, for example, to log request timing, you can use a custom interceptor.
+In this example, we use `io.pedestal.log`, but you can freely use
+link:https://github.com/clojure/tools.logging[`org.clojure/tools.logging`] or
+any other logging mechanism.
+
+[[cookbook-listing]]
+[source,clojure]
+----
+include::src/logging/service.clj[]
+----
+
+This will output something like:
+
+----
+INFO logging.service {:method "GET", :msg "request completed", :line "24", :status 200, :uri "/status", :response-time 5}
+----
+
+This can obviously be extended to log unique request ids, user details,
+`:json-params` from the body or anything else as required.
