@@ -29,7 +29,7 @@ The following table lists the container options supported by Jetty.
 | Reuse the socket address. Defaults to `true`.
 
 | `:thread-pool`
-| A link:https://www.eclipse.org/jetty/javadoc/current/org/eclipse/jetty/util/thread/ThreadPool.html[ThreadPool] instance.
+| A link:https://www.eclipse.org/jetty/javadoc/jetty-9/org/eclipse/jetty/util/thread/ThreadPool.html[ThreadPool] instance.
 | override the Jetty thread pool (ignores max-threads)
 
 | `:configurator`
@@ -51,11 +51,11 @@ instance. Expected to return the Server instance. Use when advanced customizatio
 
 | `:h2c?`
 | Boolean
-| HTTP/2 cleartext support. Allows upgrading connections from HTTP/1.1 to the Http/2 protocol. Defaults to `true`. When `true`, `:port` must be specified. link:https://http2.github.io/http2-spec/#versioning[Http/2 versioning], link:https://www.eclipse.org/jetty/documentation/current/http2.html[Jetty HTTP/2] documentation.
+| HTTP/2 cleartext support. Allows upgrading connections from HTTP/1.1 to the Http/2 protocol. Defaults to `true`. When `true`, `:port` must be specified. link:https://httpwg.org/specs/rfc7540.html#versioning[HTTP/2 versioning], link:https://www.eclipse.org/jetty/documentation/jetty-9/index.html#http2[Jetty HTTP/2] documentation.
 
 | `:h2?`
 | Boolean
-| HTTP/2 TLS support. When `true`, `:ssl-port` must be specified.  link:https://http2.github.io/http2-spec/#versioning[HTTP/2 versioning], link:https://www.eclipse.org/jetty/documentation/current/http2.html[Jetty HTTP/2] documentation.
+| HTTP/2 TLS support. When `true`, `:ssl-port` must be specified. link:https://httpwg.org/specs/rfc7540.html#versioning[HTTP/2 versioning], link:https://www.eclipse.org/jetty/documentation/jetty-9/index.html#http2[Jetty HTTP/2] documentation.
 
 | `:connection-factory-fns`
 | Vector of Functions
@@ -93,7 +93,7 @@ specified, `:key-password`, `:keystore`, `:truststore`,
 
 | `:security-provider`
 | String
-| Java Security Provider name. Refer to the Jetty link:https://www.eclipse.org/jetty/documentation/9.4.20.v20190813/configuring-ssl.html[ConfiguringSSL/TLS] documentation. Not used if `:ssl-context-factory` is set.
+| Java Security Provider name. Refer to the Jetty https://www.eclipse.org/jetty/documentation/jetty-9/index.html#configuring-ssl[ConfiguringSSL/TLS] documentation. Not used if `:ssl-context-factory` is set.
 
 | `:io.pedestal.http.jetty/http-configuration`
 | org.eclipse.jetty.server.HttpConfiguration
