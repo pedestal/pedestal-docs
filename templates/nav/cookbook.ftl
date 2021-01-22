@@ -4,3 +4,4 @@
 <a href="/cookbook/index#_how_to_handle_errors" class="w-nav-link clj-section-nav-item-link">How to handle errors</a>
 <a href="/cookbook/index#_how_to_serve_static_resources" class="w-nav-link clj-section-nav-item-link">How to serve static resources</a>
 <a href="/cookbook/index#_how_to_specify_custom_verbs" class="w-nav-link clj-section-nav-item-link">How to specify custom verbs</a>
+<a href="/cookbook/index#_how_to_override_request_logging" class="w-nav-link clj-section-nav-item-link">How to override request logging</a>
