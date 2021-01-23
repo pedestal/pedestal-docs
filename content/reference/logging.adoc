@@ -1,12 +1,126 @@
 = Logging
 TBD
-2016-08-22
+2021-01-05
 :jbake-type: page
 :toc: macro
 :icons: font
 :section: reference
 
 
-== Placeholder
+== Basics
 
-**Pull requests welcomed!**
+The `log-request` is always added as the first of the link:./default-interceptors[default interceptors].
+This will log requests as they come in (using `io.pedestal.log`), according to how your logging infrastructure
+is configured. See the below section on <<setting-up,Setting up logging>> for some examples.
+
+The default logger will output something like:
+
+----
+INFO io.pedestal.log {:msg "GET /status", :line 80}
+----
+
+To disable the log entirely, set the logger to `nil` in the link:service-map[service map]:
+
+[source,clojure]
+----
+(-> {::http/request-logger nil}
+    http/default-interceptors)
+----
+
+=== Custom log format
+
+To modify the log message, for example, to log request timing, you can use a custom interceptor.
+In this example, we re-use `io.pedestal.log` but you can freely use
+link:https://github.com/clojure/tools.logging[`org.clojure/tools.logging`] or
+any other logging mechanism.
+
+[source,clojure]
+----
+(ns sample.app
+  (:require [io.pedestal.log :as log]
+            [io.pedestal.http :as http]
+            [io.pedestal.interceptor :refer [interceptor]]))
+
+(def log-request
+  "Logs all http requests with response time."
+  {:name ::log-request
+   :enter (fn [context]
+            (assoc-in context [:request :start-time] (System/currentTimeMillis)))
+   :leave (fn [context]
+            (let [{:keys [uri start-time request-method]} (:request context)
+                  finish (System/currentTimeMillis)
+                  total (- finish start-time)]
+              (log/info :msg "request completed"
+                        :method (clojure.string/upper-case (name request-method))
+                        :uri uri
+                        :status (:status (:response context))
+                        :response-time total)))})
+
+(-> {::http/request-logger (interceptor log-request)}
+    http/default-interceptors)
+----
+
+This will output something like:
+
+----
+INFO sample.app {:method "GET", :msg "request completed", :line "24", :status 200, :uri "/status", :response-time 5}
+----
+
+This can obviously be extended to log unique request ids, user details,
+`:json-params` from the body or anything else as required.
+
+=== Disabling logs
+
+When enabling certain interceptors (e.g. the `allow-origin` link:default-interceptors[default interceptor]),
+it may emit a lot of noise at the default INFO level. This can be managed by your logging infrastructure configuration.
+For example, if using `log4j2`, the following can be added to your `log4j2.properties`:
+
+[source,properties]
+.resources/log4j2.properties
+----
+# ... omitted lines
+logger.pedestal.name = io.pedestal.http.cors
+logger.pedestal.level = off
+----
+
+
+== [[setting-up]]Setting up logging
+
+=== Usage with link:http://logback.qos.ch[`logback`]
+
+`logback` is set up by default in the
+link:https://github.com/pedestal/pedestal/tree/master/service-template[`pedestal-service`]
+`lein` template so you can view the `project.clj` and `logback.xml` there for samples.
+
+=== Usage with link:https://logging.apache.org/log4j/2.x/[`log4j2`]
+
+Add the required libraries to your `deps.edn` (or equivalent):
+
+[source,clojure]
+.deps.edn
+----
+{:paths ["src" "resources"]
+ :deps  {org.apache.logging.log4j/log4j-core       {:mvn/version "2.14.0"}
+         org.apache.logging.log4j/log4j-api        {:mvn/version "2.14.0"}
+         org.apache.logging.log4j/log4j-slf4j-impl {:mvn/version "2.14.0"}}
+}
+----
+
+Add a `log4j2.properties` (or equivalent
+link:https://logging.apache.org/log4j/2.x/manual/configuration.html[configuration file]) to your classpath:
+
+[source,properties]
+.resources/log4j2.properties
+----
+status = error
+dest = err
+name = PropertiesConfig
+
+appender.console.type = Console
+appender.console.name = STDOUT
+appender.console.layout.type = PatternLayout
+appender.console.layout.pattern = %d{ISO8601} %-5p %c: %m%n
+
+rootLogger.level = info
+rootLogger.appenderRef.stdout.ref = STDOUT
+----
