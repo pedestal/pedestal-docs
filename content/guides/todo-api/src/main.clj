@@ -58,7 +58,7 @@
    :enter
    (fn [context]
      (let [request (:request context)
-           response (ok context)]
+           response (ok request)]
        (assoc context :response response)))})
 
 (def routes
