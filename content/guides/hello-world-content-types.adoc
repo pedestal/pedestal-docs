@@ -376,7 +376,7 @@ Hello, world!
 Hello, world!
 ----
 
-Notice the content type returned by our service was "text/plain." Let's try some others. Keep an eye on the "Content-Type" header in each response.
+Notice the content type returned by our service was "text/html." Let's try some others. Keep an eye on the "Content-Type" header in each response.
 
 [source,bash]
 ----
