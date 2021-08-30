@@ -21,14 +21,21 @@
   <script type="text/javascript" src="<#if (content.rootpath)??>${content.rootpath}<#else></#if>js/anchor.min.js"</script>
   <link rel="shortcut icon" type="image/x-icon" href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>images/pedestal-icon-32.png">
   <link rel="apple-touch-icon" href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>images/pedestal-icon-256.png">
+  <!-- Matomo -->
   <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-  ga('create', 'UA-4857754-21', 'auto');
-  ga('send', 'pageview');
+    var _paq = window._paq = window._paq || [];
+    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    (function() {
+      var u="https://cognitect.matomo.cloud/";
+      _paq.push(['setTrackerUrl', u+'matomo.php']);
+      _paq.push(['setSiteId', '7']);
+      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+      g.async=true; g.src='//cdn.matomo.cloud/cognitect.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
+    })();
   </script>
+  <!-- End Matomo Code -->
 </head>
 <body>
   <div data-collapse="none" data-animation="default" data-duration="400" data-contain="1" class="w-nav clj-navbar">
