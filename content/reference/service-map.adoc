@@ -204,6 +204,18 @@ If the key is simply not present in the service map, then a set of default secur
 | X-XSS-Protection
 | "1; mode=block"
 
+| `:download-options-settings`
+| X-Download-Options
+| "noopen"
+
+| `:cross-domain-policies-settings`
+| X-Permitted-Cross-Domain-Policies
+| "none"
+
+| `:content-security-policy-settings`
+| Content-Security-Policy
+| "object-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:;"
+
 |===
 
 If the value for `::http/secure-headers` is present, it may contain
