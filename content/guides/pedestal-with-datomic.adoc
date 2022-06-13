@@ -1,0 +1,170 @@
+= Using Pedestal With Datomic
+Mateus Carvalho
+2022-06-14
+:jbake-type: page
+:toc: macro
+:icons: font
+:section: reference
+
+ifdef::env-github,env-browser[:outfilessuffix: .adoc]
+
+toc::[]
+_by {author}_, _{revdate}_
+
+== What You Will Learn
+After reading this guide you will be able to:
+
+- Create a Pedestal service connecting to Datomic.
+- Test your service using Pedestal's test helpers.
+
+== Guide Assumptions
+This tutorial extends the link:hello-world[Hello World Service] to use strings retrieved
+from Datomic. We will start from the "hello" service that we created
+in our first tutorial.
+
+This tutorial assumes that you have Datomic downloaded already.
+If not, hop over to the https://www.datomic.com/get-datomic.html[download site].
+
+== Add Datomic to the Project
+After downloading the datomic
+Add credentials to lein folder:
+----
+$ touch ~/.lein/credentials.clj.gpg
+----
+Your credentials can be found at https://my.datomic.com/account[your datomic account page].
+
+It might look similar to:
+----
+{#"my\.datomic\.com" {:username "my-email@my-email-domain.com"
+                      :password "my-password-from-datomic-account-page"}}
+----
+
+Prepare local datomic:
+
+1. Go to https://my.datomic.com/account[your datomic account page]
+2. Send license key
+3. Copy license-key from e-mail
+4. Go to your datomic local location > config
+5. Copy dev transactor sample from `config/samples/dev-transactor-template.properties` to `config`
+6. Edit `dev-transactor-template.properties`, adding license-key from Datomic e-mail
+
+Start local datomic:
+----
+$ cd <your local datomic location>
+$ bin/transactor -Ddatomic.printConnectionInfo=true config/dev-transactor-template.properties
+----
+
+Add dependency to `deps.clj` file.
+
+[source, clojure]
+.deps.clj
+
+----
+include::datomic/deps.edn[]
+----
+<1> Datomic dependency taken from your datomic account page with
+your last release replacing `${VERSION}`.
+
+At your `project.clj` add the local datomic repository:
+[source, clojure]
+.project.clj
+
+----
+include::datomic/project.clj[]
+----
+<1> Maven Repository referring your local datomic.
+
+Run `lein deps` to fetch the dependencies.
+
+== Write Schema and Seed Data
+On Pedestal app, a suitable place to put a schema is the
+resources/[your-project-name-here] directory.
+
+Our schema is also pretty simple: it has just one attribute:
+
+[source, clojure]
+.resources/hello/schema.edn
+
+----
+include::datomic/resources/hello/schema.edn[]
+----
+
+This application doesn't have any way to write new data into Datomic yet.
+So, in order to have something to show in a browser, we'll put some seed data into Datomic.
+This file can also reside under the `resources/hello` directory.
+Create the file `resources/hello/seed-data.edn` with the following contents:
+
+[source, clojure]
+.resources/hello/seed-data.edn
+
+----
+include::datomic/resources/hello/seed-data.edn[]
+----
+
+The funny looking negative IDs are a way to ask Datomic to assign entity IDs automatically.
+
+== Create Some Data Functions
+
+Now we need create functions to establish a connection to Datomic,
+define the schema, and retrieve data. This code is nothing new,
+just a simple Datomic sample. Put the following code into `src/ports/datomic/peer.clj`:
+
+[source, clojure]
+.src/ports/datomic/peer.clj
+
+----
+include::datomic/src/ports.datomic/peer.clj[]
+----
+
+== Use Database Results in the Service
+
+Next, we need to use results from the database.
+For this, we will change a function to `hello.clj`.
+This function will use `peer.clj` to access data.
+
+Open up `src/hello.clj` again
+and modify the ns macro to reference `peer`:
+----
+include::datomic/src/hello.clj[tags=ns]
+----
+<1> `peer.clj` reference.
+
+Let's now rewrite the `home-page` function in `hello.clj`
+so that we see the output from Datomic:
+----
+include::datomic/src/hello.clj[tags=response]
+----
+<1> referenced at `:require`, results coming from `peer.clj`
+composing the result.
+
+
+== Running your service
+If you still have the service running from Hello Service, you will first need to exit the REPL.
+Then, start the service the same way as before:
+----
+(hello/start)
+----
+
+Now point your browser at `http://localhost:8080/` and you will see the thrilling string:
+
+----
+Hello Colors! [["True Mint"], ["Olive Green"], ["Orange Red"], ["Yellowish White"]]
+----
+
+Because home-page returns a string, the HTTP response will be sent
+with a content type of "text/plain",
+as we can see by using "curl" to access the server:
+
+----
+$ curl -i http://localhost:8080/
+HTTP/1.1 200 OK
+Date: Mon, 13 Jun 2022 20:15:05 GMT
+Content-Type: text/plain
+Content-Length: 82
+Server: Jetty(8.1.9.v20130131)
+
+Hello Colors! [["True Mint"], ["Orange Red"], ["Olive Green"], ["Yellowish White"]]
+----
+
+== Where to go Next
+For more about Datomic, check out http://datomic.com[datomic.com].

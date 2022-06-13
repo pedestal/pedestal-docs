@@ -18,8 +18,9 @@ Cognitect
 
 == Using Pedestal With ...
 
-* link:pedestal-with-component[Component]
 * http://docs.arachne-framework.org/tutorials/http-requests/[Arachne]
+* link:pedestal-with-component[Component]
+* link:pedestal-with-datomic[Datomic]
 
 == Interactive Development
 
