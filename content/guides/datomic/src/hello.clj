@@ -23,7 +23,7 @@
       (http/create-server     ;; <1>
         {::http/routes routes  ;; <2>
          ::http/type   :jetty  ;; <3>
-         ::http/port   8080})) ;; <4>
+         ::http/port   8890})) ;; <4>
 
 (defn start []
       (peer/init-db)
