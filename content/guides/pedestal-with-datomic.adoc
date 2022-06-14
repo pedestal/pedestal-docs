@@ -145,7 +145,7 @@ Then, start the service the same way as before:
 (hello/start)
 ----
 
-Now point your browser at `http://localhost:8080/` and you will see the thrilling string:
+Now point your browser at `http://localhost:8890/` and you will see the thrilling string:
 
 ----
 Hello Colors! [["True Mint"], ["Olive Green"], ["Orange Red"], ["Yellowish White"]]
@@ -156,7 +156,7 @@ with a content type of "text/plain",
 as we can see by using "curl" to access the server:
 
 ----
-$ curl -i http://localhost:8080/
+$ curl -i http://localhost:8890/
 HTTP/1.1 200 OK
 Date: Mon, 13 Jun 2022 20:15:05 GMT
 Content-Type: text/plain
