@@ -181,7 +181,7 @@ user=>
 
 Let's try out the routes that we defined in the `main`
 namespace. We'll do that using
-link:../api/pedestal.service/io.pedestal.test.html#var-response-for[`io.pedestal.test/response-for`]. This
+link:../api/io.pedestal.test.html#var-response-for[`io.pedestal.test/response-for`]. This
 function exercises our server without going through any actual HTTP
 requests. We give it a "service function" (which is one of the values
 in the server map), an HTTP verb, and a URL.

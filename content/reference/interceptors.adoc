@@ -106,7 +106,7 @@ data to the context using the `::tx-data` key.
 Interceptors are values but they are not required to be compile-time
 values. Functions can close over state and return interceptors. Some
 frequently-used built-ins work this way. (E.g.,
-link:../api/pedestal.service/io.pedestal.http.body-params.html#var-body-params[`body-params`].)
+link:../api/io.pedestal.http.body-params.html#var-body-params[`body-params`].)
 
 Here is an interceptor that accepts a connection string and attaches
 the database connection to every request:
@@ -157,7 +157,7 @@ Any interceptor downstream of an asynchronous interceptor will be executed in th
 === IntoInterceptor
 
 The protocol
-link:../api/pedestal.interceptor/io.pedestal.interceptor.html#var-IntoInterceptor[`IntoInterceptor`]
+link:../api/io.pedestal.interceptor.html#var-IntoInterceptor[`IntoInterceptor`]
 represents anything that can be used as an interceptor. Pedestal extends that protocol to the following:
 
 [cols="1,3"]
@@ -200,11 +200,11 @@ routing works. The router is an interceptor that matches requests and
 enqueues the desired interceptors when a route matches.
 
 Use
-link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-enqueue[`enqueue`]
+link:../api/io.pedestal.interceptor.chain.html#var-enqueue[`enqueue`]
 to push more interceptors onto the queue.
 
 Use
-link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate[`terminate`]
+link:../api/io.pedestal.interceptor.chain.html#var-terminate[`terminate`]
 if processing should not continue.
 
 [IMPORTANT]

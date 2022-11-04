@@ -76,25 +76,25 @@ the chain executor closes the channel.
 
 The key protocol for interceptors is:
 
-- link:../api/pedestal.interceptor/io.pedestal.interceptor.html#var-IntoInterceptor[`IntoInterceptor`]
+- link:../api/io.pedestal.interceptor.html#var-IntoInterceptor[`IntoInterceptor`]
 
 === Stock Interceptors
 
-The link:../api/pedestal.service/index.html[`pedestal-service`] library includes a large set of interceptors
+The link:../api/index.html[`pedestal-service`] library includes a large set of interceptors
 that are specialized for HTTP request handling.
 
 See the following namespaces for stock interceptors:
 
-- link:../api/pedestal.service/io.pedestal.http.body-params.html[`io.pedestal.http.body-params`]
-- link:../api/pedestal.service/io.pedestal.http.content-negotiation.html[`io.pedestal.http.content-negotiation`]
-- link:../api/pedestal.service/io.pedestal.http.cors.html[`io.pedestal.http.cors`]
-- link:../api/pedestal.service/io.pedestal.http.csrf.html[`io.pedestal.http.csrf`]
-- link:../api/pedestal.service/io.pedestal.http.ring-middlewares.html[`io.pedestal.http.ring-middlewares`]
+- link:../api/io.pedestal.http.body-params.html[`io.pedestal.http.body-params`]
+- link:../api/io.pedestal.http.content-negotiation.html[`io.pedestal.http.content-negotiation`]
+- link:../api/io.pedestal.http.cors.html[`io.pedestal.http.cors`]
+- link:../api/io.pedestal.http.csrf.html[`io.pedestal.http.csrf`]
+- link:../api/io.pedestal.http.ring-middlewares.html[`io.pedestal.http.ring-middlewares`]
 
 See the following namespaces for routing interceptors:
 
-- link:../api/pedestal.route/io.pedestal.http.route.html[`io.pedestal.http.route`]
-- link:../api/pedestal.route/io.pedestal.http.route.router.html[`io.pedestal.http.route.router`]
+- link:../api/io.pedestal.http.route.html[`io.pedestal.http.route`]
+- link:../api/io.pedestal.http.route.router.html[`io.pedestal.http.route.router`]
 
 === Context Bindings
 
@@ -113,7 +113,7 @@ interceptors. It starts execution.
 
 Pedestal includes a servlet chain provider out of the box. It connects
 any servlet container to an interceptor chain. The
-link:../api/pedestal.service/io.pedestal.http.html#var-create-servlet[`create-servlet`]
+link:../api/io.pedestal.http.html#var-create-servlet[`create-servlet`]
 function orchestrates this work. This is strictly a convenience
 function that takes a link:service-map[service map] of everything
 needed to run an HTTP service.
@@ -124,7 +124,7 @@ sample] shows how to do this with Jetty.
 
 See the following namespaces for the HTTP chain provider:
 
-- link:../api/pedestal.service/io.pedestal.http.html[`io.pedestal.http`]
+- link:../api/io.pedestal.http.html[`io.pedestal.http`]
 
 === Network Connectors
 
@@ -136,4 +136,4 @@ implementing a custom chain provider.
 
 The servlet chain provider (and main interface to network connectors) is in:
 
-- link:../api/pedestal.service/io.pedestal.http.impl.servlet-interceptor.html[`io.pedestal.http.impl.servlet-interceptor`]
+- link:../api/io.pedestal.http.impl.servlet-interceptor.html[`io.pedestal.http.impl.servlet-interceptor`]

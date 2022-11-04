@@ -28,7 +28,7 @@ API.
 
 To define an endpoint that will send SSE, make a route with an
 interceptor created by
-link:../api/pedestal.service/io.pedestal.http.sse.html#var-start-event-stream[`start-event-stream`]. Note
+link:../api/io.pedestal.http.sse.html#var-start-event-stream[`start-event-stream`]. Note
 that `start-event-stream` is not itself an interceptor, but rather a
 function that returns an interceptor.
 

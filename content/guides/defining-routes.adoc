@@ -428,7 +428,7 @@ generation, starting with how routes are named.
 === URL generation
 
 The
-link:../api/pedestal.route/io.pedestal.http.route.html#var-url-for-routes[`url-for-routes`]
+link:../api/io.pedestal.http.route.html#var-url-for-routes[`url-for-routes`]
 function takes the parsed route table and returns a URL generating
 function. The generator accepts a route name and optional arguments
 and returns a URL that can be used in a hyperlink.
@@ -460,7 +460,7 @@ more control, you can give the generator the specific arguments
 == Request-specific URL generation
 
 The
-link:../api/pedestal.route/io.pedestal.http.route.html#var-url-for-routes[`url-for-routes`]
+link:../api/io.pedestal.http.route.html#var-url-for-routes[`url-for-routes`]
 function provides a global URL generator. Within a single request, the
 request map itself can provide a URL generator. This generator allows
 you to create absolute or relative URLs depending on how the request
@@ -474,18 +474,18 @@ key `:url-for`.
 The routing interceptor also binds this request-specific URL generator
 to a private var in the `io.pedestal.http.route` namespace. The
 function
-link:../api/pedestal.route/io.pedestal.http.route.html#var-url-for[`url-for`]
+link:../api/io.pedestal.http.route.html#var-url-for[`url-for`]
 calls the dynamically bound function. This way, you can call
-link:../api/pedestal.route/io.pedestal.http.route.html#var-url-for[`url-for`] from any thread that is currently
+link:../api/io.pedestal.http.route.html#var-url-for[`url-for`] from any thread that is currently
 executing an interceptor. If you need to use a request-specific URL
 generator function elsewhere, extract `:url-for` from the context or
 request map and propagate it as needed.
 
 === Verb smuggling
 
-link:../api/pedestal.route/io.pedestal.http.route.html#var-url-for[`url-for`]
+link:../api/io.pedestal.http.route.html#var-url-for[`url-for`]
 onlys return URLs. The function
-link:../api/pedestal.route/io.pedestal.http.route.html#var-form-action-for-routes[`form-action-for-routes`]
+link:../api/io.pedestal.http.route.html#var-form-action-for-routes[`form-action-for-routes`]
 takes a route table and returns a function that accepts a route-name
 (and optional arguments) and returns a map containing a URL and an
 HTTP verb.

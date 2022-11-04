@@ -147,9 +147,9 @@ This is where we have to start being precise about the difference
 between an interceptor and how it gets invoked. "Interceptor" is a very
 general concept. It can be used in a lot of different ways, not just
 for HTTP handling in a web framework. In fact, HTTP handling comes
-from the link:../api/pedestal.service/index.html[pedestal.service]
+from the link:../api/index.html[pedestal.service]
 module. Interceptor invocation and handling comes from
-link:../api/pedestal.interceptor/index.html[pedestal.interceptor]
+link:../api/index.html[pedestal.interceptor]
 which doesn't depend at all on pedestal.service.
 
 For example, there is a project that lets you invoke a chain of
@@ -188,7 +188,7 @@ Handling>> below for all the gory details.
 == The Queue and the Stack
 
 Pedestal starts running interceptors when you call the
-link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-execute[io.pedestal.interceptor.chain/execute] function. You can call `execute` with an empty context and a collection of interceptors, or you can call it with a context that already has interceptors enqueued. (In the former case, Pedestal just enqueues the interceptors on the context then calls the second form.)
+link:../api/io.pedestal.interceptor.chain.html#var-execute[io.pedestal.interceptor.chain/execute] function. You can call `execute` with an empty context and a collection of interceptors, or you can call it with a context that already has interceptors enqueued. (In the former case, Pedestal just enqueues the interceptors on the context then calls the second form.)
 
 Suppose we start with three interceptors in the queue, like this.
 
@@ -310,7 +310,7 @@ include::what-is-an-interceptor-src/src/intc/service.clj[tags=error-i]
 <2> Create a response for our specific error of interest.
 <3> Tell Pedestal to keep looking for an error handler for anything else. (I.e., "rethrow" the exception.)
 
-This works, but it's still a bit noisy. Let's rewrite it using link:../api/pedestal.interceptor/io.pedestal.interceptor.error.html#var-error-dispatch[error-dispatch] to create the interceptor for us.
+This works, but it's still a bit noisy. Let's rewrite it using link:../api/io.pedestal.interceptor.error.html#var-error-dispatch[error-dispatch] to create the interceptor for us.
 
 [[app-listing]]
 [source,clojure]

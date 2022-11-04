@@ -15,7 +15,7 @@ structure and how you might use them in an application.
 
 == Interceptor Protocols
 
-=== link:../api/pedestal.interceptor/io.pedestal.interceptor.html#var-IntoInterceptor[`IntoInterceptor`]
+=== link:../api/io.pedestal.interceptor.html#var-IntoInterceptor[`IntoInterceptor`]
 
 `IntoInterceptor` allows pretty much anything to become an interceptor
 when needed.
@@ -47,7 +47,7 @@ application can use any syntax with any algorithm. Or, an application
 can create a new syntax while using a built-in algorithm. Or, an
 application could use a built-in syntax with a new algorithm!
 
-=== link:../api/pedestal.route/io.pedestal.http.route.router.html#var-Router[`Router`]
+=== link:../api/io.pedestal.http.route.router.html#var-Router[`Router`]
 
 This protocol defines one function: `find-route`. It takes the router
 itself and a link:request-map[request map]. It must return the
@@ -58,28 +58,28 @@ identified by the application's link:service-map[service map] in the key `:io.pe
 
 |===
 | Key            | Constructor
-| :linear-search | link:../api/pedestal.route/io.pedestal.http.route.linear-search.html#var-router[`linear-search/router`]
-| :prefix-tree   | link:../api/pedestal.route/io.pedestal.http.route.prefix-tree.html#var-router[`prefix-tree/router`]
-| :map-tree      | link:../api/pedestal.route/io.pedestal.http.route.map-tree.html#var-map-tree[`map-tree/router`]
+| :linear-search | link:../api/io.pedestal.http.route.linear-search.html#var-router[`linear-search/router`]
+| :prefix-tree   | link:../api/io.pedestal.http.route.prefix-tree.html#var-router[`prefix-tree/router`]
+| :map-tree      | link:../api/io.pedestal.http.route.map-tree.html#var-map-tree[`map-tree/router`]
 | application-supplied function | The function itself, called with sequence of routes as returned by `RouterSpecification`'s `router-spec` function.
 |===
 
-=== link:../api/pedestal.route/io.pedestal.http.route.html#var-RouterSpecification[`RouterSpecification`]
+=== link:../api/io.pedestal.http.route.html#var-RouterSpecification[`RouterSpecification`]
 
 `RouterSpecification` creates a routing interceptor from some
 definition of routes and a constructor. This is the final step in the
 process of turning route definitions into the executable router.
 
 Whatever is returned from the
-link:../api/pedestal.route/io.pedestal.http.route.html#var-router-spec[`router-spec`]
+link:../api/io.pedestal.http.route.html#var-router-spec[`router-spec`]
 function of the protocol must be an interceptor. It must accept a
 link:context-map[context map] and enqueue
 link:interceptors[interceptors] based on whatever criteria it chooses.
 
-=== link:../api/pedestal.route/io.pedestal.http.route.html#var-ExpandableRoutes[`ExpandableRoutes`]
+=== link:../api/io.pedestal.http.route.html#var-ExpandableRoutes[`ExpandableRoutes`]
 
 `ExpandableRoutes` abstracts over anything that
-link:../api/pedestal.route/io.pedestal.http.route.html#var-expand-routes[`expand-routes`]
+link:../api/io.pedestal.http.route.html#var-expand-routes[`expand-routes`]
 knows how to use.
 
 Pedestal extends `ExpandableRoutes` as follows:
@@ -98,7 +98,7 @@ would be rare for an application to need to extend `ExpandableRoutes`.
 
 These protocols only apply when using the link:servlet-interceptor[`servlet interceptor`].
 
-=== link:../api/pedestal.service/io.pedestal.http.impl.servlet-interceptor.html#var-WritableBody[`WritableBody`]
+=== link:../api/io.pedestal.http.impl.servlet-interceptor.html#var-WritableBody[`WritableBody`]
 
 This protocol applies to anything that can be in the `:body` key of a
 link:response-map[response map]. The two functions in the protocol
@@ -110,7 +110,7 @@ Pedestal extends this protocol to several Java and Clojure types to produce the 
 Applications should not assume any output stream type more specific
 than `java.io.OutputStream`.
 
-=== link:../api/pedestal.service/io.pedestal.http.impl.servlet-interceptor.html#var-WritableBodyAsync[`WritableBodyAsync`]
+=== link:../api/io.pedestal.http.impl.servlet-interceptor.html#var-WritableBodyAsync[`WritableBodyAsync`]
 
 This protocol is a more specific version of `WritableBody`. If the
 value in the `:body` key of a link:response-map[response map]

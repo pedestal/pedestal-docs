@@ -36,9 +36,9 @@ There are a couple of special cases to note.
 
 Interceptors may rewrite the interceptor queue by calling functions
 like
-link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-enqueue[`enqueue`]
+link:../api/io.pedestal.interceptor.chain.html#var-enqueue[`enqueue`]
 and
-link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-terminate[`terminate`]. They
+link:../api/io.pedestal.interceptor.chain.html#var-terminate[`terminate`]. They
 may also change the interceptor queue by directly changing the values
 of the `:io.pedestal.interceptor.chain/stack` and
 `:io.pedestal.interceptor.chain/queue` in the link:context-map[context map].

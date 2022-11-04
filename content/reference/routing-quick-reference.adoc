@@ -10,7 +10,7 @@ toc::[]
 
 == Library
 
-The library link:../api/pedestal.route/index.html[`pedestal.route`]
+The library link:../api/index.html[`pedestal.route`]
 provides the core components to express routes and construct
 routers. It can be used independently of the pedestal-service library.
 
@@ -38,7 +38,7 @@ Users are free to describe routes however they like, so long as the
 data that reaches the router is in the "verbose syntax".
 
 The built in syntaxes are expanded by
-link:../api/pedestal.route/io.pedestal.http.route.html#var-expand-routes[`expand-routes`]
+link:../api/io.pedestal.http.route.html#var-expand-routes[`expand-routes`]
 polymorphically on the argument type:
 
 |===
@@ -94,11 +94,11 @@ Users will not generally write routes directly in verbose format.
 Table syntax was introduced in release 0.5.0.
 
 Table syntax is expanded by
-link:../api/pedestal.route/io.pedestal.http.route.html#var-expand-routes[`expand-routes`]
+link:../api/io.pedestal.http.route.html#var-expand-routes[`expand-routes`]
 into the full (verbose) syntax shown above.
 
 When the argument to
-link:../api/pedestal.route/io.pedestal.http.route.html#var-expand-routes[`expand-routes`]
+link:../api/io.pedestal.http.route.html#var-expand-routes[`expand-routes`]
 is a *set*, it will be expanded using the table syntax.
 
 In table syntax, each route is a vector of:
@@ -161,11 +161,11 @@ route name will be derived from that.
 === Terse Syntax
 
 Terse syntax is expanded by
-link:../api/pedestal.route/io.pedestal.http.route.html#var-expand-routes[`expand-routes`]
+link:../api/io.pedestal.http.route.html#var-expand-routes[`expand-routes`]
 into the full (verbose) syntax shown above.
 
 When the argument to
-link:../api/pedestal.route/io.pedestal.http.route.html#var-expand-routes[`expand-routes`]
+link:../api/io.pedestal.http.route.html#var-expand-routes[`expand-routes`]
 is a *vector*, it will be expanded using the terse syntax.
 
 In the terse format, a route table is a vector of nested vectors. Each
@@ -273,7 +273,7 @@ routes.
 
 == Routers
 
-When your application starts a Pedestal service with link:../api/pedestal.service/io.pedestal.http.html#var-create-servlet[`create-servlet`] or link:../api/pedestal.service/io.pedestal.http.html#var-create-server[`create-server`], Pedestal creates a router, using the following keys from the service map:
+When your application starts a Pedestal service with link:../api/io.pedestal.http.html#var-create-servlet[`create-servlet`] or link:../api/io.pedestal.http.html#var-create-server[`create-server`], Pedestal creates a router, using the following keys from the service map:
 
 |===
 | Key | Meaning
@@ -297,5 +297,5 @@ When the value of `:io.pedestal.http/router` is a function, that
 function is used to construct a router. The function must take one
 argument: the collection of fully expanded routes. It must return
 something that satisfies the
-link:../api/pedestal.route/io.pedestal.http.route.router.html#var-Router[`Router`]
+link:../api/io.pedestal.http.route.router.html#var-Router[`Router`]
 protocol.
