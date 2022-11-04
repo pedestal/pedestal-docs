@@ -45,7 +45,7 @@
       </a>
       <nav role="navigation" class="w-nav-menu clj-nav-menu">
         <a href="/reference/index" class="w-nav-link clj-nav-link">Reference‍</a>
-        <a href="/api/index" class="w-nav-link clj-nav-link">API</a>
+        <a href="/api/index.html" class="w-nav-link clj-nav-link">API</a>
         <a href="/guides/index" class="w-nav-link clj-nav-link">Guides</a>
         <a href="/cookbook/index" class="w-nav-link clj-nav-link">Cookbook</a> 
         <a href="/samples/index" class="w-nav-link clj-nav-link">Samples</a>

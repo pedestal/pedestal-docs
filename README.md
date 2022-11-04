@@ -22,6 +22,8 @@ The site is built using [JBake](http://jbake.org/).
 
 See the JBake [download](https://jbake.org/download.html) site for installation instructions.
 
+You'll need a recent version of JBake; if you are on an M1 Mac, you'll need 2.7.0 (currently pre-release).
+
 To build the site, you need side-by-side checkouts of Pedestal and Pedestal Docs.
 
 Retrieve Pedestal and switch to a publicly-available version:
@@ -44,15 +46,17 @@ Generate the pages:
   directory, start a web server and watch for changes. The local site
   is available at http://localhost:8820/index.
 
-### Only Needed When Pedestal Changes
+### Pedestal API Documentation
 
-Create the auto-generated material:
+Pedestal API documentation should be updated after each Pedestal release; this is accomplished via
+the `script/gen-api-doc.sh` script.
 
-* `script/gen-api-doc.sh`
+This generates API documentation into the `api` directory.  When deploying, the contents of
+the `api` directory are merged with the generated content in `output`.
 
 License
 -------
-Copyright 2014-2021 Cognitect, Inc.
+Copyright 2014-2022 Cognitect, Inc.
 
 The use and distribution terms for this software are covered by the
 [Eclipse Public License 1.0](http://opensource.org/licenses/eclipse-1.0)
