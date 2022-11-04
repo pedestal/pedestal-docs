@@ -59,7 +59,7 @@ A basic interceptor is shown here.
 ----
 (def attach-guid
   {:name ::attach-guid
-   :enter (fn [context] (assoc context ::guid (java.util.UUID/randomUUID)))})
+   :enter (fn [context] (assoc context ::guid (random-uuid)))})
 ----
 
 This interceptor has only the `:enter` function. Interceptors
@@ -100,10 +100,15 @@ HTTP request with additional functionality. For example:
                 context))})
 ----
 
-Notice that this interceptor expects some other interceptor(s) to add
-data to the context using the `::tx-data` key.
+This interceptor's job is to apply a side effect change the the `database` atom.
+Some other interceptor, further down the chain, will have attached the `::tx-data` key
+to the context, and this interceptor's job is to apply the change.
 
-Interceptors are values but they are not required to be compile-time
+This is a good division of labor, as the other interceptor will be more truly functional (accepting
+and returning values with no side effects); the "dirty" side-effecting behavior is localized to this
+one interceptor.
+
+Although interceptors are values, they are not required to be compile-time
 values. Functions can close over state and return interceptors. Some
 frequently-used built-ins work this way. (E.g.,
 link:../api/io.pedestal.http.body-params.html#var-body-params[`body-params`].)
@@ -122,6 +127,18 @@ the database connection to every request:
 In addition to closing over the argument `uri`, we're using an
 anonymous function for the `:enter` function here.
 
+=== Context Bindings
+
+Interceptors expect certain keys to be present in the context
+map. These _context bindings_ are part of the contract between
+provider and interceptors.
+
+The most common context key is `:request`, which holds the
+https://github.com/ring-clojure/ring/blob/master/SPEC[Ring-specified request map].
+
+Further, an interceptor terminates the processing chain by attaching
+a `:response map` (also specified by Ring) to the context.
+
 === Interceptor Return Values
 
 Interceptor functions must return values. Returning `nil` will cause
@@ -130,12 +147,13 @@ an internal server error.
 An `:enter` or `:leave` function may return a context map directly. In
 this case, processing continues with the next interceptor.
 
-If the interceptor will take a long time to return a result, it may
-also return a core.async channel. Pedestal will yield the thread and
-wait for a value to be produced. Only one value will be consumed from
-this channel, and it must be a context map.
+If the interceptor is expected to take a long time to return a result, it may
+instead return a core.async channel. Pedestal will yield the request processing thread and
+wait for a value to be produced.
 
-A common usage for the second case is when making outbound service
+Only one value will be consumed from the returned channel, and the value must be a context map.
+
+A common usage for the asychronicity is when making outbound service
 requests. Use a `go` block as the return value, and Pedestal will
 expect an asynchronous response.
 
@@ -153,6 +171,13 @@ expect an asynchronous response.
 [IMPORTANT]
 .*Chaining With Async Interceptors*
 Any interceptor downstream of an asynchronous interceptor will be executed in the `core.async` thread pool.
+This can be problematic if any later interceptor or handler performs any blocking I/O.  Generally speaking,
+if any interceptor is asynchronous, all following non-trivial interceptors should also be asynchronous.
+
+When an interceptor returns a channel, the request processing thread can be returned to the servlet container.
+This may allow another pending request to be processed while the initial request is parked, waiting for
+a response from the authentication system.
+
 
 === IntoInterceptor
 
@@ -180,7 +205,7 @@ represents anything that can be used as an interceptor. Pedestal extends that pr
 | The symbol is resolved and its target is used as an interceptor.
 
 | Var
-| The var is dereferenced and its value is used as an interceptor.
+| The var is de-referenced and its value is used as an interceptor.
 
 |===
 
@@ -211,7 +236,7 @@ if processing should not continue.
 .*Interceptor Records*
 
 --
-Interceptors that are explicitely enqueued by the application must
+Interceptors that are explicitly enqueued by the application must
 be defined using the `io.pedestal.interceptor/interceptor`
 function. This function takes a value which extends `IntoInterceptor`
 and returns an `Interceptor` Record.
@@ -239,3 +264,21 @@ position of a stack.
 
 Pedestal supports defining interceptor-specific error handlers via the
 `:error` key. Refer to the link:error-handling[Error Handling] reference for more details.
+
+=== Stock Interceptors
+
+The link:../api/pedestal.service/index.html[`pedestal-service`] library includes a large set of interceptors
+that are specialized for HTTP request handling.
+
+See the following namespaces for stock interceptors:
+
+- link:../api/pedestal.service/io.pedestal.http.body-params.html[`io.pedestal.http.body-params`]
+- link:../api/pedestal.service/io.pedestal.http.content-negotiation.html[`io.pedestal.http.content-negotiation`]
+- link:../api/pedestal.service/io.pedestal.http.cors.html[`io.pedestal.http.cors`]
+- link:../api/pedestal.service/io.pedestal.http.csrf.html[`io.pedestal.http.csrf`]
+- link:../api/pedestal.service/io.pedestal.http.ring-middlewares.html[`io.pedestal.http.ring-middlewares`]
+
+See the following namespaces for routing interceptors:
+
+- link:../api/pedestal.route/io.pedestal.http.route.html[`io.pedestal.http.route`]
+- link:../api/pedestal.route/io.pedestal.http.route.router.html[`io.pedestal.http.route.router`]
