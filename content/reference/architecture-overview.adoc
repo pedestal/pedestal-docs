@@ -38,7 +38,7 @@ And with a variety of network connectors:
 One more dimension of complexity arises from the relevant styles of
 application we want to support:
 
-- API + SPA
+- An API supporting a SPA (Single Page Application)
 - Streaming events
 - Server-rendered pages
 
@@ -49,17 +49,59 @@ image::../images/reference/pedestal-fundament.png[]
 
 === Interceptors
 
-In their original form, interceptors were a way to _reify the
-callstack_ of request processing. That is to say, what would normally
-be a layered jawbreaker of function closures became a sequence of data
-structures. This model has allowed us to extract an increasing amount
-of logic from the core framework into interceptors. For example,
-routing is usually implemented as a core function of a web
-framework. Because an interceptor can enqueue more interceptors to
-execute, Pedestal implements routing as an ordinary interceptor.
+Before Pedestal, there was another popular Clojure web framework, https://github.com/ring-clojure/ring[Ring].
+In Ring, each _route_ (a combination of an HTTP method and a path pattern) is mapped to a handler:
+the handler is just a simple function: the function accepts a request map and returns a response map.
 
-Over time, we have moved most of the functionality of a typical web
-framework into interceptors:
+Because a server is more than a single route, and because many routes will share a lot of behavior such as logging,
+authentication, response rendering, and parameter parsing, each individual Ring route is wrapped in _middleware_,
+a function that wraps an existing handler and returns a new handler.
+Middleware can inspect and modify the incoming request map or the outgoing response map.
+
+For example, maybe your application wants to respond specially to HEAD requests;
+
+[source,clojure]
+----
+include::src/org/example/middleware.clj[]
+----
+<1> This is the returned handler, wrapping around the original handler
+<2> Ring specifies at set of keys for the request map; Pedestal follows the same rules
+<3> Ring specifies another set of keys for the response map
+<4> Here's where we delegate down to the next handler
+
+This is good, functional design, but is limited in at least one way: it's all on the stack of a single request processing thread.
+Given how great Clojure is at multithreaded programming, that can be a limitation.
+Several of the central features of Pedestal (such as streaming events and web socket connections) are at odds with this:
+in these cases a long-running server-side process only _occasionally_ needs a request processing thread to send an event,
+or web socket message, to the client.
+
+So, in Pedestal we want something as easily reused and composable as Ring middleware functions, but something that can break free of
+the limiting stack-of-function-calls invocation model.
+That's interceptors.
+
+An interceptor is a bundle of up-to three functions, named :enter, :leave, and :error.
+:enter corresponds to the logic before delegating to the next interceptor; the request can be inspected or modified.
+Likewise, :leave corresponds to logic that occurs _after_ a response map has been created.  The :error function
+is used when an interceptor throws an exception; it's the interceptor version of a `(try ... catch ...)`.
+
+Now, there's a bit more going on.  First, these :enter and :leave callbacks are passed a _context_ map which
+contains a :request key.
+Any interceptor can modify the context map: some may modify the :request map inside the context, others may
+attach a :response map to the context.
+
+Inside the context is a chain of interceptors.
+Pedestal works its way down the chain, calling :enter callbacks, until some interceptor attaches a :response map to the context;
+then it works its way back up the chain, calling :leave callbacks.
+
+In practice, an interceptor looks like a normal Clojure map with keys :enter, :leave, or :error (usually just one of these).
+So, unlike a deeply wrapped function, a chain of interceptors is a data structure that can be inspected by a developer,
+or modified in code.
+
+Once you realize that an interceptor can _add_ new interceptors to the chain (because the interceptor chain itself is stored
+in the context, alongside the :request map) then new options open up; for example, routing is just an interceptor
+that works with a data structure identifying HTTP methods and URL path patterns, and adds new interceptors to the chain.
+
+Pedestal includes general purpose interceptors for all sorts of typical web request functionality:
 
 - Content negotiation
 - Request body parsing
@@ -67,16 +109,12 @@ framework into interceptors:
 - Parsing query parameters
 - Assigning content type to the response
 
-Application logic is also implemented in interceptors.
+Application logic is also implemented as interceptors, though there's some simple helpers that allow you to write
+these as Ring-style handlers, if you like.
 
-An interceptor may return a channel instead of the context map. In
-that case, the channel is treated like a promise to deliver the
-context map in the future. Once the channel delivers the context map,
-the chain executor closes the channel.
-
-The key protocol for interceptors is:
-
-- link:../api/io.pedestal.interceptor.html#var-IntoInterceptor[`IntoInterceptor`]
+But Pedestal has one more big trick up its sleeve: any interceptor may, instead of returning a context map,
+instead return a https://github.com/clojure/core.async[core.async] channel that conveys the context map at some point
+in the future; this is what breaks request processing away from the request processing threads.
 
 === Stock Interceptors
 
