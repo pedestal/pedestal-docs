@@ -246,6 +246,13 @@ because interceptor representations are transformed to `Interceptor`
 records during route expansion.
 --
 
+It's worth noting that when an interceptor queues additional interceptors for execution,
+they execute after all interceptors already in the queue (not after the interceptor that
+modified the queue).  This means you could, for example, put a routing interceptor first
+in the queue, then a few interceptors that provide behavior common to all routes and those
+common interceptors will run before any route-specific interceptors.
+
+
 === Handlers
 
 A "handler" function is a special case of an interceptor. It plays the
@@ -265,7 +272,7 @@ position of a stack.
 Pedestal supports defining interceptor-specific error handlers via the
 `:error` key. Refer to the link:error-handling[Error Handling] reference for more details.
 
-=== Stock Interceptors
+=== Pedestal Interceptors
 
 The link:../api/pedestal.service/index.html[`pedestal-service`] library includes a large set of interceptors
 that are specialized for HTTP request handling.
