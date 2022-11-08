@@ -8,16 +8,22 @@ Cognitect
 
 ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 
-The building blocks of Pedestal are not limited to web
-applications. The link:interceptors[interceptor] concept is very
-general and can be used in message-processing or dataflow applications
-just as well as request/reply web services.
+Pedestal uses a chain of interceptors to process incoming HTTP requests and provide outgoing HTTP responses.
+However, the underlying code, the interceptors and the interceptor chain that executes them, is more general.
 
-A _chain provider_ invokes a queue of interceptors in response to some
-stimulus. The job of a chain provider is to accept incoming stimuli
-(requests, messages, events, commands, etc.) set up the
-link:context-map[context map] and execute a queue of interceptors via
-link:../api/io.pedestal.interceptor.chain.html#var-execute[`execute`].
+Interceptor chains can be used for a variety of operations, such as:
 
-For HTTP, the link:servlet-interceptor[servlet interceptor] is the
-chain provider.
+- Processing messages from a queue, such as Kafka or JMS
+- Performing a series of transformations on documents as part of a publishing service
+- Processing outgoing requests and incoming responses from a back-end service
+
+A _chain provider_ is responsible for accepting an incoming stimuli (such as an incoming HTTP request)
+and setting up a link:context-map [context map] and initial interceptors to process that stimuli.
+The service map is processed via the
+link:../api/io.pedestal.interceptor.chain.html#var-execute[`execute`] function.
+
+Part of a chain provider's responsibility is to identify when a request has been processed; for
+HTTP requests, this is when a handler or some other interceptor attaches a `:response` map to the context map.
+
+Pedestal itself only provides a chain provider implementation for incoming HTTP request processing,
+in the form of the link:servlet-interceptor[servlet interceptor].

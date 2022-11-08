@@ -24,12 +24,16 @@ Routers use this when building routes: anything that satisfies
 `IntoInterceptor` is legal to use in the interceptor vector of a
 route.
 
-As covered in the
-link:interceptors#_manipulating_the_interceptor_queue[Interceptors]
-reference, interceptors that are explicitely enqueued by the
-application must be defined using the
-`io.pedestal.interceptor/interceptor` function. Queue processing is
-optimized for runtime and does not construct `Interceptor` records.
+[IMPORTANT]
+.*Dynamically added interceptors*
+
+--
+At runtime, new interceptors may be added to the
+link:interceptors#_manipulating_the_interceptor_queue[queue] dynamically;
+(this is what routing itself does); to ensure best runtime performance, `IntoInterceptor` is not
+automatically used; it is assumed any added interceptors are, in fact,
+the records that `IntoInterceptor` returns.
+--
 
 Pedestal extends `IntoInterceptor` onto a variety of Clojure and Java
 types. See the link:interceptors#_intointerceptor[interceptors
@@ -40,49 +44,61 @@ reference] for details of their behaviors.
 These protocols break up the lifecycle of routes and allow both
 extension points and alternative strategies in several places.
 
-To give you an idea what that means, there are three built-in route
-definition syntaxes: table, terse, and verbose. There are three built
-in routing algorithms: linear-search, prefix-tree, and map-tree. An
-application can use any syntax with any algorithm. Or, an application
-can create a new syntax while using a built-in algorithm. Or, an
-application could use a built-in syntax with a new algorithm!
+Over time, Pedestal has evolved several data structures for representing routing;
+at the core, they map an HTTP method and URI path to a set of interceptors and a handler.
+Each of these data structures is a kind of _routing specification_.
+
+In parallel to the data structures, Pedestal has several algorithms for using the routing specification to dispatch
+an incoming request; some algorithms may be most efficient for small services with very few routes, others
+are better for large services with more and more complex routes.
+
+The protocols described here are what allows the individual pieces to cooperate; this also means
+that it is possible to define an application-specific routing specification format and use it with a Pedestal-supplied
+algorithm, or using a built-in routing specification and combine it with an application-specific algorithm.
 
 === link:../api/io.pedestal.http.route.router.html#var-Router[`Router`]
 
-This protocol defines one function: `find-route`. It takes the router
-itself and a link:request-map[request map]. It must return the
-route map for the route that it matched.
+The combination of routing specification with a routing algorithm results in an instance of the `Router` interface.
+
+The `Router` protocol defines just one function: `find-route`. `find-route` is passed the `Router`
+itself and a link:request-map[request map], and must return the route map for the route that it matched.
+The route map not only identifies the interceptors and handler to add to the interceptor queue, but further
+captures path variables that may be part of the matched URL (further details TBD).
 
 An instance of `Router` is returned by the router constructor
-identified by the application's link:service-map[service map] in the key `:io.pedestal.http/router`.
+identified in the application's link:service-map[service map] by the key `:io.pedestal.http/router`.
 
 |===
-| Key            | Constructor
+| ::http/router Value  | Constructor
 | :linear-search | link:../api/io.pedestal.http.route.linear-search.html#var-router[`linear-search/router`]
 | :prefix-tree   | link:../api/io.pedestal.http.route.prefix-tree.html#var-router[`prefix-tree/router`]
 | :map-tree      | link:../api/io.pedestal.http.route.map-tree.html#var-map-tree[`map-tree/router`]
-| application-supplied function | The function itself, called with sequence of routes as returned by `RouterSpecification`'s `router-spec` function.
+| application-supplied function | The function itself, called with sequence of routes as returned by from the `RouterSpecification` instance
 |===
+
+Whether built-in, or supplied by the application, the constructor is just a function that is passed an expanded route specification,
+and returns an instance of `Router`.
 
 === link:../api/io.pedestal.http.route.html#var-RouterSpecification[`RouterSpecification`]
 
-`RouterSpecification` creates a routing interceptor from some
-definition of routes and a constructor. This is the final step in the
-process of turning route definitions into the executable router.
+The `RouterSpecification` protocol is used to create a routing interceptor from some
+definition of routes, and a single `Router`. This is the final step in the
+process of turning a routing specification into a routing interceptor.
 
 Whatever is returned from the
 link:../api/io.pedestal.http.route.html#var-router-spec[`router-spec`]
-function of the protocol must be an interceptor. It must accept a
-link:context-map[context map] and enqueue
+function of the protocol must be an interceptor. The returned interceptor will include an `:enter` callback that
+must accept a link:context-map[context map] and enqueue
 link:interceptors[interceptors] based on whatever criteria it chooses.
 
 === link:../api/io.pedestal.http.route.html#var-ExpandableRoutes[`ExpandableRoutes`]
 
-`ExpandableRoutes` abstracts over anything that
+`ExpandableRoutes` can convert all kinds of data structures representing a routing specification into a single
+canonical format that can be used to construct a `Router`. This occurs inside the
 link:../api/io.pedestal.http.route.html#var-expand-routes[`expand-routes`]
-knows how to use.
+function.
 
-Pedestal extends `ExpandableRoutes` as follows:
+Pedestal provides implementations of `ExpandableRoutes` for several types:
 
 |===
 | Type | Behavior
@@ -93,6 +109,9 @@ Pedestal extends `ExpandableRoutes` as follows:
 
 Since the call to `expand-routes` comes from application code, it
 would be rare for an application to need to extend `ExpandableRoutes`.
+
+The result of `expand-routes` is a link:routing-quick-reference#_verbose_syntax[seq of maps] that will
+be passed to the `Router`.
 
 == Servlet Protocols
 
