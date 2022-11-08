@@ -44,17 +44,19 @@ reference] for details of their behaviors.
 These protocols break up the lifecycle of routes and allow both
 extension points and alternative strategies in several places.
 
-Over time, Pedestal has evolved several data structures for representing routing;
-at the core, they map an HTTP method and URI path to a set of interceptors and a handler.
-Each of these data structures is a kind of _routing specification_.
+Over time, Pedestal has evolved several data structures for representing routing of HTTP requests;
+each of these data structures is a kind of _routing specification_.
+The routing specification ultimately expresses which details of an incoming request,
+such as HTTP method or URI path, are used to find a specific route (and the interceptors
+and handler for that route).
 
 In parallel to the data structures, Pedestal has several algorithms for using the routing specification to dispatch
 an incoming request; some algorithms may be most efficient for small services with very few routes, others
-are better for large services with more and more complex routes.
+are better for large services with more (and more complex) routes.
 
-The protocols described here are what allows the individual pieces to cooperate; this also means
+The protocols described here are what allow the individual pieces to cooperate; this also means
 that it is possible to define an application-specific routing specification format and use it with a Pedestal-supplied
-algorithm, or using a built-in routing specification and combine it with an application-specific algorithm.
+algorithm, or use any of the built-in routing specifications combined with an application-specific algorithm.
 
 === link:../api/io.pedestal.http.route.router.html#var-Router[`Router`]
 
