@@ -24,16 +24,8 @@ Routers use this when building routes: anything that satisfies
 `IntoInterceptor` is legal to use in the interceptor vector of a
 route.
 
-[IMPORTANT]
-.*Dynamically added interceptors*
-
---
-At runtime, new interceptors may be added to the
-link:interceptors#_manipulating_the_interceptor_queue[queue] dynamically;
-(this is what routing itself does); to ensure best runtime performance, `IntoInterceptor` is not
-automatically used; it is assumed any added interceptors are, in fact,
-the records that `IntoInterceptor` returns.
---
+This protocol also comes into play when
+link:interceptors#_manipulating_the_interceptor_queue[appending new interceptors to the queue].
 
 Pedestal extends `IntoInterceptor` onto a variety of Clojure and Java
 types. See the link:interceptors#_intointerceptor[interceptors
