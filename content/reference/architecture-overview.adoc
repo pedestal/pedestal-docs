@@ -100,7 +100,7 @@ Any interceptor can modify the context map: some may modify the `:request` map i
 attach a `:response` map to the context.
 
 Inside the context is a queue of interceptors.
-Pedestal works its way through the queeu, calling `:enter` callbacks, until some interceptor attaches a
+Pedestal works its way through the queue, calling `:enter` callbacks, until some interceptor attaches a
 `:response` map to the context;
 then it works its way backwards, calling `:leave` callbacks.
 
