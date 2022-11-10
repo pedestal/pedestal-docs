@@ -56,16 +56,19 @@ network connector to be conveyed to the originating client.
 
 === Interceptors
 
-Before Pedestal, there was another popular Clojure web framework, https://github.com/ring-clojure/ring[Ring].
+Pedestal is far from the first web framework for Clojure, and attempts to expand on ideas
+piloted elsewhere.
+https://github.com/ring-clojure/ring[Ring] is likely the most popular and influential.
 In Ring, each _route_ (a combination of an HTTP method and a path pattern) is mapped to a handler:
-the handler is just a simple function: the function accepts a request map and returns a response map.
+the handler is just a simple function which accepts a request map as its input, and
+returns a response map.
 
 Because a server is more than a single route, and because many routes will share a lot of behavior such as logging,
 authentication, response rendering, and parameter parsing, each individual Ring route is wrapped in _middleware_,
 a function that wraps an existing handler and returns a new handler.
 Middleware can inspect and modify the incoming request map or the outgoing response map.
 
-For example, perhaps your application needs to respond specially to HEAD requests;
+For example, perhaps your Ring application needs to respond specially to HEAD requests;
 
 [source,clojure]
 ----
@@ -82,8 +85,8 @@ Several of the central features of Pedestal (such as streaming events and web so
 in these cases a long-running server-side process only _occasionally_ needs a request processing thread to send an event,
 or web socket message, to the client.
 
-So, in Pedestal we want something as easily reused and composable as Ring middleware functions, but something that can break free of
-the limiting stack-of-function-calls invocation model.
+So, in Pedestal we want something as easily reused and composable as Ring middleware functions, without
+the limitations of the stack-of-function-calls invocation model.
 That's interceptors.
 
 An interceptor is a bundle of up-to three functions, named `:enter`, `:leave`, and `:error`.
@@ -96,17 +99,18 @@ contains a `:request` key.
 Any interceptor can modify the context map: some may modify the `:request` map inside the context, others may
 attach a `:response` map to the context.
 
-Inside the context is a chain of interceptors.
-Pedestal works its way down the chain, calling :enter callbacks, until some interceptor attaches a
+Inside the context is a queue of interceptors.
+Pedestal works its way through the queeu, calling `:enter` callbacks, until some interceptor attaches a
 `:response` map to the context;
-then it works its way back up the chain, calling `:leave` callbacks.
+then it works its way backwards, calling `:leave` callbacks.
 
 In practice, an interceptor looks like a normal Clojure map with keys `:enter`, `:leave`, or `:error` (usually just one of these).
 So, unlike a deeply wrapped function, a chain of interceptors is a data structure that can be inspected by a developer, or manipulated in code.
 
-Importantly, an interceptor can _add_ new interceptors to the chain (because the interceptor chain itself is stored
-in the context, alongside the `:request` map).  Because of this, routing is just an interceptor
-that works with a data structure identifying HTTP methods and URL path patterns, and adds new interceptors to the chain.
+Importantly, any interceptor can _add_ new interceptors to the queue (because the interceptor queue itself is stored
+in the context, alongside the `:request` map).  Because of this,
+link:routing-quick-reference[request routing] boils down to an interceptor
+that peeks at the request and makes decisions about what additional interceptors to add to the queue.
 
 Pedestal includes general purpose interceptors for all sorts of typical HTTP request functionality:
 
