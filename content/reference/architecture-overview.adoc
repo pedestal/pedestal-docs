@@ -104,7 +104,7 @@ Pedestal works its way through the queue, calling `:enter` callbacks, until some
 `:response` map to the context;
 then it works its way backwards, calling `:leave` callbacks.
 
-In practice, an interceptor looks like a normal Clojure map with keys `:enter`, `:leave`, or `:error` (usually just one of these).
+In practice, an interceptor looks like a normal Clojure map with keys `:enter`, `:leave`, or `:error` (usually just `:enter` and/or `:leave`).
 So, unlike a deeply wrapped function, a chain of interceptors is a data structure that can be inspected by a developer, or manipulated in code.
 
 Importantly, any interceptor can _add_ new interceptors to the queue (because the interceptor queue itself is stored
