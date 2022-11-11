@@ -26,6 +26,8 @@ Pedestal may add other keys to this map for its own use. Other applications
 should treat any such keys and their values as implementation values details
 and their behaviour will remain unspecified.
 
+NOTE: In the examples below, `::http` is an alias to `:io.pedestal.http`.
+
 [cols="s,d,d,d", options="header", grid="rows"]
 |===
 | Key | Always present? | Type | Description
