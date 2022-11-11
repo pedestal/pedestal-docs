@@ -6,6 +6,7 @@
                            [io.pedestal/pedestal.service "0.5.7"]
                            [io.pedestal/pedestal.route "0.5.7"]
                            [io.pedestal/pedestal.jetty "0.5.7"]
-                           [org.slf4j/slf4j-simple "1.7.28"]]
+                           [org.slf4j/slf4j-simple "1.7.28"]
+                           [com.datomic/datomic-pro "${VERSION}"]]
             :resource-paths ["config", "resources"]
             :source-paths ["src"])

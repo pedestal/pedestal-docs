@@ -25,26 +25,20 @@ in our first tutorial.
 This tutorial assumes that you have Datomic downloaded already.
 If not, hop over to the https://www.datomic.com/get-datomic.html[download site].
 
-== Add Datomic to the Project
-After downloading the datomic
-Add credentials to lein folder:
-----
-$ touch ~/.lein/credentials.clj.gpg
-----
-Your credentials can be found at https://my.datomic.com/account[your datomic account page].
+You will run a development mode Datomic instance locally in one process,
+and run a Pedestal-based server in another.
 
-It might look similar to:
-----
-{#"my\.datomic\.com" {:username "my-email@my-email-domain.com"
-                      :password "my-password-from-datomic-account-page"}}
-----
+== Add Datomic to the Project
+After downloading and installing the datomic distribution,
+follow the directions here to set up your credentials and encrypt them.
+Your credentials can be found at https://my.datomic.com/account[your datomic account page].
 
 Prepare local datomic:
 
 1. Go to https://my.datomic.com/account[your datomic account page]
 2. Send license key
 3. Copy license-key from e-mail
-4. Go to your datomic local location > config
+4. Go to your local datomic folder > config
 5. Copy dev transactor sample from `config/samples/dev-transactor-template.properties` to `config`
 6. Edit `dev-transactor-template.properties`, adding license-key from Datomic e-mail
 
