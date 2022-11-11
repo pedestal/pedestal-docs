@@ -8,7 +8,7 @@ Cognitect
 
 == How to test your servlet-based service
 
-Use the link:../api/pedestal.service/io.pedestal.test.html#var-response-for[`response-for`]
+Use the link:../api/io.pedestal.test.html#var-response-for[`response-for`]
 test helper to facilitate testing servlet-based services. It is
 recommended to create a `url-for` test helper in order to construct
 test requests, particularly when query or path parameters are

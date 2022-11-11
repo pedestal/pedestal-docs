@@ -15,9 +15,9 @@ default interceptors for you.
 
 The default interceptors are added to your service map when you call
 either
-link:../api/pedestal.service/io.pedestal.http.html#var-create-servlet[`create-servlet`]
+link:../api/io.pedestal.http.html#var-create-servlet[`create-servlet`]
 or
-link:../api/pedestal.service/io.pedestal.http.html#var-create-server[`create-server`].
+link:../api/io.pedestal.http.html#var-create-server[`create-server`].
 
 This document explains which interceptors are added under different
 conditions. Each interceptor has its own documentation that describes
@@ -32,7 +32,7 @@ should you do if you want to use the default interceptors, but want to
 add your own interceptors to the default stack?
 
 The solution is to call
-link:../api/pedestal.service/io.pedestal.http.html#var-default-interceptors[`default-interceptors`]
+link:../api/io.pedestal.http.html#var-default-interceptors[`default-interceptors`]
 yourself, _before_ calling `create-server` or `create-servlet`. That
 way, `default-interceptors` can build the default stack, then your
 application code has an opportunity to modify it. By the time you call
@@ -72,56 +72,56 @@ vector. That means their `enter` functions will be called in the order
 they appear in this document, and their `leave` functions are called
 in reverse order.
 
-=== link:../api/pedestal.service/io.pedestal.http.html#var-log-request[`log-request`]
+=== link:../api/io.pedestal.http.html#var-log-request[`log-request`]
 
 Always added. Logs each request at `info` level. See link:logging[Logging]
 to configure loggers and logging levels.
 
-=== link:../api/pedestal.service/io.pedestal.http.cors.html#var-allow-origin[`allow-origin`]
+=== link:../api/io.pedestal.http.cors.html#var-allow-origin[`allow-origin`]
 
 Added when the service map has a value for `:io.pedestal.http/allowed-origins`.
 
-=== link:../api/pedestal.service/io.pedestal.http.html#var-not-found-interceptor[`not-found`]
+=== link:../api/io.pedestal.http.html#var-not-found-interceptor[`not-found`]
 
 Always added. However, if the service map includes a value for
 `:io.pedestal.http/not-found-interceptor`, then that interceptor will
 be used in this position instead of the built-in.
 
-=== link:../api/pedestal.service/io.pedestal.http.ring-middlewares.html#var-session[`session`]
+=== link:../api/io.pedestal.http.ring-middlewares.html#var-session[`session`]
 
 Added when the service map has a value for
 `:io.pedestal.http/enable-session` or `:io.pedestal.http/enable-csrf`.
 
-=== link:../api/pedestal.service/io.pedestal.http.csrf.html#var-anti-forgery[`anti-forgery`]
+=== link:../api/io.pedestal.http.csrf.html#var-anti-forgery[`anti-forgery`]
 
 Added when the service map includes a value for `:io.pedestal.http/enable-csrf`.
 
-=== link:../api/pedestal.service/io.pedestal.http.ring-middlewares.html#var-content-type[`content-type`]
+=== link:../api/io.pedestal.http.ring-middlewares.html#var-content-type[`content-type`]
 
 Always added.
 
-=== link:../api/pedestal.route/io.pedestal.http.route.html#var-query-params[`query-params`]
+=== link:../api/io.pedestal.http.route.html#var-query-params[`query-params`]
 
 Always added
 
-=== link:../api/pedestal.route/io.pedestal.http.route.html#var-method-param[`method-param`]
+=== link:../api/io.pedestal.http.route.html#var-method-param[`method-param`]
 
 Always added
 
-=== link:../api/pedestal.service/io.pedestal.http.ring-middlewares.html#var-resource[`resource`]
+=== link:../api/io.pedestal.http.ring-middlewares.html#var-resource[`resource`]
 
 Added when the service map has a value for `:io.pedestal.http/resource-path`.
 
-=== link:../api/pedestal.service/io.pedestal.http.ring-middlewares.html#var-file[`file`]
+=== link:../api/io.pedestal.http.ring-middlewares.html#var-file[`file`]
 
 Added when the service map has a value for `:io.pedestal.http/file-path`.
 
-=== link:../api/pedestal.service/io.pedestal.http.secure-headers.html#var-secure-headers[`secure-headers`]
+=== link:../api/io.pedestal.http.secure-headers.html#var-secure-headers[`secure-headers`]
 
 Added when the service map has a non-nil value for
 `:io.pedestal.http/secure-headers` or when the service map does not
 include the key `:io.pedestal.http/secure-headers` at all.
 
-=== link:../api/pedestal.route/io.pedestal.http.route.html#var-router[`router`]
+=== link:../api/io.pedestal.http.route.html#var-router[`router`]
 
 Always added.

@@ -367,7 +367,7 @@ pedrepl.server> (dev-url-for ::service/about-page :absolute? true)
 ----
 
 The `url-for` function accepts a number of useful options. See the
-http://pedestal.io/api/pedestal.route/io.pedestal.http.route.html#var-url-for-routes[API
+http://pedestal.io/api/io.pedestal.http.route.html#var-url-for-routes[API
 documentation] for full details.
 
 == Useful Techniques

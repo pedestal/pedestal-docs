@@ -17,7 +17,7 @@ A _chain provider_ invokes a queue of interceptors in response to some
 stimulus. The job of a chain provider is to accept incoming stimuli
 (requests, messages, events, commands, etc.) set up the
 link:context-map[context map] and execute a queue of interceptors via
-link:../api/pedestal.interceptor/io.pedestal.interceptor.chain.html#var-execute[`execute`].
+link:../api/io.pedestal.interceptor.chain.html#var-execute[`execute`].
 
 For HTTP, the link:servlet-interceptor[servlet interceptor] is the
 chain provider.
