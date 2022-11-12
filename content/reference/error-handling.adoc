@@ -17,8 +17,13 @@ itself. Interceptors are data structures that conceptually represent
 frames on a call stack, but they are not present in the usual
 nested fashion on the Java call stack.
 
-Pedestal addresses this by catching all exceptions thrown from an
-interceptor. It wraps the exception in an `ExceptionInfo` instance
+Remember that request processing may be asynchronous, in which case
+the call stack doesn't even represent the flow of control to the point
+where the exception occurred.
+
+Instead, Pedestal works backwards, looking for an interceptor to handle
+the exception. All exceptions thrown from an
+interceptor are captured; Pedestal wraps such exceptions in an `ExceptionInfo` instance
 which is then bound to the `:io.pedestal.interceptor.chain/error` key
 in the link:context-map[context map].
 
@@ -92,6 +97,9 @@ In that last case, Pedestal keeps track of the exceptions that were
 overridden. These are in a seq bound to
 `:io.pedestal.interceptor.chain/suppressed` in the context map.
 
+Most commonly, the interceptor will return the context map with a `:response`
+map; this will trigger normal response processing by invoking any remaining interceptors' `:leave` functions.
+
 === Error Dispatch Interceptor
 
 As a convenience, Pedestal offers a macro to build error-handling
@@ -105,9 +113,8 @@ Here is an example from the test suite:
 
 [source,clojure]
 ----
-;; <1>
-(def service-error-handler
-  (error-int/error-dispatch [ctx ex]
+(def service-error-handler ;; <1>
+  (error-dispatch [ctx ex]
     ;; <2>
     [{:exception-type :java.lang.ArithmeticException :interceptor ::another-bad-one}]
     (assoc ctx :response {:status 400 :body "Another bad one"})
@@ -123,13 +130,12 @@ Here is an example from the test suite:
 ,,,
 
 (def routes
-  ;; <5>
   (route/expand-routes
-    #{["/v1/api"  :any  [service-error-handler ,,,]]}))
+    #{["/v1/api"  :any  [service-error-handler ,,,]]})) ;; <5>
 ----
 <1> This macro returns code that evaluates to an interceptor. Binding it to a var is the normal use.
 <2> This is a pattern match that looks for an `ArithmeticException`, but only thrown by a particular interceptor. If the pattern matches, this expression gets evaluated. The error is handled and a response attached.
-<3> Another pattern match expression, matching any `ArithmeticException`s that weren't matched before. We return a different response body in these cases.
+<3> Another pattern match expression, matching any `ArithmeticException` s that weren't matched before. We return a different response body in these cases.
 <4> `:else` always matches because it is a truthy value. Reattaching the error tells Pedestal to keep looking for a handler.
 <5> We use the resulting interceptor like any other.
 
@@ -139,10 +145,11 @@ Pattern matching is a concise way to express conditions for handling an error.
 
 For HTTP, the link:servlet-interceptor[servlet interceptor] provides the "last
 ditch" error handlers that log the error and return an _error_ response. In
-development mode, they emit a stack trace as the response body.
+development mode, they emit a stack trace as the response body; you will see
+the error logged from the `:io.pedestal.http.impl.servlet-interceptor/stylobate` interceptor.
 
 WARNING: The error logged by the "last ditch" error handler includes the context
-map.
+map. This is often quite large and may contain data you do not wish to log.
 
 While having defaults is nice, it is highly recommended that services implement
 their own error handling/logging. This gives you full control over how errors

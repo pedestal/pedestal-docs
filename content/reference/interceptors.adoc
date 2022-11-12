@@ -14,9 +14,10 @@ core library provides interceptors that are generally useful for
 creating HTTP web services. Applications augment those with their own
 logic to handle.
 
-An interceptor is a pair of unary functions. Each function is called
+An interceptor is a pair of unary functions footnoteref:[1, An optional third function is used for error handling.
+An interceptor must provide at least one of `:enter`, `:leave` and `:error`.]: Each function is called
 with a link:context-map[context map] and must return either a context
-map or a channel that will deliver a context map.
+map or a core.async channel that will deliver a context map.
 
 Pedestal calls the `:enter` function on the way "in" to handling a
 request. It calls the `:leave` function on the way back "out". This is
@@ -34,10 +35,12 @@ interceptors' `:leave` functions, but in reverse order, as shown here:
 
 image::../images/guides/interceptor-stack.png[]
 
+This process, of running all the interceptor `:enter` functions, then running
+the interceptor `:leave` functions, is called _executing the interceptor chain_.
+
 This isn't implemented as a regular Clojure or Java call stack. That
 would not allow interceptors to return asynchronously. Pedestal
-creates a kind of "virtual call stack" out of the interceptors' data
-structures.
+creates a kind of "virtual call stack" out of the interceptors.
 
 Pedestal keeps a queue of interceptors that still need to have their
 `:enter` functions called. There is also a stack of interceptors whose
@@ -58,9 +61,13 @@ A basic interceptor is shown here.
 [source,clojure]
 ----
 (def attach-guid
-  {:name ::attach-guid
+  {:name ::attach-gui  ;; <1>
    :enter (fn [context] (assoc context ::guid (random-uuid)))})
 ----
+<1> An interceptor may optionally have a :name key, which is usually a fully qualified keyword. This
+may be used in some debug logging during interceptor chain execution.
+
+
 
 This interceptor has only the `:enter` function. Interceptors
 executing after this one would be able to access the `::guid` key on the

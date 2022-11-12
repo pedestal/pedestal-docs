@@ -81,7 +81,7 @@ process of turning a routing specification into a routing interceptor.
 
 Whatever is returned from the
 link:../api/io.pedestal.http.route.html#var-router-spec[`router-spec`]
-function of the protocol must be an interceptor. The returned interceptor will include an `:enter` callback that
+function of the protocol must be an interceptor. The returned interceptor will include an `:enter` function that
 must accept a link:context-map[context map] and enqueue
 link:interceptors[interceptors] based on whatever criteria it chooses.
 

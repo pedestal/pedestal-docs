@@ -10,11 +10,11 @@ Michael Nygard
 == Description
 
 The _context map_ is passed to each interceptor's `:enter` and
-`:leave` functions.
+`:leave` functions, and is one of two arguments passed to an interceptor's `:error` function.
 
-There are the keys that interceptor chain execution puts into the
-context map. Any key not described here is officially undefined and
-should be regarded as an implementation detail subject to change.
+Pedestal makes use of a number of keys in the context map described below as part
+of its public API. Further keys may also be present and are officially undefined and
+are considered an implementation detail subject to change at any time.
 
 [cols="s,d,d", options="header", grid="rows"]
 |===
@@ -22,7 +22,7 @@ should be regarded as an implementation detail subject to change.
 
 | :bindings
 | map of var -> value
-| As accepted by `clojure.core/with-bindings`. Prior to delegating execution to any interceptor, the interceptor framework will ensure that the bindings specified in this map are installed using `clojure.core/with-bindings`. If this map is altered and included in the returned context from an interceptor, the new bindings in the map will be installed as thread local bindings prior to another interceptor's execution.
+| See notes below.
 
 | :io.pedestal.interceptor.chain/error
 | Exception
@@ -30,17 +30,44 @@ should be regarded as an implementation detail subject to change.
 
 | :io.pedestal.interceptor.chain/execution-id
 | Opaque
-| This identifier is set uniquely when the pipeline is invoked. It is useful for correlating log files. Do not assume anything about the structure or type of this identifier.
+| This identifier is set uniquely when the interceptor chain is initially executed. It is useful for correlating log files. Do not assume anything about the structure or type of this identifier.
 
 | :io.pedestal.interceptor.chain/queue
 | Stack of interceptors
-| These are the interceptors left to execute. You can inspect this for debugging purposes, but to manipulate it you should call link:../api/io.pedestal.interceptor.chain.html#var-enqueue[`enqueue`], link:../api/io.pedestal.interceptor.chain.html#var-terminate[`terminate`], or link:../api/io.pedestal.interceptor.chain.html#var-terminate-when[`terminate-when`]. *Note*: This key is removed from the context map once an interceptor chain begins processing the `leave` stage.
+| These are the interceptors left to execute. You can inspect this for debugging purposes, but to manipulate it you should call link:../api/io.pedestal.interceptor.chain.html#var-enqueue[`enqueue`], link:../api/io.pedestal.interceptor.chain.html#var-terminate[`terminate`], or link:../api/io.pedestal.interceptor.chain.html#var-terminate-when[`terminate-when`]. *Note*: This key is removed from the context map once an interceptor chain begins processing the `:leave` stage.
 
 | :io.pedestal.interceptor.chain/terminators
 | Collection of predicates
 | After executing each `:enter` function, Pedestal checks every predicate in this collection, passing the context map to each one. If any of them returns true-ish, Pedestal begins executing the `:leave` stack.
 
 |===
+
+== :bindings
+
+In ordinary Clojure code, the `binding` macro can be used to override the thread-bound values of
+dynamic Vars; this is not possible with interceptors, as the interceptor function will return before
+the next interceptor is executed.
+
+Instead, an interceptor that needs to override or communicate a value via a dynamic binding will instead
+modify the `:bindings` key of the context.
+
+Any bindings associated this way will stay present until they are `dissoc`-ed from the `:bindings` map; a binding
+added by one interceptor during the `:enter` phase will still be present during the `:leave` phase.
+
+It is not uncommon for an interceptor to provide an `:enter` function to bind a var, and a
+corresponding `:leave` function to remove the binding:
+
+[source,clojure]
+----
+(def ^:dynamic *mdc* nil)
+
+(def mdc-interceptor
+  {:name ::mdc
+   :enter (fn [context]
+            (update context :bindings assoc #'*mdc* (str (random-uuid)))
+   :leave (fn [context]
+            (update context :bindings dissoc #'*mdc*))})
+----
 
 == As Applied to HTTP
 
@@ -77,7 +104,7 @@ specifically modify.
 
 == Servlet Keys
 
-The following keys are only present when using the
+The following context keys are only present when using the
 link:servlet-interceptor[Servlet Interceptor].
 
 [cols="s,d,d", options="header", grid="rows"]
