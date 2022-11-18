@@ -76,14 +76,20 @@ link:../api/io.pedestal.test.html#var-response-for[`response-for`]
 utility function to facilitate testing of services without having to spin up an
 http server.
 
+This style of testing ensures that routing is correct, and it fully exercises routing, interceptors,
+and any business logic.
+
 The `response-for` helper function is specific to servlet-based
 services and simulates the receipt of a servlet request and creation
-of a servlet response. It takes a service function, verb and url as
-required parameters while headers and a request body are
+of a servlet response - but does so without the overhead of an actual HTTP connection, which
+ensures your tests are fast.
+
+`response-for takes as arguments a service function, verb and url as
+required parameters; headers and a request body are
 optional. Let us examine those parameters in more detail.
 
 The _service function_ refers to the `:io.pedestal.http/service-fn` key
-value assoc'd to the service map during service initialization.
+value in the service map during service initialization.
 
 The _verb_ is an HTTP method represented as a keyword (i.e., `:get`,
 `:post`, `:delete`, etc...).
@@ -153,10 +159,15 @@ appropriate value based on the payload format of the request body.
 
 Notice how `Content-Type` is a string.
 
-==== Constructing urls
+==== Constructing route URLs
 
-It is recommended to create a `url-for` test helper based on your routes and
-use that to create the relative urls for your tests. This allows you to
+Pedestal provides a utility,
+link:../api/io.pedestal.http.route.html#var-url-for-routes[url-for-routes].
+This is passed the _expanded_ routes for your application, and returns a function that will generate
+a URL for a specific route; primarily by specifying the route name, but also other factors.
+
+It is recommended to create a `url-for` test helper based on `url-for-routes`, and
+use that helper to create the relative urls for your tests. This allows you to
 refer to routes by name as opposed to hard-coded paths. Route names
 are typically more stable. Aside from that, it makes it easy to test
 routes which use query or path parameters.
@@ -167,15 +178,17 @@ Here's an example:
 ----
 (require '[io.pedestal.http.route :as http.routes])
 
-(def routes #{["/user/:id/items" :post `user-items]}
+(def routes #{["/user/:id/items" :post `user-items]} ; <1>
 
 (def url-for (http.routes/url-for-routes (http.routes/expand-routes routes))))
 
 (is (= 200 (:status (response-for service
-                                  :get (url-for ::user-items
+                                  :get (url-for ::user-items ;<2>
                                                  :path-params {:id 1}
                                                  :query-params {:sort "ASC"})))))
 ----
+<1> The fully qualified symbol for `user-items` will be the default route name (as a keyword)
+<2> The route name is used to get the URL back
 
 ==== Testing Async interactions
 
