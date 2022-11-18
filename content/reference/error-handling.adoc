@@ -29,7 +29,7 @@ in the link:context-map[context map].
 
 As long as there is an error attached to that key, Pedestal will not
 invoke the usual `:enter` and `:leave` functions. Instead, it looks
-for the next interceptor in the chain that has a `:error` function
+for the next interceptor in the chain that has an `:error` function
 attached to it.
 
 This error handling proceeds the same way regardless of whether
@@ -40,7 +40,7 @@ Values] for details on async return.) As a result, Pedestal unifies
 error handling for synchronous interceptors and asynchronous
 interceptors.
 
-You can supply your own `:error` interceptor anywhere in the interceptor queue.
+You can supply your own `:error` handling interceptor anywhere in the interceptor queue.
 
 === Error Function
 

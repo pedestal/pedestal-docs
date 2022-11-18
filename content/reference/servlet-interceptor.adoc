@@ -13,8 +13,8 @@ interceptor. It is created when an application calls
 `io.pedestal.http/create-server` or `io.pedestal.http/create-servlet`.
 
 When created, the servlet interceptor creates the global interceptor queue,
-which includes a couple of interceptors private to the servlet interceptor and then
-additional interceptors provided by the application; a key interceptor will
+which includes a number of interceptors private to the servlet interceptor and then
+additional interceptors provided by the application; importantly, the final interceptor will
 perform routing, which will add route-matched interceptors to the queue.
 
 The servlet interceptor is a link:chain-providers[chain provider] that
@@ -24,7 +24,7 @@ The servlet interceptor performs the following tasks:
 
    1. It sets up the link:context-map[context map] and the
    link:request-map[request map].
-   2. Executes the interceptor queue.
+   2. Executes the interceptor queue (`:enter`, then `:leave`)
    3. Catches any exceptions that aren't handled by
    link:error-handling[error handling] within the interceptors.
    4. Writes the final link:response-map[response map] to the servlet

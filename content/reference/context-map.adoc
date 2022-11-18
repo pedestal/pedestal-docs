@@ -59,14 +59,14 @@ corresponding `:leave` function to remove the binding:
 
 [source,clojure]
 ----
-(def ^:dynamic *mdc* nil)
+(def ^:dynamic *request-id* nil)
 
-(def mdc-interceptor
+(def request-id-interceptor
   {:name ::mdc
    :enter (fn [context]
-            (update context :bindings assoc #'*mdc* (str (random-uuid)))
+            (update context :bindings assoc #'*request-id* (str (random-uuid)))
    :leave (fn [context]
-            (update context :bindings dissoc #'*mdc*))})
+            (update context :bindings dissoc #'*request-id*))})
 ----
 
 == As Applied to HTTP
