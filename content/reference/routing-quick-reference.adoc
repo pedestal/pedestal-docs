@@ -348,4 +348,4 @@ On success, the following keys are added or updated in the context map:
 
 |===
 
-When the router does not match any route, then the context key `:route` is set to nil.
+On failure, when the router does not match any route, the context key `:route` is set to nil.

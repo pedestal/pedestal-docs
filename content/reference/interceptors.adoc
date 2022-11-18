@@ -111,7 +111,7 @@ This interceptor's job is to apply a side effect change the `database` atom.
 Some other interceptor, further down the chain, will have attached the `::tx-data` key
 to the context, and this interceptor's job is to apply the change.
 
-[INFO]
+[TIP]
 .*Controlling data access*
 --
 This example incidentally shows a good division of labor, as the other interceptors using the database
@@ -184,14 +184,19 @@ expect an asynchronous response.
 
 [IMPORTANT]
 .*Chaining With Async Interceptors*
+--
 Any interceptor downstream of an asynchronous interceptor will be executed in the `core.async` thread pool.
 This can be problematic if any later interceptor or handler performs any blocking I/O.  Generally speaking,
 if any interceptor is asynchronous, all following non-trivial interceptors should also be asynchronous.
 
+
+Trivial interceptors do short computations or changes to the context map; they do not perform any I/O or other
+operations that could block the thread they execute on.
+
 When an interceptor returns a channel, the request processing thread can be returned to the servlet container.
 This may allow another pending request to be processed while the initial request is parked, waiting for
 a response from the authentication system.
-
+--
 
 === IntoInterceptor
 
@@ -253,7 +258,7 @@ if processing should not continue.
 Interceptors that are explicitly enqueued by the application must
 be defined using the `io.pedestal.interceptor/interceptor`
 function. This function takes a value which extends `IntoInterceptor`
-and returns an `Interceptor` Record.
+and returns an `Interceptor` record.
 
 This is not necessary when constructing interceptors used in routing
 because interceptor representations are transformed to `Interceptor`
@@ -261,18 +266,17 @@ records during route expansion.
 --
 
 It's worth noting that when an interceptor queues additional interceptors for execution,
-they execute after all interceptors already in the queue (not after the interceptor that
+they execute after all interceptors already in the queue (not immediately after the interceptor that
 modified the queue).  This means you could, for example, put a routing interceptor first
-in the queue, then a few interceptors that provide behavior common to all routes and those
+in the queue, then a few interceptors that provide behavior common to all routes, and those
 common interceptors will run before any route-specific interceptors.
 
 
 === Handlers
 
-A "handler" function is a special case of an interceptor. It plays the
-role that a handler function plays in other web frameworks. Pedestal
-treats the handler as a function that takes a link:request-map[request
-map] and returns a link:response-map[response map].
+A handler function is a special case of an interceptor.
+Pedestal treats the handler as a function that takes a link:request-map[request map]
+and returns a link:response-map[response map].
 
 A handler does _not_ have access to the full execution
 context. Therefore, it cannot manipulate the interceptor queue or stack.
@@ -280,6 +284,9 @@ context. Therefore, it cannot manipulate the interceptor queue or stack.
 Because a handler takes one kind of thing (request) and returns a
 different kind of thing (response), it can only be used in the last
 position of a stack.
+
+Handlers are always synchronous; they must return a response map, not a channel that delivers
+a response map.
 
 === Error Handling
 

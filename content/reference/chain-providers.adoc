@@ -8,8 +8,8 @@ Cognitect
 
 ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 
-Pedestal uses a chain of interceptors to process incoming HTTP requests and provide outgoing HTTP responses.
-However, the underlying code, the interceptors and the interceptor chain that executes them, is more general.
+Pedestal uses a chain of link:interceptors[interceptors] to process incoming HTTP requests and provide outgoing HTTP responses.
+However, the underlying code - the interceptors and the interceptor chain that executes them - is more general.
 
 Interceptor chains can be used for a variety of operations, such as:
 
