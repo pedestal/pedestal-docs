@@ -229,7 +229,7 @@ Change the route back to `/hello` and modify the `start` function:
 (defn start
   []
   (-> {::http/port 9999
-       ::http/routes #(route/expand-routes @#'routes)
+       ::http/routes #(route/expand-routes (deref (var routes)))
        ::http/type :jetty
        ::http/join? false}
       http/create-server
@@ -241,7 +241,7 @@ Start the server, and verify that `/hello` still works.
 Now, update the route back to `/hi`, reload the namespace, and check:
 
 ```
-> http -pb :9999/hello
+> http -pb :9999/hi
 Hello, JVM World!
 
 ```
@@ -249,10 +249,13 @@ Hello, JVM World!
 Done!  You can now add, remove, or change your routes, update interceptors, add constraints ... whatever you want,
 it will be re-evaluated and re-loaded on each request.
 
-But what is that `@#'routes` sequence, and why does it help?
-Well, `#'route` means "the Var `routes`, not the value stored in the Var."  And the `@` is `deref`, which pulls
-the value out of a Var.  So this means that we capture the `routes` Var and de-ref it on each invocation, rather
-than capturing the value stored in the Var once, as in the previous steps.
+[NOTE]
+.*How do this work?*
+--
+The `(var routes)` captures the Var named `routes`, and the `deref` pulls
+the current route specification out of it, and this happens on every invocation of the
+function - on every request.  If you like, you can abbreviate that to `@#'routes`.
+--
 
 ## Wrap Up
 
