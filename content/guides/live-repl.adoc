@@ -217,7 +217,7 @@ Not Found
 
 ```
 
-There's still one more capture: the anonymous function is capturing the set `routes` set.
+There's still one more capture: the anonymous function is capturing the `routes` set.
 In order for route changes to load, we have to ensure we always get the current version of `routes` inside
 that anonymous function.
 
