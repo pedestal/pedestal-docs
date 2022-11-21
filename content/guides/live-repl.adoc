@@ -13,7 +13,7 @@ into the REPL for a lightning fast feedback loop.
 
 It's common to reload a namespace, and use the REPL (possibly via IDE support) to re-evaluate expressions in our
 code and see the immediate change. This is true for Pedestal apps as well ... we _should_ be able to make changes
-and see them immediately.  But as we'll see, in practice, that takes a little extra doing.
+and see them immediately.  But as we'll see, in practice, accomplishing that takes a little extra structure.
 
 We're going to show examples of the live reloading failures, then show simple solutions.
 
@@ -73,11 +73,11 @@ X-XSS-Protection: 1; mode=block
 Hello, World!
 
 ```
-So far, so good.  You can see that Pedestal's default set of interceptors has added a bit of safety to your application
-already.
+So far, so good.  You can also see that Pedestal's default set of interceptors has added a number of security-related
+headers to the response.
 
-Now we're ready to make a change.  Let's make it say `Hello, Clojure World!` instead.  We can change the `hello-handler`
-function, reload the namespace, and:
+Now we're ready to make a change.  Let's change the response body to be `Hello, Clojure World!`.
+We can change the `hello-handler` function, reload the namespace, and:
 
 ```
 > http -pb :9999/hello <1>
@@ -85,7 +85,7 @@ Hello, World!
 ```
 <1> The `-pb` option prints just the response body, omitting the response headers.
 
-That's strange.  It's as if your code change wasn't picked up.  We can verify that the code
+That's strange.  It's as if the code change wasn't picked up.  We can verify that the code
 change is, in fact, live by evaluating `(hello-handler nil)` at the REPL:
 
 ```clojure
@@ -98,11 +98,12 @@ Clojure function.  However, the `routes` and `start` functions _captured_ the va
 they executed.
 
 We could say *ugh, fine* and just adapt to a cycle where you reload your REPL code and then restart the server object, but
-that's slow and error-prone. We want a fast feedback cycle where that is not necessary, and that is entirely achievable.
+that's slow and error-prone.
+We want a fast feedback cycle where that is not necessary, and that goal is entirely achievable.
 
 The first step is to stop the service by evaluating `(swap! server http/stop)`.
 
-Change the `routes` function:
+Next, change the `routes` function:
 
 ```clojure
 (def routes
@@ -113,10 +114,11 @@ Notice that backtick character before `hello-handler`.  That's Clojure's _syntax
 it keeps `hello-handler` from being evaluated, but unlike single quote, the symbol is fully qualified.  It's the
 equivalent of `'org.example.hello/hello-handler`.
 
-A key stage for Pedestal is _route expansion_: this is a step during startup where the provided routes are converted
-from one of a number of specifications (such as the table format used here) into an executable format. Part of expansion is
-a rule that says that a handler that's a symbol is replaced with the evaluation of that symbol.  That's when
-`org.example.hello/hello-handler` is converted from a symbol to function.
+To understand what's going on here, we must consider a key stage in Pedestal: _route expansion_.
+Route expansion is a step during service startup where the provided routes are converted
+from one of a number of specifications (such as the table format used here) into an executable format.
+Part of expansion is a rule that says that a handler that's a symbol is replaced with the evaluation of that symbol.
+That's when `org.example.hello/hello-handler` is converted from a symbol to function.
 
 Notice that we also no longer have to specify a `:route-name`; with a handler symbol, a default route name is generated
 that's a keyword version of the symbol.
@@ -131,12 +133,12 @@ Hello, Clojure World!
 
 What gives?  Where's our reloading?
 
-Well, we're almost there.  Because of the back-ticked symbol, the evaluation of `hello-handler` occurred later,
+Because of the back-ticked symbol, the evaluation of `hello-handler` occurred later than in the original  code,
 not inside the `route` function, but somewhere inside the call to `http/create-server` ... but
-the evaluation still only happens once, and so there's still a capture.
+that evaluation and expansion still only happens once, and so there's still a capture.
 
 We need the route to always reflect the live version of the `hello-handler` function, and that means we have
-to avoid capture.
+to avoid capture, not just of the `hello-handler` function, but of the entire route specification.
 
 == Deferred Route Function
 
@@ -218,8 +220,8 @@ Not Found
 ```
 
 There's still one more capture: the anonymous function is capturing the `routes` set.
-In order for route changes to load, we have to ensure we always get the current version of `routes` inside
-that anonymous function.
+In order for route changes to load, we have to ensure that the anonymous route function
+always returns the current version of `routes`.
 
 == Delaying Route Evaluation
 
@@ -250,17 +252,17 @@ Done!  You can now add, remove, or change your routes, update interceptors, add 
 it will be re-evaluated and re-loaded on each request.
 
 [NOTE]
-.*How do this work?*
+.*How does this work?*
 --
 The `(var routes)` captures the Var named `routes`, and the `deref` pulls
-the current route specification out of it, and this happens on every invocation of the
-function - on every request.  If you like, you can abbreviate that to `@#'routes`.
+the current route specification out of it, This happens on every invocation of the
+function - on every request.  If you like, you can abbreviate `(deref (var routes))` to `@#'routes`.
 --
 
 ## Wrap Up
 
-Running code with a long-lived and stateful service creates its own challenges; in the guide we've explained
-what prevents live reloading, and provided the necessary steps to keep your REPL flowing as you develop your application.
+Running code with a long-lived and stateful service creates its own challenges; in this guide we've explained
+how capturing interferes with live reloading, and provided the necessary steps to keep your REPL flowing as you develop your application.
 
 Just remember ... you want to make sure your production application doesn't use these reloading techniques if you want
 to meet your SLAs (service level agreements)
