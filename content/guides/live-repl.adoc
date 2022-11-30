@@ -13,7 +13,8 @@ into the REPL for a lightning fast feedback loop.
 
 It's common to reload a namespace, and use the REPL (possibly via IDE support) to re-evaluate expressions in our
 code and see the immediate change. This is true for Pedestal apps as well ... we _should_ be able to make changes
-and see them immediately.  But as we'll see, in practice, accomplishing that takes a little extra structure.
+and the effects of those changes immediately.
+But as we'll see, in practice, accomplishing that takes a little extra structure.
 
 We're going to show examples of the live reloading failures, then show simple solutions.
 
@@ -44,7 +45,7 @@ Let's start with yet another basic, "Hello World" application.
 ```
 <1> The request map isn't used here, so we follow the convention of adding a leading underscore; this may also prevent
     warnings in your IDE.
-<2> Every route must have a unique :route-name and since we are providing a function, `hello-handler`, it must
+<2> Every route must have a unique `:route-name` and since we are providing a function, `hello-handler`, it must
     be explicit.
 <3> Normally, the call to `io.pedestal.http/start` doesn't return (until something else shuts down the server); adding
     `::http/join? false` is necessary for REPL-oriented development.
@@ -195,7 +196,7 @@ Hello, JVM World!
 .*Not For Production*
 --
 Using a function, as we do here, is *absolutely not for production*.  Even a trivial route takes a chunk of time
-to expand, so doing it on every single request is a non-starter.
+to expand, so doing it on every single request will absolutely trash your production server's performance.
 --
 
 Still, we're not quite done.  Let's say we want to be less formal, and respond on the path `/hi` instead of `/hello`.
@@ -219,9 +220,9 @@ Not Found
 
 ```
 
-There's still one more capture: the anonymous function is capturing the `routes` set.
+There's still one more capture: the anonymous function is capturing the value of the `routes` set.
 In order for route changes to load, we have to ensure that the anonymous route function
-always returns the current version of `routes`.
+always returns the current value of `routes`.
 
 == Delaying Route Evaluation
 
@@ -238,7 +239,7 @@ Change the route back to `/hello` and modify the `start` function:
       http/start))
 ```
 
-Start the server, and verify that `/hello` still works.
+Stop and restart the server, and verify that `/hello` still works.
 
 Now, update the route back to `/hi`, reload the namespace, and check:
 
@@ -248,8 +249,8 @@ Hello, JVM World!
 
 ```
 
-Done!  You can now add, remove, or change your routes, update interceptors, add constraints ... whatever you want,
-it will be re-evaluated and re-loaded on each request.
+Done!  You can now add, remove, or otherwise change your routes, update interceptors, add constraints ...
+whatever you want, and it will be re-evaluated and re-loaded on each request.
 
 [NOTE]
 .*How does this work?*
@@ -261,8 +262,9 @@ function - on every request.  If you like, you can abbreviate `(deref (var route
 
 ## Wrap Up
 
-Running code with a long-lived and stateful service creates its own challenges; in this guide we've explained
-how capturing interferes with live reloading, and provided the necessary steps to keep your REPL flowing as you develop your application.
+Running code with a long-lived and stateful service creates its own challenges when coding live at the REPL;
+in this guide we've explained how capturing interferes with live reloading, and provided the necessary steps
+to keep your REPL flowing as you develop your application.
 
 Just remember ... you want to make sure your production application doesn't use these reloading techniques if you want
-to meet your SLAs (service level agreements)
+to meet your SLAs (service level agreements)!
