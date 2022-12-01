@@ -13,7 +13,7 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 Provide a performant router which is efficient in time and
 space.
 
-It's Modeled after link:https://github.com/julienschmidt/httprouter[httprouter].
+It's modeled after link:https://github.com/julienschmidt/httprouter[httprouter].
 
 == Why use it?
 
@@ -33,7 +33,7 @@ always win. The path `/foo/:bar` will always match over `/foo/baz`.
 == Additional Notes
 
 Like the link:map-tree-router[Map Tree Router], query and path
-contraints are not used in routing decisions. They are only used to
+constraints are not used in routing decisions. They are only used to
 invalidate a route match.
 
 == References

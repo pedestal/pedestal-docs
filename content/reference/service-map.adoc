@@ -8,25 +8,34 @@ Michael Glaesemann
 
 == Description
 
-The service map provides a configuration that Pedestal turns into a
-service function, server function, chain provider, router, routes, and
-default set of interceptors. This map takes the place of a "builder"
-API in other frameworks.
+The service map is a blueprint that Pedestal uses to create all the necessary
+parts to begin processing requests: a service function, server function, chain provider, router, routes, and
+default set of interceptors.
+
+[NOTE]
+.Server vs. Service
+--
+A _server_ is just the part of the overall system that listens for requests and sends responses; it's
+the part most closely tied to your underlying servlet container (Jetty, Tomcat, and so forth).
+The _service_ runs the show: it's the server plus everything else: chain provider, the interceptors
+(including those for routing), and so forth.
+--
 
 An application creates the service map and passes it to
-link:../api/io.pedestal.http.html#var-create-server[`create-server`]
-for "one stop shopping."
+link:../api/io.pedestal.http.html#var-create-server[`create-server`].
+The result is a map that is ready to be started.
 
 Keep in mind, however, that this is strictly a convenience function
 that assembles the parts for you. There are use cases where you would
 not call `create-server`, but instead assemble a service function,
-chain provider, etc. directly. See the chain provider link:../samples/index[sample].
+chain provider, and so forth, directly.
+See the chain provider link:../samples/index[sample].
 
 Pedestal may add other keys to this map for its own use. Other applications
-should treat any such keys and their values as implementation values details
+should treat any such keys and their values as implementation details
 and their behaviour will remain unspecified.
 
-NOTE: In the examples below, `::http` is an alias to `:io.pedestal.http`.
+NOTE: In the details below, `::http` is an alias to `:io.pedestal.http`.
 
 [cols="s,d,d,d", options="header", grid="rows"]
 |===

@@ -94,15 +94,15 @@ An interceptor is a bundle of up-to three functions, named `:enter`, `:leave`, a
 Likewise, `:leave` corresponds to logic that occurs _after_ a response map has been created.
 The `:error` function is used when an interceptor throws an exception; it's the interceptor version of a `(try ... catch ...)`.
 
-Now, there's a bit more going on.  First, these `:enter` and `:leave` callbacks are passed a _context_ map which
+Now, there's a bit more going on.  First, these `:enter` and `:leave` functions are passed a _context_ map which
 contains a `:request` key.
 Any interceptor can modify the context map: some may modify the `:request` map inside the context, others may
 attach a `:response` map to the context.
 
 Inside the context is a queue of interceptors.
-Pedestal works its way through the queue, calling `:enter` callbacks, until some interceptor attaches a
+Pedestal works its way through the queue, calling `:enter` functions, until some interceptor attaches a
 `:response` map to the context;
-then it works its way backwards, calling `:leave` callbacks.
+then it works its way backwards, calling `:leave` functions.
 
 In practice, an interceptor looks like a normal Clojure map with keys `:enter`, `:leave`, or `:error` (usually just `:enter` and/or `:leave`).
 So, unlike a deeply wrapped function, a chain of interceptors is a data structure that can be inspected by a developer, or manipulated in code.

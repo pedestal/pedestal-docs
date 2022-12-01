@@ -14,9 +14,10 @@ core library provides interceptors that are generally useful for
 creating HTTP web services. Applications augment those with their own
 logic to handle.
 
-An interceptor is a pair of unary functions. Each function is called
+An interceptor is a pair of unary functions footnoteref:[1, An optional third function is used for error handling.
+An interceptor must provide at least one of `:enter`, `:leave` and `:error`.]: Each function is called
 with a link:context-map[context map] and must return either a context
-map or a channel that will deliver a context map.
+map or a core.async channel that will deliver a context map.
 
 Pedestal calls the `:enter` function on the way "in" to handling a
 request. It calls the `:leave` function on the way back "out". This is
@@ -26,30 +27,32 @@ image::../images/guides/interceptors.png[]
 
 Either the `:enter` or `:leave` function may be omitted without harm.
 
-Logically speaking, interceptors form a stack. All the `:enter`
-functions are called in order. Each one receives the context map and
-returns a (possibly modified) context map. Once all the interceptors
-have been called, the resulting context map gets passed through the
-interceptors' `:leave` functions, but in reverse order, as shown here:
+Logically speaking, interceptors form a queue.
+During the `:enter` phase, the next interceptor is popped off the queue,
+pushed onto the leave stack, and it's `:enter` function, if any, is executed.
+
+Once the handler (or other interceptor) adds a `:response` to the context,
+the chain logic switches to `:leave` mode: it pops interceptors off
+the leave stack and invokes the `:leave` function, if any.
+
+Because it's the leave _stack_ the `:leave` functions are invoked
+in the opposite order from the `:enter` functions.
 
 image::../images/guides/interceptor-stack.png[]
-
-This isn't implemented as a regular Clojure or Java call stack. That
-would not allow interceptors to return asynchronously. Pedestal
-creates a kind of "virtual call stack" out of the interceptors' data
-structures.
-
-Pedestal keeps a queue of interceptors that still need to have their
-`:enter` functions called. There is also a stack of interceptors whose
-`:enter` functions have been called, but their `:leave` functions have
-not. As such, the `:leave` functions are called in reverse order to
-the `:enter` functions.
 
 Both the queue and the stack reside in the context map. Since
 interceptors can modify the context map, that means they can change
 the plan of execution for the rest of the request! Interceptors are
 allowed to enqueue more interceptors to be called, or they can
 terminate the request.
+
+This process, of running all the interceptor `:enter` functions, then running
+the interceptor `:leave` functions, is called _executing the interceptor chain_.
+
+This isn't implemented as a regular Clojure or Java call stack. That
+would not allow interceptors to return asynchronously. Pedestal
+creates a kind of "virtual call stack" out of the interceptors, using
+the data stored in the context map.
 
 === Example
 
@@ -58,9 +61,11 @@ A basic interceptor is shown here.
 [source,clojure]
 ----
 (def attach-guid
-  {:name ::attach-guid
+  {:name ::attach-gui  ;; <1>
    :enter (fn [context] (assoc context ::guid (random-uuid)))})
 ----
+<1> An interceptor may optionally have a :name key, which is usually a fully qualified keyword. This
+may be used in some debug logging during interceptor chain execution.
 
 This interceptor has only the `:enter` function. Interceptors
 executing after this one would be able to access the `::guid` key on the
@@ -88,6 +93,8 @@ HTTP request with additional functionality. For example:
 
 [source,clojure]
 ----
+(def ^:private database (atom nil))
+
 (def db-interceptor
   {:name ::database-interceptor
    :enter   (fn [context]
@@ -100,13 +107,20 @@ HTTP request with additional functionality. For example:
                 context))})
 ----
 
-This interceptor's job is to apply a side effect change the the `database` atom.
+This interceptor's job is to apply a side effect change the `database` atom.
 Some other interceptor, further down the chain, will have attached the `::tx-data` key
 to the context, and this interceptor's job is to apply the change.
 
-This is a good division of labor, as the other interceptor will be more truly functional (accepting
-and returning values with no side effects); the "dirty" side-effecting behavior is localized to this
-one interceptor.
+[TIP]
+.*Controlling data access*
+--
+This example incidentally shows a good division of labor, as the other interceptors using the database
+will be more truly functional (accepting and returning values with no side effects);
+the "dirty" side-effecting behavior is localized to this one interceptor.
+
+Other code past this interceptor can see the database as a value, but can't make a change to it;
+only this interceptor will have access to the `database` atom to make changes.
+--
 
 Although interceptors are values, they are not required to be compile-time
 values. Functions can close over state and return interceptors. Some
@@ -170,14 +184,19 @@ expect an asynchronous response.
 
 [IMPORTANT]
 .*Chaining With Async Interceptors*
+--
 Any interceptor downstream of an asynchronous interceptor will be executed in the `core.async` thread pool.
 This can be problematic if any later interceptor or handler performs any blocking I/O.  Generally speaking,
 if any interceptor is asynchronous, all following non-trivial interceptors should also be asynchronous.
 
+
+Trivial interceptors do short computations or changes to the context map; they do not perform any I/O or other
+operations that could block the thread they execute on.
+
 When an interceptor returns a channel, the request processing thread can be returned to the servlet container.
 This may allow another pending request to be processed while the initial request is parked, waiting for
 a response from the authentication system.
-
+--
 
 === IntoInterceptor
 
@@ -239,7 +258,7 @@ if processing should not continue.
 Interceptors that are explicitly enqueued by the application must
 be defined using the `io.pedestal.interceptor/interceptor`
 function. This function takes a value which extends `IntoInterceptor`
-and returns an `Interceptor` Record.
+and returns an `Interceptor` record.
 
 This is not necessary when constructing interceptors used in routing
 because interceptor representations are transformed to `Interceptor`
@@ -247,18 +266,17 @@ records during route expansion.
 --
 
 It's worth noting that when an interceptor queues additional interceptors for execution,
-they execute after all interceptors already in the queue (not after the interceptor that
+they execute after all interceptors already in the queue (not immediately after the interceptor that
 modified the queue).  This means you could, for example, put a routing interceptor first
-in the queue, then a few interceptors that provide behavior common to all routes and those
+in the queue, then a few interceptors that provide behavior common to all routes, and those
 common interceptors will run before any route-specific interceptors.
 
 
 === Handlers
 
-A "handler" function is a special case of an interceptor. It plays the
-role that a handler function plays in other web frameworks. Pedestal
-treats the handler as a function that takes a link:request-map[request
-map] and returns a link:response-map[response map].
+A handler function is a special case of an interceptor.
+Pedestal treats the handler as a function that takes a link:request-map[request map]
+and returns a link:response-map[response map].
 
 A handler does _not_ have access to the full execution
 context. Therefore, it cannot manipulate the interceptor queue or stack.
@@ -266,6 +284,9 @@ context. Therefore, it cannot manipulate the interceptor queue or stack.
 Because a handler takes one kind of thing (request) and returns a
 different kind of thing (response), it can only be used in the last
 position of a stack.
+
+Handlers are always synchronous; they must return a response map, not a channel that delivers
+a response map.
 
 === Error Handling
 

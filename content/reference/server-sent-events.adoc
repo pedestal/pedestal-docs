@@ -11,7 +11,7 @@ ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 == Server Sent Events
 
 The Pedestal service library includes support for
-http://www.w3.org/TR/eventsource/[Server-Sent Events] (SSE.)
+http://www.w3.org/TR/eventsource/[Server-Sent Events] (SSE).
 The SSE protocol defines a mechanism for sending event
 notifications from a server to a client using a form of long polling.
 However, unlike conventional long polling, SSE does not send each
@@ -21,8 +21,8 @@ events as part of a single response stream. The stream is kept alive
 over time by sending events and/or periodic heart-beat data. In the
 event that the stream is closed for some reason, the client can send a
 request to re-open it and events notifications can continue. All
-modern browsers have built in support for SSE via the `EventSource`
-API.
+modern browsers have built in support for SSE via the
+link:https://developer.mozilla.org/en-US/docs/Web/API/EventSource[EventSource API].
 
 === Making an SSE Interceptor
 

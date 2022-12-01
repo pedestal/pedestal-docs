@@ -24,3 +24,4 @@ Cognitect
 == Interactive Development
 
 * link:developing-at-the-repl[Developing at the REPL]
+* link:live-repl[Reloading at the REPL]
