@@ -107,6 +107,8 @@ Session.vim
 tags
 .nrepl-history
 
+#IntelliJ IDEA files
 /.idea/
+*.iml
 
 .cpcache
