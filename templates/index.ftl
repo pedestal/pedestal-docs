@@ -45,6 +45,9 @@
                 </li>
               </ul>
             </div>
+            <div>
+              <a class="clj-get-started-button" href="guides/hello-world">Get&nbsp;Started</a>
+            </div>
           </div>
         </div>
         <div class="w-col w-col-4">

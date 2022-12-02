@@ -1,6 +1,5 @@
 (ns front-page
-  (:require [io.pedestal.http :as http]
-            [io.pedestal.http.route :as route]))
+  (:require [io.pedestal.http :as http]))
 
 (defn respond-hello [_]
   {:status 200 :body "Hello, world!"})
