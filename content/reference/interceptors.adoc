@@ -8,6 +8,12 @@ Michael Nygard
 
 ifdef::env-github,env-browser[:outfilessuffix: .adoc]
 
+[TIP]
+.*See the guide*
+--
+This is the detailed interceptor _reference_; if you are new to Pedestal
+you may want to start with the link:../guides/what-is-an-interceptor[What Is An Interceptor Guide].
+--
 
 Interceptors are the basic building block of features in Pedestal. The
 core library provides interceptors that are generally useful for

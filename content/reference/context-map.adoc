@@ -30,7 +30,7 @@ are considered an implementation detail subject to change at any time.
 
 | :io.pedestal.interceptor.chain/execution-id
 | Opaque
-| This identifier is set uniquely when the interceptor chain is initially executed. It is useful for correlating log files. Do not assume anything about the structure or type of this identifier.
+| This identifier is set uniquely when the interceptor chain is initially executed. It is useful for correlating log events. Do not assume anything about the structure or type of this identifier.
 
 | :io.pedestal.interceptor.chain/queue
 | Stack of interceptors
@@ -90,7 +90,7 @@ specifically modify.
 
 [cols="s,d,d", options="header", grid="rows"]
 |===
-| Key | Type | Deescription
+| Key | Type | Description
 
 | :request
 | Request map

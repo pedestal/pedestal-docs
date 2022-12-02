@@ -511,23 +511,23 @@ functions from right to left.
 |===
 | Phase | Interceptor | Action
 
-| Enter | `entity-render    ` | None.
-| Enter | `list-item-view   ` | None.
-| Enter | `db-interceptor   ` | Attach the DB value to the context.
-| Enter | `list-item-create ` | Attach tx-data to the context and a
+| Enter | `entity-render` | None.
+| Enter | `list-item-view` | None.
+| Enter | `db-interceptor` | Attach the DB value to the context.
+| Enter | `list-item-create` | Attach tx-data to the context and a
   path-param to identify the item.
-| Leave | `list-item-create ` | None.
-| Leave | `db-interceptor   ` | Execute the tx-data, attach updated DB value to context.
-| Leave | `list-item-view   ` | Find the (new) item by path-params,
+| Leave | `list-item-create` | None.
+| Leave | `db-interceptor` | Execute the tx-data, attach updated DB value to context.
+| Leave | `list-item-view` | Find the (new) item by path-params,
   attach it to the context as :result.
-| Leave | `entity-render    ` | Find :result on the context, make an OK response.
+| Leave | `entity-render` | Find :result on the context, make an OK response.
 
 |===
 
 Splitting the work into these pipelined stages allows us to make very
 small, very targeted functions that collaborate via the context.
 
-(By the way, that repetetively nesting structure in list-item-view is
+(By the way, that repetitively nesting structure in list-item-view is
 a perfect candidate for a Clojure macro. I'll leave that as an
 exercise for you, Dear Reader.)
 
