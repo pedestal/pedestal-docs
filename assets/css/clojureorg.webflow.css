@@ -355,27 +355,6 @@ pre {
   padding-top: 6px;
 }
 
-.clj-get-started-button {
-  display: inline-block;
-  padding: 4px 8px;
-  border: 1px solid #009245;
-  border-radius: 12px;
-  background-image: -webkit-linear-gradient(#4165a2, #385693);
-  background-image: linear-gradient(#4165a2, #385693);
-  color: white;
-  font-size: 18px;
-  font-weight: 400;
-  text-align: center;
-  text-decoration: none;
-}
-
-.clj-get-started-button:hover {
-  color: white;
-}
-.clj-get-started-button:visited {
-  color: white;
-}
-
 .clj-home-intro-section {
   padding-top: 25px;
   padding-bottom: 25px;
