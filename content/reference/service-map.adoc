@@ -170,7 +170,10 @@ The allowed values are:
 
 When a value for `::http/enable-csrf` is present, the
 link:../api/io.pedestal.http.csrf.html#var-anti-forgery[anti-forgery]
-interceptor is added to the queue. This implies sessions are enabled. The value must be a map with the following keys:
+interceptor is added to the queue. This implies that support for HTTP sessions are enabled (Pedestal will add the
+necessary interceptor automatically).
+
+The value must be a map with the following keys:
 
 |===
 | Key | Value type | Description

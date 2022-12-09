@@ -112,7 +112,7 @@ Next, change the `routes` function:
 ```
 
 Notice that backtick character before `hello-handler`.  That's Clojure's _syntax quote_; like a single quote,
-it keeps `hello-handler` from being evaluated, but unlike single quote, the symbol is fully qualified.  It's the
+it keeps `hello-handler` from being evaluated, but unlike single quote, the symbol is namespace qualified.  It's the
 equivalent of `'org.example.hello/hello-handler`.
 
 To understand what's going on here, we must consider a key stage in Pedestal: _route expansion_.

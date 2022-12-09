@@ -70,7 +70,7 @@ A basic interceptor is shown here.
   {:name ::attach-gui  ;; <1>
    :enter (fn [context] (assoc context ::guid (random-uuid)))})
 ----
-<1> An interceptor may optionally have a :name key, which is usually a fully qualified keyword. This
+<1> An interceptor may optionally have a :name key, which is usually a namespace qualified keyword. This
 may be used in some debug logging during interceptor chain execution.
 
 This interceptor has only the `:enter` function. Interceptors

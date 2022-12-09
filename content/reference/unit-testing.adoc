@@ -187,7 +187,7 @@ Here's an example:
                                                  :path-params {:id 1}
                                                  :query-params {:sort "ASC"})))))
 ----
-<1> The fully qualified symbol for `user-items` will be the default route name (as a keyword)
+<1> The namespace qualified symbol for `user-items` will be the default route name (as a keyword)
 <2> The route name is used to get the URL back
 
 ==== Testing Async interactions

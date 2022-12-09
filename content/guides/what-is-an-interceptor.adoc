@@ -157,7 +157,7 @@ for HTTP handling in a web framework. In fact, the base of Pedestal's HTTP handl
 from the link:../api/io.pedestal.http.html[pedestal.service]
 module. Interceptor invocation and handling comes from
 link:../api/io.pedestal.interceptor.html[pedestal.interceptor]
-which doesn't depend at pedestal.service.
+which doesn't depend on pedestal.service.
 
 For example, there is a project that lets you invoke a chain of
 interceptors when a message arrives on a link:https://github.com/cognitect-labs/pedestal.kafka[Kafka topic]. You could invoke
@@ -259,7 +259,7 @@ to create the Interceptor records. This is because we'll be
 Interceptors added the service's routes can be simple maps (and various other things, such as Vars and symbols); they will be
 expanded into interceptor records automatically.
 Interceptors that are dynamically enqueued by your application code must already be interceptor records, via
-the `interceptor` function.
+the link:../api/io.pedestal.interceptor.html#var-interceptor[interceptor] function.
 --
 
 Now, these interceptors aren't very interesting, but there are two of
@@ -278,9 +278,11 @@ Be careful with the call to `enqueue`. It's meant to add many interceptors at on
 
 Restart your server (since we're not running in dev mode, we don't get automatic reloading) and try it out with cURL. You should be able to get any of the three responses. If you get an internal server error, it means there's something wrong in the code.
 
-=== Interceptors or Middleware
+=== Interceptors vs. Middleware
 
-The very first motivation for Pedestal was the ability to make on-the-fly decisions about how to handle requests. Middleware models wrap up the whole processing chain in function closures. Not only are they opaque, but the decisions are all made at compile time. In contrast, Pedestal treats the processing chain like a virtual call stack, or a malleable program to execute; its malleable because you can enqueue new interceptors for execution.
+The very first motivation for Pedestal was the ability to make on-the-fly decisions about how to handle requests. Middleware models wrap up the whole processing chain in function closures -- a stack of functions wrapping other functions.
+
+Not only are such function stacks opaque, but the decisions are all made at compile time. In contrast, Pedestal treats the processing chain like a virtual call stack, or a malleable program to execute; its malleable because any interceptor can decide to enqueue new interceptors for execution.
 
 === Some Practical Applications
 
@@ -351,7 +353,7 @@ include::what-is-an-interceptor-src/src/intc/service.clj[tags=error-i]
 This works, but it's still a bit noisy.  This is a common enough problem that Pedestal has a helper for it,
 link:../api/io.pedestal.interceptor.error.html#var-error-dispatch[error-dispatch].
 
-Let's rewrite `number-format-handler` using to `error-dispatch` to create the interceptor for us.
+Let's rewrite `number-format-handler` using `error-dispatch` to create the interceptor for us.
 
 [[app-listing]]
 [source,clojure]
@@ -378,7 +380,7 @@ What can you provide instead of a map?
 
 - An `Interceptor` record stays as is
 - A bare function is treated as a handler
-- A fully qualified symbol is passed to `resolve`; the result is then turned into an Interceptor
+- A namespace qualified symbol is passed to `resolve`; the result is then turned into an Interceptor
 - A Var is passed to `deref`; the result is then turned into an Interceptor
 - A list is passed to `eval` ... it's treated like a function call; the result is then turned into an Interceptor
 
@@ -391,7 +393,7 @@ be a response map, which is dutifully attached as the `:response` key of the con
 
 The link:../api/io.pedestal.interceptor.html#var-interceptor[interceptor] function is used to
 convert values into Interceptors; it also checks that at least one of `:enter`, `:leave`, and `:error` is
-present.
+provided.
 
 == The Path So Far
 
