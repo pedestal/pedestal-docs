@@ -43,7 +43,7 @@ If you get stuck at any point in this guide, please submit an
 https://github.com/pedestal/docs/issues[issue] about this guide or hop
 over to the
 https://groups.google.com/forum/#!forum/pedestal-users[mailing list]
-and raise your hand there. You can often find help in the "pedestal"
+and raise your hand there. You can often find help in the `#pedestal`
 channel of the https://clojurians.slack.com[Clojurians Slack team.]
 
 == Where We Are Going
@@ -100,7 +100,7 @@ include::what-is-an-interceptor-src/src/intc/service.clj[tags=start;run_service]
 <1> We will fill in a route shortly
 <2> Run on port 8822
 <3> Give back our REPL thread after starting
-<4> Use Jetty
+<4> Start a Jetty server to handle HTTP requests
 <5> Use the routes from <1>
 <6> Expand this "starter" service map into a ready-to-run map
 <7> Run it
@@ -115,10 +115,17 @@ Clojure: you can pass it to a function or get it back as a return
 value. You could put it in an atom, a ref, an agent, or pass it on a
 channel.
 
+Importantly, an interceptor is a _shared_ value: any number of requests may be processed
+at the same time by a server, and an interceptor in that service's routes may be simultaneously
+invoked across many threads at the same time.  Likewise, a single interceptor may be added
+to multiple routes.
+
 The simplest way to create an interceptor is by just making a map. Any
 map that has at least one key of `:enter`, `:leave`, or `:error` can
-be used as an interceptor. Each of those keys should have a function
-of one variable.
+be used as an interceptor.
+
+The `:enter` and `:leave` functions take a single argument, the context;
+the `:error` function takes two arguments: the context, and an exception.
 
 We'll create a really basic interceptor that responds to every HTTP
 request with "Hello, world!".
@@ -135,7 +142,7 @@ map. That means the map is evaluated at compile time.
 
 Second, the map has a `:name` key. That's not one of the required
 keys, but if it exists, Pedestal will print it in some debug messages
-and logs. It can help you narrow down a problem later.
+and logs. Having the logging tied back to the specific interceptor can help you narrow down problems later.
 
 The `:enter` key is where things get a little more interesting. (A
 little, but not much. It's just "hello world" after all.) Note that it
@@ -146,11 +153,11 @@ link:../reference/servlet-interceptor[Servlet Interceptor] looks for.
 This is where we have to start being precise about the difference
 between an interceptor and how it gets invoked. "Interceptor" is a very
 general concept. It can be used in a lot of different ways, not just
-for HTTP handling in a web framework. In fact, HTTP handling comes
-from the link:../api/index.html[pedestal.service]
+for HTTP handling in a web framework. In fact, the base of Pedestal's HTTP handling comes
+from the link:../api/io.pedestal.http.html[pedestal.service]
 module. Interceptor invocation and handling comes from
-link:../api/index.html[pedestal.interceptor]
-which doesn't depend at all on pedestal.service.
+link:../api/io.pedestal.interceptor.html[pedestal.interceptor]
+which doesn't depend on pedestal.service.
 
 For example, there is a project that lets you invoke a chain of
 interceptors when a message arrives on a link:https://github.com/cognitect-labs/pedestal.kafka[Kafka topic]. You could invoke
@@ -187,8 +194,12 @@ Handling>> below for all the gory details.
 
 == The Queue and the Stack
 
-Pedestal starts running interceptors when you call the
-link:../api/io.pedestal.interceptor.chain.html#var-execute[io.pedestal.interceptor.chain/execute] function. You can call `execute` with an empty context and a collection of interceptors, or you can call it with a context that already has interceptors enqueued. (In the former case, Pedestal just enqueues the interceptors on the context then calls the second form.)
+Pedestal starts running interceptors when the
+link:../api/io.pedestal.interceptor.chain.html#var-execute[io.pedestal.interceptor.chain/execute] function is invoked.
+Normally, this the job of the link:../reference/chain-providers[chain provider]; in HTTP terms,
+a servlet is plugged into Jetty and the servlet kicks off the interceptor chain by invoking `execute`.
+
+Your code can call `execute` with an empty context and a collection of interceptors, or you can call it with a context that already has interceptors enqueued. (In the former case, Pedestal just enqueues the interceptors on the context then calls the second form.)
 
 Suppose we start with three interceptors in the queue, like this.
 
@@ -240,7 +251,16 @@ include::what-is-an-interceptor-src/src/intc/service.clj[tags=new_players]
 ----
 Notice how we use the `io.pedestal.interceptor/interceptor` function
 to create the Interceptor records. This is because we'll be
-enqueue'ing them during request processing.
+`enqueue`-ing them during request processing.
+
+[TIP]
+.*Interceptors vs. Maps*
+--
+Interceptors added the service's routes can be simple maps (and various other things, such as Vars and symbols); they will be
+expanded into interceptor records automatically.
+Interceptors that are dynamically enqueued by your application code must already be interceptor records, via
+the link:../api/io.pedestal.interceptor.html#var-interceptor[interceptor] function.
+--
 
 Now, these interceptors aren't very interesting, but there are two of
 them. Here's how we are going to choose which one to run.
@@ -258,9 +278,11 @@ Be careful with the call to `enqueue`. It's meant to add many interceptors at on
 
 Restart your server (since we're not running in dev mode, we don't get automatic reloading) and try it out with cURL. You should be able to get any of the three responses. If you get an internal server error, it means there's something wrong in the code.
 
-=== Interceptors or Middleware
+=== Interceptors vs. Middleware
 
-The very first motivation for Pedestal was the ability to make on-the-fly decisions about how to handle requests. Middleware models wrap up the whole processing chain in function closures. Not only are they opaque, but the decisions are all made at compile time. In contrast, Pedestal treats the processing chain like a virtual call stack, or a malleable program to execute.
+The very first motivation for Pedestal was the ability to make on-the-fly decisions about how to handle requests. Middleware models wrap up the whole processing chain in function closures -- a stack of functions wrapping other functions.
+
+Not only are such function stacks opaque, but the decisions are all made at compile time. In contrast, Pedestal treats the processing chain like a virtual call stack, or a malleable program to execute; its malleable because any interceptor can decide to enqueue new interceptors for execution.
 
 === Some Practical Applications
 
@@ -297,9 +319,27 @@ Our data "science" interceptor is pretty small, but it still does just a bit too
 include::what-is-an-interceptor-src/src/intc/service.clj[tags=chooser2]
 ----
 
-We get the dreaded "Internal server error." We can do much better if we create an error handler. Any interceptor with an `:error` function gets asked (very politely) if it can handle the exception. Pedestal does this by calling the `:error` function with the  context map and an ex-info that wraps the original exception. (See the link:../reference/error-handling[error handling reference] for all the gory details.)
+If the `n` query parameter isn't an integer, then the request will fail
+with the dreaded "Internal server error." and a 500 response.
 
-We can make an interceptor that handles NumberFormatException like this:
+We've failed our users by not providing them with the feedback they need, in our response,
+to understand why the request failed.  We should fail with a 400 (Bad Request) response and
+an understandable error message as the response body.
+
+You might be tempted to simply wrap the call to `Integer/parseInt` in a `try/catch` block ... BUT,
+that will only catch a single case; what happens when your application grows and there are multiple places
+that numbers need to be parsed?
+
+What we want is to catch _any_ `NumberFormatException` and provide a reasonable response.
+If we were using normal functions calling functions, we could shift the `try/catch` out, higher; since
+we are using an interceptor chain, we instead can use an Interceptor to handle these errors.
+
+When an interceptor throws an exception, Pedestal will begin to search up the stack of interceptors
+for a interceptor with an `:error` function.
+
+Pedestal calls the `:error` function with the context map and an exception object that wraps the original exception. (See the link:../reference/error-handling[error handling reference] for all the gory details.)
+
+We can make an interceptor that handles `NumberFormatException` as so:
 
 [[app-listing]]
 [source,clojure]
@@ -310,7 +350,10 @@ include::what-is-an-interceptor-src/src/intc/service.clj[tags=error-i]
 <2> Create a response for our specific error of interest.
 <3> Tell Pedestal to keep looking for an error handler for anything else. (I.e., "rethrow" the exception.)
 
-This works, but it's still a bit noisy. Let's rewrite it using link:../api/io.pedestal.interceptor.error.html#var-error-dispatch[error-dispatch] to create the interceptor for us.
+This works, but it's still a bit noisy.  This is a common enough problem that Pedestal has a helper for it,
+link:../api/io.pedestal.interceptor.error.html#var-error-dispatch[error-dispatch].
+
+Let's rewrite `number-format-handler` using `error-dispatch` to create the interceptor for us.
 
 [[app-listing]]
 [source,clojure]
@@ -320,7 +363,37 @@ include::what-is-an-interceptor-src/src/intc/service.clj[tags=error-dispatch]
 <1> Use pattern matching to select which exceptions we handle.
 <2> Generate a response. Any exceptions that don't match a pattern automatically get rethrown.
 
-Much nicer!
+This recreates the same logic as before: handle `NumberFormatException`, or resume searching for
+an Interceptor that can handle the original exception; it's just very concise.
+
+There's a link:../reference/error-handling#_error_dispatch_interceptor[reference to error-dispatch]
+that explains in more detail what you can match on and how.
+
+
+== IntoInterceptor
+
+When you specify an interceptor to Pedestal, you don't have to provide a map; in places where an
+interceptor is expected, the value you provide is converted to an interceptor using the
+`IntoInterceptor` protocol.
+
+What can you provide instead of a map?
+
+- An `Interceptor` record stays as is
+- A bare function is treated as a handler
+- A namespace qualified symbol is passed to `resolve`; the result is then turned into an Interceptor
+- A Var is passed to `deref`; the result is then turned into an Interceptor
+- A list is passed to `eval` ... it's treated like a function call; the result is then turned into an Interceptor
+
+All of these are handled to make route specifications more readable and concise, or to support
+link:live-repl[live reloading of code into the REPL during development].
+
+So, what's a handler?  It's a narrow-focused version of an interceptor that is triggered on `:enter`;
+the handler function is passed just the `:request` map from context, and the response is expected to
+be a response map, which is dutifully attached as the `:response` key of the context.
+
+The link:../api/io.pedestal.interceptor.html#var-interceptor[interceptor] function is used to
+convert values into Interceptors; it also checks that at least one of `:enter`, `:leave`, and `:error` is
+provided.
 
 == The Path So Far
 
@@ -331,10 +404,6 @@ In this guide, we've gotten into some of the deep inner workings of Pedestal. Yo
 * How to split your application logic into smaller pieces using interceptors.
 * How to handle errors
 
-*For pedagogical purposes this guide represented some interceptors as
-maps and some interceptors as Interceptor records. In practice, it's
-recommended to use `io.pedestal.interceptor/interceptor` when
-constructing interceptors.*
 
 == Where To Next?
 

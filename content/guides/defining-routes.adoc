@@ -110,12 +110,12 @@ The simplest route has just a URL, an HTTP verb, and a handler:
 ["/users" :get view-users]
 ----
 
-In this case, view-users is anything that can be resolved as an
+In this case, `view-users` is anything that can be resolved as an
 interceptor:
 
-- An interceptor record
+- An Interceptor record
 - A function that returns an interceptor (the function must be annotated as `^:interceptor-fn`)
-- A request handler (really a special case of interceptor)
+- A request handler function (really a special case of interceptor)
 
 == Building handlers
 
@@ -183,16 +183,18 @@ The path parameters are always delivered as strings. The strings are
 HTTP decoded for you, but are not otherwise converted.
 
 [WARNING]
-.Path parameter decoding issue
-=====================================================================
-Path parameter decoding is delegated to a pluggable interceptor
-(`io.pedestal.http.route/path-params-decoder` by default) as of
-version `0.5.4`. However, it is being called too early in the request
-processing lifecycle. If you need this capability, add it to your
-common interceptor collection. Refer to issue
-link:https://github.com/pedestal/pedestal/issues/588[588] for more
-info.
-=====================================================================
+.*Path parameter decoding issue*
+--
+Path parameter decoding is the responsibility of the
+link:../api/io.pedestal.http.route.html#var-path-params-decoder[path-params-decoder] interceptor (since
+version `0.5.4`). However, the path decoder interceptor is placed too early in the default interceptor list,
+so it executes before the router has executed, and the router is what stores the path params into the request.
+If your applications requires path parameters to be decoded, you must explicitly
+add the `path-params-decoder` to your interceptor list, at the end (after the router).
+
+Refer to issue
+link:https://github.com/pedestal/pedestal/issues/588[588] for more info.
+--
 
 A single path parameter only matches one segment of a URL. One segment
 is just the part between '/' characters. So the route above will _not_
@@ -250,14 +252,14 @@ will have this in the request map:
 So far, all our examples have used :get as the HTTP verb. Pedestal
 supports the following verbs:
 
-   - :get
-   - :put
-   - :post
-   - :delete
-   - :patch
-   - :options
-   - :head
-   - :any
+   - `:get`
+   - `:put`
+   - `:post`
+   - `:delete`
+   - `:patch`
+   - `:options`
+   - `:head`
+   - `:any`
 
 These should look familiar, with the exception of `:any`. `:any` is a
 wildcard verb that allows a route to match any request method. That
@@ -278,9 +280,10 @@ position.
 ----
 
 In this example, `inject-connection` and `auth-required` are
-interceptors. `body-params` is a builtin function (from
-io.pedestal.http.body-params) that returns an interceptor. `view-user`
-is a request-handling function.
+application-specific interceptors.
+link:../api/io.pedestal.http.body-params.html#var-body-params[body-params] is a
+Pedestal function that returns an interceptor.
+`view-user` is a request-handling function.
 
 When a request matches this route, the whole vector of interceptors
 gets pushed onto the context.
@@ -289,7 +292,7 @@ gets pushed onto the context.
 
 The "terse" syntax uses hierarchically nested routes to reuse
 interceptors on subtrees. The table based syntax gives up that
-feature, but allows you to compose interceptors like this:
+feature, but still allows you to compose interceptors:
 
 [source,clojure]
 ----
@@ -300,7 +303,7 @@ feature, but allows you to compose interceptors like this:
 ["/user/:user-id/private" :post (conj common-interceptors view-user)]
 ----
 
-This puts you in charge of composing interceptors using ordinary
+This leaves your code in charge of composing interceptors using ordinary
 Clojure data manipulation.
 
 == Constraints
@@ -339,14 +342,16 @@ literal in the route vector:
 
 The thing about constraints is that they are not used to distinguish
 between otherwise identical routes. They are not for disambiguation.
-Rather, constraints are used to _reject_ requests that don't match the
-constraints. What happens next depends on which router is being used.
+Rather, constraints are used to _reject_ requests match the rest of the route but
+don't match the constraints.
+
+What happens after such a rejection depends on which router is being used.
 
 |===
 | Router | Behavior on Failed Constraint
 
-| Prefix tree | Abort and return 404
-| Map tree    | Abort and return 404
+| Prefix tree | Abort and return a 404 response
+| Map tree    | Abort and return a 404 response
 | Linear search | Continue searching remaining routes
 |===
 
@@ -361,21 +366,21 @@ the route vector:
 ["/user" :get view-user :route-name :view-user-profile]
 ----
 
-A route name must be a keyword.
+A route name must be a keyword.   Most commonly, it is a namespaced qualified keyword.
 
 The route name comes before `:constraints`, so if you have both, the
 order is as follows
 
-   1. Path
-   2. Verb
-   3. Interceptors
-   4. Route name clause (:route-name :your-route-name)
-   5. Constraints clause (:constraints _constraint-map_)
+   1. Path - String
+   2. Verb - keyword (e.g., `:get`)
+   3. Interceptors - vector
+   4. Route name clause (`:route-name` _your-route-name_)
+   5. Constraints clause (`:constraints` _constraint-map_)
 
 === Default Route Names
 
 You'll notice that none of the examples before now have a
-`:route-name` section. If you don't explicitly specify a route name,
+`:route-name` clause. When there is no explicit route name,
 Pedestal will pick one for you. It uses the `:name` of the last
 interceptor in the interceptor vector (after resolving functions to
 interceptors.) Most of the time, you'll have different handler

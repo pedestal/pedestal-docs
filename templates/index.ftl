@@ -7,7 +7,7 @@
           <div class="clj-header-message">Pedestal is a <span class="clj-header-message-highlight">sturdy and reliable</span> base for <span class="clj-header-message-highlight">services and APIs</span>.</div>
         </div>
         <div class="w-col w-col-4">
-          <div class="clj-download-button-container"><a href="https://github.com/pedestal/pedestal#getting-the-latest-release" class="w-button clj-download-button">Get&nbsp;Pedestal</a>
+          <div class="clj-download-button-container"><a href="guides/hello-world" class="w-button clj-download-button">Get&nbsp;Started</a>
           </div>
         </div>
       </div>

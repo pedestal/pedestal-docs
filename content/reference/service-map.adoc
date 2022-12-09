@@ -18,7 +18,7 @@ default set of interceptors.
 A _server_ is just the part of the overall system that listens for requests and sends responses; it's
 the part most closely tied to your underlying servlet container (Jetty, Tomcat, and so forth).
 The _service_ runs the show: it's the server plus everything else: chain provider, the interceptors
-(including those for routing), and so forth.
+(including those responsible for routing), and so forth.
 --
 
 An application creates the service map and passes it to
@@ -154,18 +154,26 @@ NOTE: In the details below, `::http` is an alias to `:io.pedestal.http`.
 
 |===
 
-=== CORS
+=== Cross-Origin Resource Sharing (CORS)
 
-If the ::http/allowed-origins key is non-`nil`, this interceptor
-is added. The default is `nil`. The allowed values are:
+If the `::http/allowed-origins` key is non-`nil`, the
+link:../api/io.pedestal.http.cors.html#var-allow-origin[allow-origin]
+interceptor is added. The default is `nil`.
+
+The allowed values are:
 
 - a function of one argument that returns a truthy value when an origin is allowed;
 - a map containing the following keys and values `:allowed-origins` sequence of strings or a function, `:creds` boolean indicating whether the client is allowed to send credentials, `:max-age` a long indicating the number of seconds a client should cache the response, and :methods, indicating the accepted HTTP methods, defaulting to "GET, POST, PUT, DELETE, HEAD, PATCH, OPTIONS";
 - a sequence of strings matching the the scheme, host and port (`scheme://host:port`) of allowed origins.
 
-=== CSRF
+=== Cross-Site Request Forgery (CSRF)
 
-When a value for `::http/enable-csrf` is present, the CSRF interceptor is added to the queue. This implies sessions are enabled. The value must be a map with the following keys:
+When a value for `::http/enable-csrf` is present, the
+link:../api/io.pedestal.http.csrf.html#var-anti-forgery[anti-forgery]
+interceptor is added to the queue. This implies that support for HTTP sessions are enabled (Pedestal will add the
+necessary interceptor automatically).
+
+The value must be a map with the following keys:
 
 |===
 | Key | Value type | Description

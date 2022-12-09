@@ -110,7 +110,7 @@ When the argument to `expand-routes` is a *set*, it will be expanded using the t
 In table syntax, each route is a vector of:
 
 1. Path string
-2. Verb. One of :any, :get, :put, :post, :delete, :patch, :options, :head
+2. Verb. One of `:any`, `:get`, `:put`, `:post`, `:delete`, `:patch``, `:options`, or `:head`
 3. A single handler, or a vector of interceptors
 4. Optional route name clause
 5. Optional constraint clause
@@ -142,8 +142,8 @@ When multiple routes use the same path, they must differ by both verb and route 
     ["/user/:id"  :get  `view-user
      :route-name :view-user :constraints {:id #"[0-9]+"}]})
 ----
-<1> Note the use of a backtick; this ensures that the `list-orders` symbol is expanded to a fully qualified symbol,
-not the value of `list-orders`.  This fully qualified symbol will be used to derive the route name as a fully qualified
+<1> Note the use of a backtick; this ensures that the `list-orders` symbol is expanded to a namespace qualified symbol,
+not the value of `new-user`.  This namespace qualified symbol will be used to derive the route name as a namespace qualified
 keyword, and the actual interceptor or handler will be the resolved value of the symbol.  In many cases, it makes sense
 to wrap the entire route specification (here, the outer set) with a back-tick.
 
@@ -176,7 +176,7 @@ to a function, the route name will be derived from the function.
 
 === Terse Syntax
 
-The terse syntax is designed to remove a fair amount of repetition in the table symtax;
+The terse syntax is designed to remove a fair amount of repetition in the table syntax;
 it exploits the structure of the request path to allow for multiple routes at the same
 path (but with different HTTP methods), and nested paths.  This pattern is very common
 when building a REST-style interface.
@@ -231,12 +231,12 @@ The allowed keys in a verb map are:
 
 The value of each key is one of:
 
-* A fully qualified symbol for a handler function
+* A namespace qualified symbol for a handler function
 * An interceptor
 * A vector containing (in the following order):
 ** A keyword representing the unique route name
 ** An optional interceptor vector with `^:interceptors` metadata
-** An interceptor or fully qualified symbol for a handler function
+** An interceptor or namespace qualified symbol for a handler function
 
 Each verb in the verb map defines a route on the path. This example
 defines four routes.
@@ -292,7 +292,7 @@ routes.
 
 == Routers
 
-Pedestal includes several different Routers; this reflects not only the evolution of the Pedestal library,
+Pedestal includes several Routers; this reflects not only the evolution of the Pedestal library,
 but also allows for different trade-offs in the algorithm used by each Router.  In rare cases, an application
 can provide its own Router rather than use one of Pedestal's.
 
