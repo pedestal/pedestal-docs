@@ -135,7 +135,7 @@ $ mkdir src
 
 Now we're going to create a file under "src" to hold our code. Call it
 "src/hello.clj". It's going to start with a "namespace declaration". This
-tell Clojure what namespace to put the code into. (If you're a Java
+tells Clojure what namespace to put the code into. (If you're a Java
 programmer, you can think of a namespace as similar to a package
 name.)
 
@@ -195,7 +195,7 @@ code! Let's pause for a moment to talk about the next steps. We're
 making a web service that can say hello. That means we need to do some
 basic things:
 
-1. Listen to on a socket for HTTP requests.
+1. Listen on a socket for HTTP requests.
 2. Figure out what any given request means.
 3. Make a response to that request.
 
@@ -226,7 +226,7 @@ The map has two keys and their values:
 * `:body`   "Hello, world!"
 
 That's the whole thing. When our function returns that map, Pedestal
-will translate that into a full HTTP response complete with content
+will translate that into a full HTTP response complete with a content
 type header and everything. (Later on, we'll see how to take control
 of the link:hello-world-content-types[whole response]. For now we're
 just taking the easy road.)
@@ -317,7 +317,7 @@ user=> hello/respond-hello
 ----
 
 This arcane output tells us that the symbol `respond-hello` in the
-namespace `hello` is an object. It happens to be function object. Why
+namespace `hello` is an object. It happens to be a function object. Why
 did Clojure print a function object at us? Because we told it to
 evaluate the symbol, when we probably wanted it to call the
 function. Like http://www.smbc-comics.com/?id=2491[Batman], our symbol
@@ -351,8 +351,8 @@ include::hello/src/hello.clj[tags=routing]
 <1> We specify routes in a short notation, but they must be expanded and turned into a Router for use.
 <2> This is the "table syntax". There are link:../reference/defining-routes[others available].
 
-This one route says that incoming HTTP GET requests with the query
-string '/greet' should call the function `respond-hello`, and that
+This one route says that incoming HTTP GET requests with the URI path 
+'/greet' should call the function `respond-hello`, and that
 we're naming this route `:greet`. Every route must have a unique
 name. Sometimes Pedestal can automatically assign a name for your
 route, but we'll get to that later.
@@ -383,7 +383,7 @@ magic keyword `:prefix-tree`, then the query string and HTTP verb.
 
 When there's a match, `try-routing-for` returns the route that
 succeeded. When there's no match, it returns nil. So the output shows
-that a GET to "/greet" will be match, but a PUT or POST will not. When
+that a GET to "/greet" will be a match, but a PUT or POST will not. When
 no route matches, Pedestal returns a 404 response.
 
 You might also notice that the output on the matching route has a
