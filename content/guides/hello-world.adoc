@@ -381,6 +381,10 @@ The function `try-routing-for` lets us ask "What would Pedestal do?"
 with an incoming HTTP request. We gave it our table of one route, a
 magic keyword `:prefix-tree`, then the query string and HTTP verb.
 
+`try-routing-for` uses the example routing table, from `hello/routes`, and the router type, `:prefix-tree`,
+to create a temporary router; it then passes the provided method (`:get`) and path, `"/greet"`,
+so see how it would be routed;  return an expanded routing entry if matched.
+
 When there's a match, `try-routing-for` returns the route that
 succeeded. When there's no match, it returns nil. So the output shows
 that a GET to "/greet" will be match, but a PUT or POST will not. When
@@ -390,6 +394,9 @@ You might also notice that the output on the matching route has a
 bunch of stuff that wasn't there in our input to `expand-routes`. In
 fact, it is exactly the job of `expand-routes` to add all that extra
 stuff that Pedestal needs but we don't want to type.
+
+Importantly, one part of the data returned is the `:interceptor` list; these are interceptors that, in normal operation,
+Pedestal would queue up to do the work of the matched route.
 
 == Hooking It All Up
 

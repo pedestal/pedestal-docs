@@ -13,14 +13,16 @@ Cognitect
 * link:hello-world-content-types[Hello, world! with content types]
 * link:your-first-api[Your First API]
 * link:defining-routes[Defining Routes]
-* link:sse[Server-Sent Events (SSE)]
 * link:what-is-an-interceptor[What is an Interceptor?]
-
-== Using Pedestal With ...
-
-* link:pedestal-with-component[Component]
 
 == Interactive Development
 
 * link:developing-at-the-repl[Developing at the REPL]
 * link:live-repl[Reloading at the REPL]
+
+== Beyond the Basics
+
+* link:sse[Server-Sent Events (SSE)]
+* link:async[Async Reqeuest Processing]
+* link:pedestal-with-component[Using Pedestal with Component]
+* link:war-deployment[Deploying Pedestal Applications as WARs]

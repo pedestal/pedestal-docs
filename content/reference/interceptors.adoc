@@ -192,16 +192,15 @@ expect an asynchronous response.
 .*Chaining With Async Interceptors*
 --
 Any interceptor downstream of an asynchronous interceptor will be executed in the `core.async` thread pool.
-This can be problematic if any later interceptor or handler performs any blocking I/O.  Generally speaking,
-if any interceptor is asynchronous, all following non-trivial interceptors should also be asynchronous.
+This can be problematic if any later interceptor or handler performs any blocking I/O, as the thread pool is a fixed
+size. Generally speaking, if any interceptor is asynchronous, all following non-trivial interceptors should also be asynchronous.
 
-
-Trivial interceptors do short computations or changes to the context map; they do not perform any I/O or other
-operations that could block the thread they execute on.
+Trivial interceptors do short computations or make changes to the context map; they do not perform any I/O or other
+operations that could block the thread they execute on, such as any file or socket I/O.
 
 When an interceptor returns a channel, the request processing thread can be returned to the servlet container.
 This may allow another pending request to be processed while the initial request is parked, waiting for
-a response from the authentication system.
+(in the above example) a response from the authentication system.
 --
 
 === IntoInterceptor
@@ -255,7 +254,8 @@ to push more interceptors onto the queue.
 
 Use
 link:../api/io.pedestal.interceptor.chain.html#var-terminate[`terminate`]
-if processing should not continue.
+if processing should not continue - though normally, this is accomplished
+by attaching a :response map to the link:context-map[context map].
 
 [IMPORTANT]
 .*Interceptor Records*
