@@ -23,7 +23,8 @@ logic to handle.
 An interceptor is a pair of unary functions footnoteref:[1, An optional third function is used for error handling.
 An interceptor must provide at least one of `:enter`, `:leave` and `:error`.]: Each function is called
 with a link:context-map[context map] and must return either a context
-map or a core.async channel that will deliver a context map.
+map or a core.async channel that will deliver a context map; the latter case triggers
+link:../guides/async[asynchronous request processing].
 
 Pedestal calls the `:enter` function on the way "in" to handling a
 request. It calls the `:leave` function on the way back "out". This is

@@ -10,6 +10,8 @@ toc::[]
 
 _by {author}_, _{revdate}_
 
+== Introduction
+
 Your servlet container has a maximum number of request processing threads available;
 this is configurable, but (for example) the Jetty container defaults to 50 threads.
 That means if your application receives more than 50 concurrent requests, the later requests
@@ -18,6 +20,8 @@ will be queued for later execution; this means that throughput for any request g
 Many applications spend  much of their time *waiting*: waiting to read from disk, or a database, or for
 a response from some other backend service; in normal processing, than means the request processing thread is blocked,
 doing nothing but taking up space.
+
+== Synchronous Handler
 
 Here is a synchronous handler that needs to wait for something to happen:
 
@@ -33,7 +37,9 @@ Here is a synchronous handler that needs to wait for something to happen:
 
 Because this handler is synchronous, requests for `/takes-time` will
 block until the call to `lengthy-computation` completes, stopping the
-Web server thread from handling other work.
+servlet container thread from handling other work.
+
+== Triggering Async
 
 *If* you need to support more concurrent requests on a single server, and your workload is primarily I/O bound, then
 you should consider asynchronous request processing.
@@ -96,7 +102,7 @@ For more about streaming, see
 link:../reference/streaming[Streaming Responses].
 ****
 
-## Async Interceptor Chains
+== Async Interceptor Chains
 
 In the above example, there was just a single interceptor for the route.  Most applications will have
 many interceptors for any particular route to cover a wide range of cross-functional concerns.
