@@ -9,17 +9,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3.4.0
-      - name: Setup Java
-        uses: actions/setup-java@v3.10.0
+      - uses: sdkman/sdkman-action@v1
         with:
-          java-version: '11'
-          distribution: 'corretto'
-      - name: Install Sdkman
-        run: curl -s "https://get.sdkman.io" | bash
-      - name: Enable Sdkman
-        run:  source "/home/runner/.sdkman/bin/sdkman-init.sh"
-      - name: Install JBake
-        run: sdk install jbake
+          candidate: java
+          version: 11.0.17-amzn
+      - uses: sdkman/sdkman-action@v1
+        with:
+          candidate: jbake
+          version: 2.6.6
       - name: Run JBake
         run: jbake -b
       - name: Copying API docs
