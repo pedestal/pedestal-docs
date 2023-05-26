@@ -3,20 +3,31 @@ on:
   push:
     branches:
       - master
+
+# See https://iocanel.com/2021/09/using-sdkman-in-github-actions/
+
+# We need to set these defaults so that .bashrc is called for each step.
+# This is needed so that sdkman can be properly intialized
+defaults:
+  run:
+    shell: bash -ieo pipefail {0}
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3.4.0
-      - uses: sdkman/sdkman-action@v1-preview-2
-        with:
-          candidate: java
-          version: 11.0.17-amzn
-      - uses: sdkman/sdkman-action@v1-preview-2
-        with:
-          candidate: jbake
-          version: 2.6.6
+      - name: Setup Sdkman
+        run: |
+          curl -s "https://get.sdkman.io" | bash
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          sdkman_auto_answer=false
+          sdkman_selfupdate_enable=false
+      - name: Setup Java and JBake
+        run: |
+          sdk install java 11.0.17-amzn
+          sdk install jbake 2.6.7
       - name: Run JBake
         run: jbake -b
       - name: Copying API docs
