@@ -36,3 +36,16 @@ jobs:
         run: jbake -b
       - name: Copying API docs
         run: cp -r api output
+      - name: Set AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DOCS_AWS_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Upload to AWS
+        run: |
+          aws s3 rm s3://pedestal.io-upload
+          aws s3 cp output/ s3://pedestal.io-upload --recursive --exclude "*" --include "*.[a-z]*"
+          aws s3 cp output/ s3://pedestal.io-upload --recursive --include "*" --exclude "*.[a-z]*" --content-type text/html
+          aws s3 cp script/robots.txt s3://pedestal.io-upload
+      
