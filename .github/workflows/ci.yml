@@ -9,11 +9,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3.4.0
-      - uses: sdkman/sdkman-action@v1
+      - uses: sdkman/sdkman-action@v1-preview-2
         with:
           candidate: java
           version: 11.0.17-amzn
-      - uses: sdkman/sdkman-action@v1
+      - uses: sdkman/sdkman-action@v1-preview-2
         with:
           candidate: jbake
           version: 2.6.6
