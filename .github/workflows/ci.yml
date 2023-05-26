@@ -16,10 +16,10 @@ jobs:
           distribution: 'corretto'
       - name: Install Sdkman
         run: curl -s "https://get.sdkman.io" | bash
+      - name: Enable Sdkman
+        run:  source "/home/runner/.sdkman/bin/sdkman-init.sh"
       - name: Install JBake
         run: sdk install jbake
-      - name: Enable JBake
-        run:  source "/home/runner/.sdkman/bin/sdkman-init.sh"
       - name: Run JBake
         run: jbake -b
       - name: Copying API docs
