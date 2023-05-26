@@ -18,6 +18,8 @@ jobs:
         run: curl -s "https://get.sdkman.io" | bash
       - name: Install JBake
         run: sdk install jbake
+      - name: Enable JBake
+        run:  source "/home/runner/.sdkman/bin/sdkman-init.sh"
       - name: Run JBake
         run: jbake -b
       - name: Copying API docs
