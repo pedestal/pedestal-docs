@@ -16,6 +16,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Set AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DOCS_AWS_ACCESS_KEY }}
+          aws-region: us-east-1
       - name: Checkout
         uses: actions/checkout@v3.4.0
       - name: Setup Java
@@ -36,16 +42,16 @@ jobs:
         run: jbake -b
       - name: Copying API docs
         run: cp -r api output
-      - name: Set AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.DOCS_AWS_ACCESS_KEY }}
-          aws-region: us-east-1
       - name: Upload to AWS
+        # Clear the upload bucket, then copy files with extensions normally,
+        # then copy files with no extension (presumed to be HTML).
+        # Copies to a temporary bucket
         run: |
           aws s3 rm s3://pedestal.io-upload
           aws s3 cp output/ s3://pedestal.io-upload --recursive --exclude "*" --include "*.[a-z]*"
           aws s3 cp output/ s3://pedestal.io-upload --recursive --include "*" --exclude "*.[a-z]*" --content-type text/html
           aws s3 cp script/robots.txt s3://pedestal.io-upload
-      
+        # Sync the temporary bucket to the real bucket (should be super fast).
+        # Goal here was to minimize disruption when rolling out changes.
+      - name: Sync upload to pedestal.io
+        run: aws s3 sync s3://pedestal.io-upload s3:/pedestal.io --delete
