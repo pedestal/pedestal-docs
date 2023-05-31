@@ -22,7 +22,7 @@ processing is done or the attached response map is not valid footnoteref:[1, Res
 | The HTTP status code
 
 | `:headers`
-| N footnoteref:[1]
+| N
 | map of String -> String
 | Response headers sent to the client. Header names are all converted to lower case.
 
@@ -31,3 +31,9 @@ processing is done or the attached response map is not valid footnoteref:[1, Res
 | String, ISeq, File, InputStream
 | The body of the response sent to the client.
 |===
+
+
+Note that code that returns a header should use the proper case version of the header, for example,
+`Content-Type` (not `content-type`); although incoming link:request-map[request headers] are converted
+to lower case, outgoing response headers are left as-is, and some standard interceptors expects
+certain headers to be present with the correct name (such as `Content-Type`).
