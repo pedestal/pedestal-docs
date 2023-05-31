@@ -10,7 +10,7 @@ on:
 # This is needed so that sdkman can be properly intialized
 defaults:
   run:
-    shell: bash -ieo pipefail {0}
+    shell: bash -l
 
 env:
   UPLOAD_BUCKET: s3://pedestal.io-upload
@@ -51,11 +51,11 @@ jobs:
         # then copy files with no extension (presumed to be HTML).
         # Copies to a temporary bucket
         run: |
-          aws s3 rm {{ env.UPLOAD_BUCKET }} 
-          aws s3 cp output/ {{ env.UPLOAD_BUCKET }} --recursive --exclude "*" --include "*.[a-z]*"
-          aws s3 cp output/ {{ env.UPLOAD_BUCKET }} --recursive --include "*" --exclude "*.[a-z]*" --content-type text/html
-          aws s3 cp script/robots.txt {{ env.UPLOAD_BUCKET }}
+          aws s3 rm ${{ env.UPLOAD_BUCKET }} 
+          aws s3 cp output/ ${{ env.UPLOAD_BUCKET }} --recursive --exclude "*" --include "*.[a-z]*"
+          aws s3 cp output/ ${{ env.UPLOAD_BUCKET }} --recursive --include "*" --exclude "*.[a-z]*" --content-type text/html
+          aws s3 cp script/robots.txt ${{ env.UPLOAD_BUCKET }}
         # Sync the temporary bucket to the real bucket (should be super fast).
         # Goal here was to minimize disruption when rolling out changes.
-      - name: Sync upload to {{ env.DEPLOY_BUCKET }}
-        run: aws s3 sync {{ env.UPLOAD_BUCKET }} {{ env.DEPLOY_BUCKET }} --delete
+      - name: Sync upload to deployed
+        run: aws s3 sync ${{ env.UPLOAD_BUCKET }} ${{ env.DEPLOY_BUCKET }} --delete
