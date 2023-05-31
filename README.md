@@ -56,7 +56,7 @@ the `api` directory are merged with the generated content in `output`.
 
 License
 -------
-Copyright 2014-2022 Cognitect, Inc.
+Copyright 2014-2023 Cognitect, Inc.
 
 The use and distribution terms for this software are covered by the
 [Eclipse Public License 1.0](http://opensource.org/licenses/eclipse-1.0)
