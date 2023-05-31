@@ -10,7 +10,7 @@ on:
 # This is needed so that sdkman can be properly intialized
 defaults:
   run:
-    shell: bash -l
+    shell: bash -l {0}
 
 env:
   UPLOAD_BUCKET: s3://pedestal.io-upload
