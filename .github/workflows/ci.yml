@@ -12,6 +12,10 @@ defaults:
   run:
     shell: bash -ieo pipefail {0}
 
+env:
+  UPLOAD_BUCKET: s3://pedestal.io-upload
+  DEPLOY_BUCKET: s3://pedestal.io
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -40,18 +44,18 @@ jobs:
           sdk install jbake 2.6.7
       - name: Run JBake
         run: jbake -b
-      - name: Copying API docs
+      - name: Copy API docs
         run: cp -r api output
       - name: Upload to AWS
         # Clear the upload bucket, then copy files with extensions normally,
         # then copy files with no extension (presumed to be HTML).
         # Copies to a temporary bucket
         run: |
-          aws s3 rm s3://pedestal.io-upload
-          aws s3 cp output/ s3://pedestal.io-upload --recursive --exclude "*" --include "*.[a-z]*"
-          aws s3 cp output/ s3://pedestal.io-upload --recursive --include "*" --exclude "*.[a-z]*" --content-type text/html
-          aws s3 cp script/robots.txt s3://pedestal.io-upload
+          aws s3 rm {{ env.UPLOAD_BUCKET }} 
+          aws s3 cp output/ {{ env.UPLOAD_BUCKET }} --recursive --exclude "*" --include "*.[a-z]*"
+          aws s3 cp output/ {{ env.UPLOAD_BUCKET }} --recursive --include "*" --exclude "*.[a-z]*" --content-type text/html
+          aws s3 cp script/robots.txt {{ env.UPLOAD_BUCKET }}
         # Sync the temporary bucket to the real bucket (should be super fast).
         # Goal here was to minimize disruption when rolling out changes.
-      - name: Sync upload to pedestal.io
-        run: aws s3 sync s3://pedestal.io-upload s3:/pedestal.io --delete
+      - name: Sync upload to {{ env.DEPLOY_BUCKET }}
+        run: aws s3 sync {{ env.UPLOAD_BUCKET }} {{ env.DEPLOY_BUCKET }} --delete
