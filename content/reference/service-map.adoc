@@ -74,7 +74,13 @@ NOTE: In the details below, `::http` is an alias to `:io.pedestal.http`.
 | `::http/host`
 | N
 | String
-| Hostname, e.g., "localhost". Passed to the container. Defaults to `localhost`.
+| Hostname, e.g., "localhost". Passed to the container. Defaults to `localhost` footnoteref:[1,
+`localhost` is a safe default and works with local testing, as your test code will be on the same
+host as the server. However, *only* connections originating on the local host will be accepted.
+For production deployments, however, you will usually set this to be `0.0.0.0`, which
+accepts connections from anywhere.  This is especially true when running
+Pedestal inside a Docker container, as all connections (even those from the host, or
+from another container on the same host) will be network, not localhost, connections.].
 
 | `::http/interceptors`
 | N
