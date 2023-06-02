@@ -182,20 +182,6 @@ map like this:
 The path parameters are always delivered as strings. The strings are
 HTTP decoded for you, but are not otherwise converted.
 
-[WARNING]
-.*Path parameter decoding issue*
---
-Path parameter decoding is the responsibility of the
-link:../api/io.pedestal.http.route.html#var-path-params-decoder[path-params-decoder] interceptor (since
-version `0.5.4`). However, the path decoder interceptor is placed too early in the default interceptor list,
-so it executes before the router has executed, and the router is what stores the path params into the request.
-If your applications requires path parameters to be decoded, you must explicitly
-add the `path-params-decoder` to your interceptor list, at the end (after the router).
-
-Refer to issue
-link:https://github.com/pedestal/pedestal/issues/588[588] for more info.
---
-
 A single path parameter only matches one segment of a URL. One segment
 is just the part between '/' characters. So the route above will _not_
 match `/users/miken/profile/photos/blue-wig.jpg`.
