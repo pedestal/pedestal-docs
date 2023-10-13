@@ -1,6 +1,10 @@
 # JBake ignores
 output/*
 
+# Antora
+
+build/*
+
 # Leiningen ignores
 pom.xml
 pom.xml.asc
