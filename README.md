@@ -33,7 +33,7 @@ Retrieve the content:
 
 Console output will identify the local file URL to load to see the generated site.
 
-The script uses `watchexec` to monitor the `pedestal/docs` folders for changes and (almost instantly!)
+The `local-build.sh` script uses `watchexec` to monitor the `pedestal/docs` folders for changes and (almost instantly!)
 rebuild the output documentation (you'll have to manually refresh your browser). It will also generate
 desktop notifications when it runs, on supported platforms.
 
@@ -55,6 +55,10 @@ NOTE: May change this to a more Antora-friendly approach soon!
 ### Antora Notes
  
 On OS X, Antora stores Git repos in `~/Library/Caches/antora/` by default.
+
+Be careful to keep `antora-playbook.yml` and `local-antora-playbook.yml` in sync.
+
+We are currently using the default Antora UI, with overrides in the `ui-overrides` directory.
 
 License
 -------
