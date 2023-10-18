@@ -20,7 +20,6 @@ content), see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 The site is built using [Antora](https://antora.org/).
 
-
 When building locally, you will need two sibling workspaces: one for this repository, and one for the main
 Pedestal source.
 
@@ -36,6 +35,9 @@ Console output will identify the local file URL to load to see the generated sit
 The `local-build.sh` script uses `watchexec` to monitor the `pedestal/docs` folders for changes and (almost instantly!)
 rebuild the output documentation (you'll have to manually refresh your browser). It will also generate
 desktop notifications when it runs, on supported platforms.
+
+CAUTION: Working inside NuBank will screw up `package-lock.json` file, polluting it with references to NuBank's internal repository; 
+`package-lock.json` has been temporarily added to `.gitignore` until we work out a better approach.
 
 ### Pedestal API Documentation
 
