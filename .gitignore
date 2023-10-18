@@ -1,9 +1,8 @@
-# JBake ignores
-output/*
-
 # Antora
 
 build/*
+
+node_modules/
 
 # Leiningen ignores
 pom.xml

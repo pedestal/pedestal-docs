@@ -1,0 +1,15 @@
+site:
+  title: Pedestal Docs
+  start_page: pedestal::index.adoc
+content:
+  sources:
+  - url: https://github.com/pedestal/pedestal.git
+    branches: hls/antora-docs-0.7 # Temporary!
+    start_path: docs
+ui:
+  bundle:
+    url: https://gitlab.com/antora/antora-ui-default/-/jobs/artifacts/HEAD/raw/build/ui-bundle.zip?job=bundle-stable
+    snapshot: true
+asciidoc:
+  extensions:
+    - lib/pedestal-macros.js

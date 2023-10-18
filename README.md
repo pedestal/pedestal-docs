@@ -51,6 +51,11 @@ the updated API documentation.
 
 NOTE: May change this to a more Antora-friendly approach soon!
 
+
+### Antora Notes
+ 
+On OS X, Antora stores Git repos in `~/Library/Caches/antora/` by default.
+
 License
 -------
 Copyright 2014-2023 Cognitect, Inc.
