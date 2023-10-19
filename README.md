@@ -16,9 +16,15 @@ https://github.com/pedestal/pedestal/issues
 If you wish to make a contribution (typo, modification, or new
 content), see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
-## Building the Site
+## Setup
 
 The site is built using [Antora](https://antora.org/).
+
+* You must have a recent version of [NodeJS](https://nodejs.org/)
+* You need the  [watchexec command](https://github.com/watchexec/watchexec); on OS X: `brew install watchexec`
+* Finally, a local install of Antora: `npm install` will download Antora and its dependencies
+
+## Building the Site
 
 When building locally, you will need two sibling workspaces: one for this repository, and one for the main
 Pedestal source.
@@ -61,6 +67,16 @@ On OS X, Antora stores Git repos in `~/Library/Caches/antora/` by default.
 Be careful to keep `antora-playbook.yml` and `local-antora-playbook.yml` in sync.
 
 We are currently using the default Antora UI, with overrides in the `ui-overrides` directory.
+
+We (at least temporarily) added `package-lock.json` to `.gitignore`, as it kept getting filled up
+with NuBank-specific URLs; this adds some risk that the environment for the GitHub action that does
+the publishing will drift from local.
+
+Some old directories from the jBake build are still present, such as `content`, `assets`,
+and `templates`.  They are being kept for reference as UI updates to the Antora-generated
+site continue.
+
+Publishing of the site is currently to http://pedestal.io/antora/pedestal/0.7-pre/index.html (note the `antora` directory), to keep the current (jBake-generated) site stable.
 
 License
 -------
