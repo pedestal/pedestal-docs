@@ -18,3 +18,13 @@
     background-image: linear-gradient(to top, #5bdf56 6%, rgba(33, 235, 26, 0) 7%);
     color: #5cc70c;
 }
+
+.article.main-page article.doc {
+    max-width: 100%;
+}
+
+.article.main-page article.doc img {
+    margin-top: -90px;
+    width: 300px;
+    margin-left: 60px;
+}
