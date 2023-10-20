@@ -5,14 +5,17 @@
     margin-top: -3.5em;
 }
 
-.header > * {
+.main-header > * {
     max-width: 1070px;
+}
+
+.main-header .navbar {
+    margin: 0 auto;
 }
 
 .navbar {
     position: static;
     background: transparent;
-    margin: 0 auto;
 }
 
 .navbar-brand {
