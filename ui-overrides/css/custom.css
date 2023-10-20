@@ -1,9 +1,30 @@
-.navbar {
+.header {
+    position: fixed;
+    width: 100%;
     background: linear-gradient(to right, #0f2242, #2452a1);
+    margin-top: -3.5em;
+}
+
+.header > * {
+    max-width: 1070px;
+}
+
+.navbar {
+    position: static;
+    background: transparent;
+    margin: 0 auto;
 }
 
 .navbar-brand {
     align-items: center;
+}
+
+.main-secondary-navbar {
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 auto;
 }
 
 .logo-text {
@@ -31,6 +52,28 @@
     margin-left: 60px;
 }
 
+.main-secondary-navbar em {
+    font-style: normal;
+    color: #5cc70c;
+}
+
+.main-secondary-navbar > * {
+    margin: 10px 20px;
+}
+
+.main-secondary-navbar .get-started-button {
+    display: block;
+    border: 1px solid #009245;
+    border-radius: 12px;
+    background-image: -webkit-linear-gradient(#39b54a, #009245);
+    background-image: linear-gradient(#39b54a, #009245);
+    color: white;
+    font-size: 18px;
+    font-weight: 400;
+    text-align: center;
+    padding: 9px 68px;
+}
+
 .main-feature-row {
     display: flex;
     justify-content: space-between;
@@ -47,6 +90,10 @@
     padding-top: 25px;
     padding-bottom: 25px;
     margin-top: 25px;
+}
+
+.main-body {
+    margin-top: 70px;
 }
 
 .doc .features-section h2 {
