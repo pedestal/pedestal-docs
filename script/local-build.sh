@@ -8,4 +8,4 @@ watchexec --clear --notify \
    --watch local-antora-playbook.yml \
    --watch lib \
    --debounce=500ms \
-   npx antora local-antora-playbook.yml
+   npx antora --stacktrace local-antora-playbook.yml
