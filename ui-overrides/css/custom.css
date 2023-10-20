@@ -102,3 +102,9 @@
 .doc .features-section h2 {
     border: none;
 }
+
+footer.footer {
+    padding-top: 25px;
+    background-color: #292d2e;
+    color: #838383;
+}
