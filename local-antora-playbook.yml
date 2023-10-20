@@ -1,5 +1,5 @@
 site:
-  title: Pedestal Docs
+  title: Pedestal
   start_page: pedestal::index.adoc
 content:
   sources:
@@ -16,4 +16,4 @@ asciidoc:
     - lib/pedestal-macros.js
 antora:
   extensions:
-    - '@antora/lunr-extension'    
+    - '@antora/lunr-extension'
