@@ -20,11 +20,35 @@
 }
 
 .article.main-page article.doc {
-    max-width: 100%;
+    max-width: 1070px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .article.main-page article.doc img {
     margin-top: -90px;
     width: 300px;
     margin-left: 60px;
+}
+
+.main-feature-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+}
+
+.main-feature {
+    flex: 1;
+    padding: 0 10px;
+    margin-left: -10px
+}
+
+.features-section {
+    padding-top: 25px;
+    padding-bottom: 25px;
+    margin-top: 25px;
+}
+
+.doc .features-section h2 {
+    border: none;
 }
