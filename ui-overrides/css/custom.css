@@ -30,3 +30,21 @@ footer.footer {
     background-color: #292d2e;
     color: #838383;
 }
+
+.main-feature-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+}
+
+.main-feature {
+    flex: 1;
+    padding: 0 10px;
+    margin-left: -10px
+}
+
+.features-section {
+    padding-top: 25px;
+    padding-bottom: 25px;
+    margin-top: 25px;
+}
