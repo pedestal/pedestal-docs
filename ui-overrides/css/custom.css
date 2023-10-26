@@ -1,33 +1,9 @@
-.header {
-    position: fixed;
-    width: 100%;
-    background: linear-gradient(to right, #0f2242, #2452a1);
-    margin-top: -3.5em;
-}
-
-.main-header > * {
-    max-width: 1070px;
-}
-
-.main-header .navbar {
-    margin: 0 auto;
-}
-
 .navbar {
-    position: static;
-    background: transparent;
+    background: linear-gradient(to right, #0f2242, #2452a1);
 }
 
 .navbar-brand {
     align-items: center;
-}
-
-.main-secondary-navbar {
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 0 auto;
 }
 
 .logo-text {
@@ -43,64 +19,10 @@
     color: #5cc70c;
 }
 
-.article.main-page article.doc {
-    max-width: 1070px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.article.main-page article.doc img {
+/* this is a hack because I couldn't find other way to target this specific image on the main page */
+img[alt="animated front page sample"] {
     margin-top: -90px;
-    width: 300px;
     margin-left: 60px;
-}
-
-.main-secondary-navbar em {
-    font-style: normal;
-    color: #5cc70c;
-}
-
-.main-secondary-navbar > * {
-    margin: 10px 20px;
-}
-
-.main-secondary-navbar .get-started-button {
-    display: block;
-    border: 1px solid #009245;
-    border-radius: 12px;
-    background-image: -webkit-linear-gradient(#39b54a, #009245);
-    background-image: linear-gradient(#39b54a, #009245);
-    color: white;
-    font-size: 18px;
-    font-weight: 400;
-    text-align: center;
-    padding: 9px 68px;
-}
-
-.main-feature-row {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 25px;
-}
-
-.main-feature {
-    flex: 1;
-    padding: 0 10px;
-    margin-left: -10px
-}
-
-.features-section {
-    padding-top: 25px;
-    padding-bottom: 25px;
-    margin-top: 25px;
-}
-
-.main-body {
-    margin-top: 70px;
-}
-
-.doc .features-section h2 {
-    border: none;
 }
 
 footer.footer {
