@@ -68,7 +68,7 @@ A basic interceptor is shown here.
 [source,clojure]
 ----
 (def attach-guid
-  {:name ::attach-gui  ;; <1>
+  {:name ::attach-guid  ;; <1>
    :enter (fn [context] (assoc context ::guid (random-uuid)))})
 ----
 <1> An interceptor may optionally have a :name key, which is usually a namespace qualified keyword. This
