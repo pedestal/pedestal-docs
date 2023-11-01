@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - master
-      - hls/antora # Temporary
 env:
   UPLOAD_BUCKET: s3://pedestal.io-upload
   DEPLOY_BUCKET: s3://pedestal.io

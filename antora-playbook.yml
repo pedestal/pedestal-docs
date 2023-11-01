@@ -4,7 +4,7 @@ site:
 content:
   sources:
   - url: https://github.com/pedestal/pedestal.git
-    branches: hls/antora-docs-0.7 # Temporary!
+    branches: master
     start_path: docs
 ui:
   bundle:
