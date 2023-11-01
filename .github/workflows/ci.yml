@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - master
+  repository_dispatch:
+    types: [pedestal_master_commit]
 env:
   UPLOAD_BUCKET: s3://pedestal.io-upload
   DEPLOY_BUCKET: s3://pedestal.io
