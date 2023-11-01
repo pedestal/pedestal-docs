@@ -3,15 +3,6 @@ on:
   push:
     branches:
       - master
-
-# See https://iocanel.com/2021/09/using-sdkman-in-github-actions/
-
-# We need to set these defaults so that .bashrc is called for each step.
-# This is needed so that sdkman can be properly intialized
-defaults:
-  run:
-    shell: bash -ieo pipefail {0}
-
 env:
   UPLOAD_BUCKET: s3://pedestal.io-upload
   DEPLOY_BUCKET: s3://pedestal.io
@@ -21,41 +12,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4.0.1
         with:
           aws-access-key-id: ${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.DOCS_AWS_ACCESS_KEY }}
           aws-region: us-east-1
       - name: Checkout
-        uses: actions/checkout@v3.4.0
-      - name: Setup Java
-        uses: actions/setup-java@v3.10.0
+        uses: actions/checkout@v4.1.1
+      # TODO: Cache Dependencies
+      - name: Install Node.js
+        uses: actions/setup-node@v3
         with:
-          java-version: '17'
-          distribution: 'corretto'
-      - name: Setup Sdkman
+          node-version: '20'          
+      - name: Install Antora
         run: |
-          curl -s "https://get.sdkman.io" | bash
-          source "$HOME/.sdkman/bin/sdkman-init.sh"
-          sdkman_auto_answer=false
-          sdkman_selfupdate_enable=false
-      - name: Setup JBake
-        run: |
-          sdk install jbake 2.6.7
-      - name: Run JBake
-        run: jbake -b
-      - name: Copy API docs
-        run: cp -r api output
+          npm install --save-dev --save-exact  # Uses package.json, package-lock.json
+          npx antora -v
+      - name: Run Antora
+        # --fetch forces a fetch even if the repo previously exists
+        run: npx antora --fetch antora-playbook.yml
       - name: Upload to AWS
-        # Clear the upload bucket, then copy files with extensions normally,
-        # then copy files with no extension (presumed to be HTML).
-        # Copies to a temporary bucket
+        # Clear the upload bucket, then copy files to the it.
         run: |
-          aws s3 rm ${{ env.UPLOAD_BUCKET }} 
-          aws s3 cp output/ ${{ env.UPLOAD_BUCKET }} --recursive --exclude "*" --include "*.[a-z]*"
-          aws s3 cp output/ ${{ env.UPLOAD_BUCKET }} --recursive --include "*" --exclude "*.[a-z]*" --content-type text/html
+          aws s3 rm ${{ env.UPLOAD_BUCKET }} --recursive
+          aws s3 cp api ${{ env.UPLOAD_BUCKET }}/api --recursive
+          aws s3 cp build/site ${{ env.UPLOAD_BUCKET }} --recursive
           aws s3 cp script/robots.txt ${{ env.UPLOAD_BUCKET }}
+          aws s3 ls ${{ env.UPLOAD_BUCKET }}  # Temporary!
         # Sync the temporary bucket to the real bucket (should be super fast).
         # Goal here was to minimize disruption when rolling out changes.
+      # Temporarily copy to the /antora directory (until docs are ready to go)
       - name: Sync upload to deployed
-        run: aws s3 sync ${{ env.UPLOAD_BUCKET }} ${{ env.DEPLOY_BUCKET }} --delete
+        run: aws s3 sync ${{ env.UPLOAD_BUCKET }} ${{ env.DEPLOY_BUCKET }}/antora --delete

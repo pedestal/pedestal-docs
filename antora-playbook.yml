@@ -1,0 +1,19 @@
+site:
+  title: Pedestal
+  start_page: pedestal::index.adoc
+content:
+  sources:
+  - url: https://github.com/pedestal/pedestal.git
+    branches: master
+    start_path: docs
+ui:
+  bundle:
+    url: https://gitlab.com/antora/antora-ui-default/-/jobs/artifacts/HEAD/raw/build/ui-bundle.zip?job=bundle-stable
+    snapshot: true
+  supplemental_files: ./ui-overrides
+asciidoc:
+  extensions:
+    - lib/pedestal-macros.js
+antora:
+  extensions:
+    - '@antora/lunr-extension'

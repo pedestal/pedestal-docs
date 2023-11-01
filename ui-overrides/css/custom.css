@@ -1,0 +1,50 @@
+.navbar {
+    background: linear-gradient(to right, #0f2242, #2452a1);
+}
+
+.navbar-brand {
+    align-items: center;
+}
+
+.logo-text {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 32px;
+    line-height: 60px;
+    font-weight: 400;
+}
+
+.navbar-end .navbar-item.has-dropdown:hover .navbar-link, .navbar-end .navbar-link:hover, .navbar-end>a.navbar-item:hover {
+    background-color: transparent;
+    background-image: linear-gradient(to top, #5bdf56 6%, rgba(33, 235, 26, 0) 7%);
+    color: #5cc70c;
+}
+
+/* this is a hack because I couldn't find other way to target this specific image on the main page */
+img[alt="animated front page sample"] {
+    margin-top: -90px;
+    margin-left: 60px;
+}
+
+footer.footer {
+    padding-top: 25px;
+    background-color: #292d2e;
+    color: #838383;
+}
+
+.main-feature-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+}
+
+.main-feature {
+    flex: 1;
+    padding: 0 10px;
+    margin-left: -10px
+}
+
+.features-section {
+    padding-top: 25px;
+    padding-bottom: 25px;
+    margin-top: 25px;
+}

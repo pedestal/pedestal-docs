@@ -1,12 +1,15 @@
-# JBake ignores
-output/*
+# Antora
+
+build/*
+package-lock.json
+
+node_modules/
 
 # Leiningen ignores
 pom.xml
 pom.xml.asc
 *.jar
 *.class
-/lib/
 /classes/
 /target/
 /checkouts/
