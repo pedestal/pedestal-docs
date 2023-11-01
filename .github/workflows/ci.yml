@@ -40,7 +40,6 @@ jobs:
           aws s3 cp api ${{ env.UPLOAD_BUCKET }}/api --recursive
           aws s3 cp build/site ${{ env.UPLOAD_BUCKET }} --recursive
           aws s3 cp script/robots.txt ${{ env.UPLOAD_BUCKET }}
-          aws s3 ls ${{ env.UPLOAD_BUCKET }}  # Temporary!
         # Sync the temporary bucket to the real bucket (should be super fast).
         # Goal here was to minimize disruption when rolling out changes.
       - name: Sync upload to deployed
