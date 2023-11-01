@@ -41,6 +41,5 @@ jobs:
           aws s3 ls ${{ env.UPLOAD_BUCKET }}  # Temporary!
         # Sync the temporary bucket to the real bucket (should be super fast).
         # Goal here was to minimize disruption when rolling out changes.
-      # Temporarily copy to the /antora directory (until docs are ready to go)
       - name: Sync upload to deployed
-        run: aws s3 sync ${{ env.UPLOAD_BUCKET }} ${{ env.DEPLOY_BUCKET }}/antora --delete
+        run: aws s3 sync ${{ env.UPLOAD_BUCKET }} ${{ env.DEPLOY_BUCKET }} --delete
