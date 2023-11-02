@@ -48,17 +48,19 @@ CAUTION: Working inside NuBank will screw up `package-lock.json` file, polluting
 ### Pedestal API Documentation
 
 Pedestal API documentation should be updated after each Pedestal release; this is accomplished via
-the `script/gen-api-doc.sh` script.
+the `script/gen-api-doc` script.
 
-This generates API documentation into the `api` directory.  When deploying, the contents of
-the `api` directory are merged with the generated content in `output`.
+You must have [Babashka](https://github.com/babashka/babashka) installed to run this script.
+
+This generates API documentation into the `api` directory; a subdirectory is created, if necessary,
+based on the first two terms of the Pedestal version number (e.g., version `0.7.1-alpha-2` would be
+written to directory `api/0.7`). 
+
+When deploying, the contents of the `api` directory are merged with the generated content in `output`.
 
 The `api` directory is tracked by Git; you should commit and push the changes to ensure that the
 official CI (Continuous Integration, via a GitHub action) build generates the `pedestal.io` site using
 the updated API documentation.
-
-NOTE: May change this to a more Antora-friendly approach soon!
-
 
 ### Antora Notes
  
@@ -76,11 +78,9 @@ Some old directories from the jBake build are still present, such as `content`, 
 and `templates`.  They are being kept for reference as UI updates to the Antora-generated
 site continue.
 
-Publishing of the site is currently to http://pedestal.io/antora/pedestal/0.7-pre/index.html (note the `antora` directory), to keep the current (jBake-generated) site stable.
-
 License
 -------
-Copyright 2014-2023 Cognitect, Inc.
+Copyright 2014-2023 NuBank NA
 
 The use and distribution terms for this software are covered by the
 [Eclipse Public License 1.0](http://opensource.org/licenses/eclipse-1.0)

@@ -1,0 +1,49 @@
+#!/usr/bin/env bb
+
+(ns gen-api-doc
+  (:require [babashka.fs :as fs]
+            [clojure.string :as string]
+            [babashka.process :as process]
+            [clojure.pprint :refer [pprint]]))
+
+(def working-dir (fs/cwd))
+
+(def api-root-dir (fs/path working-dir "api"))
+(def pedestal-root-dir (fs/normalize (fs/path working-dir "../pedestal")))
+
+
+#_(pprint {:working-dir working-dir
+           :api-root-dir api-root-dir
+           :pedestal-root-dir pedestal-root-dir})
+
+(defn fail [& msg]
+  (binding [*out* *err*]
+    (println (apply str "gen-api-doc: " msg))))
+
+(when-not (fs/directory? api-root-dir)
+  (fail api-root-dir " directory does not exist; are you executing from pedestal-docs?"))
+
+(when-not (fs/directory? pedestal-root-dir)
+  (fail pedestal-root-dir " does not exist"))
+
+(def version (-> (fs/path pedestal-root-dir "VERSION.txt")
+                 fs/file
+                 slurp
+                 string/trim))
+
+(def major-version (let [[_ match _] (re-matches #"(\d+\.\d+)\..*" version)]
+                     match))
+
+#_(pprint {:version version :major-version major-version})
+
+(def api-dir (fs/path api-root-dir major-version))
+
+(when-not (fs/exists? api-dir)
+  (fs/create-dir api-dir))
+
+(println (str "Writing documentation to " api-dir " ..."))
+
+(process/shell {:dir pedestal-root-dir}
+               "clojure -T:build"
+               "codox"
+               ":output-path" (str \" api-dir \"))
