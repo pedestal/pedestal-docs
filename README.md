@@ -36,6 +36,13 @@ Retrieve the content:
 * `cd pedestal-docs`
 * `script/local-build.sh`
 
+To build the full site locally (i.e., the way the GitHub action does):
+
+    npx antora --fetch antora-playbook.yml
+
+This will build all versions of Pedestal documentation (currently, the 0.6 and 0.7-pre versions,
+from the 0.6-maint and master branches).
+
 Console output will identify the local file URL to load to see the generated site.
 
 The `local-build.sh` script uses `watchexec` to monitor the `pedestal/docs` folders for changes and (almost instantly!)
