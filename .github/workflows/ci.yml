@@ -30,6 +30,10 @@ jobs:
         run: |
           npm install --save-dev --save-exact  # Uses package.json, package-lock.json
           npx antora -v
+      - name: Docker Cache
+        uses: ScribeMD/docker-cache@0.3.7
+        with:
+          key: docker-${{ runner.os }}-${{ hashFiles(docker-compose.yml) }}          
       - name: Start Kroki
         run: docker compose up -d
       - name: Run Antora
