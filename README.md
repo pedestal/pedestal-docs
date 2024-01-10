@@ -24,6 +24,9 @@ The site is built using [Antora](https://antora.org/).
 * You need the  [watchexec command](https://github.com/watchexec/watchexec); on OS X: `brew install watchexec`
 * Finally, a local install of Antora: `npm install` will download Antora and its dependencies
 
+CAUTION: Working inside NuBank will screw up `package-lock.json` file, polluting it with references to NuBank's internal repository; 
+`package-lock.json` has been temporarily added to `.gitignore` until we work out a better approach.
+
 ## Building the Site
 
 When building locally, you will need two sibling workspaces: one for this repository, and one for the main
@@ -36,21 +39,41 @@ Retrieve the content:
 * `cd pedestal-docs`
 * `script/local-build.sh`
 
+Antora is configured to support diagrams via https://kroki.io/[Kroki]; this involves
+running a local Docker container to support generation of the diagrams.
+
+Before building the site, you must:
+
+    docker compose up -d
+
+This will download the images (they are fairly hefty, so first time will take a while) and start the containers.
+When you are done with documentation, you should `docker compose down`.
+
+### Full Site Build
+
 To build the full site locally (i.e., the way the GitHub action does):
 
     npx antora --fetch antora-playbook.yml
 
-This will build all versions of Pedestal documentation (currently, the 0.6 and 0.7-pre versions,
+This will build all versions of Pedestal documentation (currently, the 0.6 and 0.7 versions,
 from the 0.6-maint and master branches).
 
 Console output will identify the local file URL to load to see the generated site.
 
-The `local-build.sh` script uses `watchexec` to monitor the `pedestal/docs` folders for changes and (almost instantly!)
-rebuild the output documentation (you'll have to manually refresh your browser). It will also generate
-desktop notifications when it runs, on supported platforms.
+This runs once, to completion.
 
-CAUTION: Working inside NuBank will screw up `package-lock.json` file, polluting it with references to NuBank's internal repository; 
-`package-lock.json` has been temporarily added to `.gitignore` until we work out a better approach.
+## Local Site Build
+
+This approach is used when authoring documentation; you must have the Docker images already running.
+
+    script/local-build.sh
+
+This script uses `watchexec` to monitor the `pedestal/docs` folders (and others) for changes and (almost instantly!)
+rebuild the output documentation.
+
+You'll have to manually refresh your browser.
+
+It will also generate desktop notifications when it runs (when on supported platforms).
 
 ### Pedestal API Documentation
 
@@ -87,7 +110,7 @@ site continue.
 
 License
 -------
-Copyright 2014-2023 NuBank NA
+Copyright 2014-2024 NuBank NA
 
 The use and distribution terms for this software are covered by the
 [Eclipse Public License 1.0](http://opensource.org/licenses/eclipse-1.0)

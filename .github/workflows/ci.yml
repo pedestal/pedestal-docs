@@ -30,9 +30,13 @@ jobs:
         run: |
           npm install --save-dev --save-exact  # Uses package.json, package-lock.json
           npx antora -v
+      - name: Start Kroki
+        run: docker compose up -d
       - name: Run Antora
         # --fetch forces a fetch even if the repo previously exists
         run: npx antora --fetch antora-playbook.yml
+      - name: Stop Kroki
+        run: docker compose down
       - name: Upload to AWS
         # Clear the upload bucket, then copy files to the it.
         run: |
