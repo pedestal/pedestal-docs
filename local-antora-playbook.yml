@@ -1,5 +1,5 @@
 site:
-  title: Pedestal
+  title: Pedestal - Local
   start_page: pedestal::index.adoc
 content:
   sources:
