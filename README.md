@@ -39,7 +39,7 @@ Retrieve the content:
 * `cd pedestal-docs`
 * `script/local-build.sh`
 
-Antora is configured to support diagrams via https://kroki.io/[Kroki]; this involves
+Antora is configured to support diagrams via [Kroki](https://kroki.io/); this involves
 running a local Docker container to support generation of the diagrams.
 
 Before building the site, you must:
