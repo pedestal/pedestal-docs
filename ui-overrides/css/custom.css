@@ -31,6 +31,8 @@ footer.footer {
     color: #838383;
 }
 
+/* The rest is kept around for 0.6's index.adoc; it is not used in 0.7 and up. */
+
 .main-feature-row {
     display: flex;
     justify-content: space-between;
