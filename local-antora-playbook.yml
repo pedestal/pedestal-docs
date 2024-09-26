@@ -19,7 +19,7 @@ asciidoc:
     # Convert diagrams to SVG on the server
     kroki-fetch-diagram: true
     # Kroki runs locally via `docker compose up -d`
-    kroki-server-url: http://localhost:8000
+    kroki-server-url: http://localhost:8005/
 antora:
   extensions:
     - '@antora/lunr-extension'
