@@ -114,3 +114,6 @@ tags
 
 .cpcache
 .vscode/
+.clj-kondo
+.lsp
+*.iml
