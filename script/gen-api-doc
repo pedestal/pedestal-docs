@@ -38,8 +38,10 @@
 
 (def api-dir (fs/path api-root-dir major-version))
 
-(when-not (fs/exists? api-dir)
-  (fs/create-dir api-dir))
+(when  (fs/exists? api-dir)
+  (fs/delete-tree api-dir))
+
+(fs/create-dir api-dir)
 
 (println (str "Writing documentation to " api-dir " ..."))
 
