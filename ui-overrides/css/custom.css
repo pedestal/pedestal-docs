@@ -30,6 +30,15 @@ footer.footer {
     background-color: #292d2e;
     color: #838383;
 }
+.front-page-sample pre {
+    font-size: .65em;
+}
+
+.front-page-sample {
+    float: right;
+    margin-left: 5px;
+    border: 1px solid black; 
+}
 
 /* The rest is kept around for 0.6's index.adoc; it is not used in 0.7 and up. */
 
