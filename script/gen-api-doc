@@ -49,3 +49,5 @@
                "clojure -T:build"
                "codox"
                ":output-path" (str \" api-dir \"))
+
+(process/shell "git add" api-dir)
