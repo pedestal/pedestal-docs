@@ -6,7 +6,7 @@ services:
     environment:
       - KROKI_MERMAID_HOST=mermaid
     ports:
-      - "8005:8000"
+      - "9870:8000"
   mermaid:
     image: yuzutech/kroki-mermaid
     expose:
