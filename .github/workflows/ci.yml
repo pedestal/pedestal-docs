@@ -14,24 +14,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.1
+        uses: aws-actions/configure-aws-credentials@v4.2.1
         with:
           aws-access-key-id: ${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.DOCS_AWS_ACCESS_KEY }}
           aws-region: us-east-1
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.2.2
       # TODO: Cache Dependencies
       - name: Install Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'          
+          node-version: '20'
       - name: Install Antora
         run: |
-          npm install --save-dev --save-exact  # Uses package.json, package-lock.json
+          npm ci --verbose --save-dev --save-exact # Uses package.json, package-lock.json
           npx antora -v
       # Don't use Docker Cache; the cache is > 1 Gb, so it takes longer to download (~ 52s)
-      # than just pulling the images from Docker hub (~ 29 s).      
+      # than just pulling the images from Docker hub (~ 29 s).
       - name: Start Kroki
         run: docker compose up -d
       - name: Run Antora
