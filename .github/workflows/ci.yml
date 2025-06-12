@@ -28,7 +28,7 @@ jobs:
           node-version: '20'
       - name: Install Antora
         run: |
-          npm ci --verbose --save-dev --save-exact # Uses package.json, package-lock.json
+          npm install --verbose --save-dev --save-exact # Uses package.json, package-lock.json
           npx antora -v
       # Don't use Docker Cache; the cache is > 1 Gb, so it takes longer to download (~ 52s)
       # than just pulling the images from Docker hub (~ 29 s).
